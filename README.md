@@ -66,11 +66,9 @@ Struktur folder dalam project ini dirancang untuk skalabilitas dan keteraturan k
 - `package.json`        : Daftar library pendukung dan script project.
 - `tailwind.config.ts`  : Konfigurasi desain dan tema Tailwind CSS.
 
-  Acknowledgements 🎓
+
+## Acknowledgements 🎓
 Project ini dikembangkan sebagai syarat Tugas Akhir (TA) di Politeknik Negeri Semarang.
-
-
----
 
 ### Cara Pasangnya:
 1. Buat file baru di folder project kamu di laptop, kasih nama `README.md`.
