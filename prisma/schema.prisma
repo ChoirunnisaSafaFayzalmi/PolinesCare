@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:/home/z/my-project/db/custom.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      String   @default("donatur") // admin, donatur
+  phone     String?
+  avatar    String?
+  isVerified Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  donations    Donation[]
+  proposals    Proposal[]
+  votes        Vote[]
+  preferences  UserPreference[]
+  notifications Notification[]
+  campaigns    Campaign[]
+}
+
+model Campaign {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String   // Bencana, Ramadhan, Sosial, Donasi Rutin
+  targetAmount Int
+  collectedAmount Int  @default(0)
+  startDate   DateTime
+  endDate     DateTime
+  image       String?
+  status      String   @default("active") // active, closed, completed
+  isUrgent    Boolean  @default(false)
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  donations   Donation[]
+  fundUsages  FundUsage[]
+  creator     User     @relation(fields: [createdBy], references: [id])
+}
+
+model Donation {
+  id          String   @id @default(cuid())
+  campaignId  String
+  userId      String
+  amount      Int
+  donorName   String
+  donorEmail  String
+  donorPhone  String
+  type        String   @default("uang") // uang, barang
+  paymentMethod String @default("transfer") // transfer, qris, tunai
+  proofUrl    String?
+  status      String   @default("pending") // pending, approved, rejected
+  message     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model FundUsage {
+  id          String   @id @default(cuid())
+  campaignId  String
+  description String
+  amount      Int
+  date        DateTime @default(now())
+  documentUrl String?
+  createdBy   String
+  createdAt   DateTime @default(now())
+
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("info") // info, success, warning
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Proposal {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String   @default("Sosial")
+  targetAmount Int?
+  proposedBy  String
+  votesCount  Int      @default(0)
+  status      String   @default("pending") // pending, approved, rejected
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  proposer    User     @relation(fields: [proposedBy], references: [id])
+  votes       Vote[]
+}
+
+model Vote {
+  id          String   @id @default(cuid())
+  proposalId  String
+  userId      String
+  createdAt   DateTime @default(now())
+
+  proposal    Proposal @relation(fields: [proposalId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@unique([proposalId, userId])
+}
+
+model UserPreference {
+  id        String   @id @default(cuid())
+  userId    String
+  category  String
+  weight    Float    @default(1.0)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, category])
+}
