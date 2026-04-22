@@ -39,11 +39,11 @@ Platform ini memudahkan mahasiswa dan staf untuk saling membantu melalui sistem 
    npm install
 3. Set up environment variables
    ```bash
-# Buat file bernama .env lalu masukkan:
-DATABASE_URL="mysql://user:password@localhost:3306/polines_care"
+   DATABASE_URL="mysql://user:password@localhost:3306/polines_care"
 4. Database Migration
    ```bash
    npx prisma generate
+   ```bash
    npx prisma db push
 5. Run development server
    ```bash
