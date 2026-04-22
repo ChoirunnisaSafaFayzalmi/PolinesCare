@@ -43,7 +43,6 @@ Platform ini memudahkan mahasiswa dan staf untuk saling membantu melalui sistem 
 4. Database Migration
    ```bash
    npx prisma generate
-   ```bash
    npx prisma db push
 5. Run development server
    ```bash
