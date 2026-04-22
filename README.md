@@ -30,18 +30,33 @@ Platform ini memudahkan mahasiswa dan staf untuk saling membantu melalui sistem 
 
 ### Installation
 
-1. Clone the repository:
-   ```bash git clone [https://github.com/ChoirunnisaSafaFayzalmi/PolinesCare.git](https://github.com/ChoirunnisaSafaFayzalmi/PolinesCare.git)
+1. Clone the repository
+   ```bash
+   git clone https://github.com/ChoirunnisaSafaFayzalmi/PolinesCare.git
    cd PolinesCare
-2. Install dependencies:
-npm install
+2. Install dependencies
+   ```bash
+   npm install
 3. Set up environment variables
+   ```bash
+# Buat file bernama .env lalu masukkan:
 DATABASE_URL="mysql://user:password@localhost:3306/polines_care"
-4. Database Migration:
-npx prisma generate
-npx prisma db push
-5. Run development server:
-npm run dev
+4. Database Migration
+   ```bash
+   npx prisma generate
+   npx prisma db push
+5. Run development server
+   ```bash
+   npm run dev
+
+## Demo Accounts 🔑
+
+Gunakan akun berikut untuk mencoba fitur aplikasi:
+
+| Role    | Email                  | Password   |
+|---------|------------------------|------------|
+| Admin   | admin@polines.ac.id    | admin123   |
+| Donatur | donatur@demo.com       | demo123    |
 
 ## Project Structure 📁
 
