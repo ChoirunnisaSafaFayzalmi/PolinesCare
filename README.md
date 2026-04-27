@@ -59,11 +59,11 @@ Gunakan akun berikut untuk mencoba fitur aplikasi:
 | Admin   | admin@polines.ac.id    | admin123   |
 | Donatur | donatur@demo.com       | demo123    |
 
-## Project Structure 📁
+# Project Structure 📁
 
 Struktur folder dalam project ini dirancang untuk skalabilitas dan keteraturan kode:
 
-'''polines-care/
+polines-care/
 ├── prisma/
 │   ├── schema.prisma          # Model database (User, Campaign, Donation, dll)
 │   └── migrations/             # File migrasi database
