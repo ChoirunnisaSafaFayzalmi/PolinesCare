@@ -29,9 +29,9 @@ Platform ini memudahkan mahasiswa dan staf untuk saling membantu melalui sistem 
 * Node.js (versi 18 ke atas)
 * NPM atau Bun
 
-# Installation
+# Installation 🚀
 
-**Clone the repository**
+**1. Clone the repository**
 ```bash
 git clone https://github.com/ChoirunnisaSafaFayzalmi/PolinesCare.git
 cd PolinesCare
@@ -59,10 +59,10 @@ Gunakan akun berikut untuk mencoba fitur aplikasi:
 | Admin   | admin@polines.ac.id    | admin123   |
 | Donatur | donatur@demo.com       | demo123    |
 
-**Project Structure 📁**
+# Project Structure 📁
 
 Struktur folder dalam project ini dirancang untuk skalabilitas dan keteraturan kode:
-```
+
 polines-care/
 ├── prisma/
 │   ├── schema.prisma          # Model database (User, Campaign, Donation, dll)
