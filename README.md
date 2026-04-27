@@ -31,26 +31,30 @@ Platform ini memudahkan mahasiswa dan staf untuk saling membantu melalui sistem 
 
 # Installation 🚀
 
-**1. Clone the repository**
+**Clone the repository**
 ```bash
 git clone https://github.com/ChoirunnisaSafaFayzalmi/PolinesCare.git
 cd PolinesCare
 
-## Install dependencies
+**Install dependencies**
+```bash
 npm install
 
-## Set up environment variables
+**Set up environment variables**
+```bash
 Buat file .env di root folder project, lalu isi:
 DATABASE_URL="file:./db/custom.db"
 
-## Database Setup
+**Database Setup**
+```bash
 npx prisma generate
 npx prisma db push
 
-## Run development server
+**Run development server**
+```bash
 npm run dev
 
-## Demo Accounts 🔑
+# Demo Accounts 🔑
 
 Gunakan akun berikut untuk mencoba fitur aplikasi:
 
