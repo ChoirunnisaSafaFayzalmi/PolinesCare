@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { useSession, signOut } from 'next-auth/react'
+import { useSession, signIn, signOut } from 'next-auth/react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -51,7 +51,7 @@ export default function Home() {
   const { data: session, status: sessionStatus } = useSession()
 
   // ---- View State ----
-  const [view, setView] = useState<'landing' | 'login' | 'register' | 'admin' | 'donatur'>('landing')
+  const [view, setView] = useState<string>('landing')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [notifDropdownOpen, setNotifDropdownOpen] = useState(false)
 
@@ -195,7 +195,7 @@ export default function Home() {
         })
       }
     } catch { /* silent */ }
-  }, [session?.user])
+  }, [session?.user?.id])
 
   const fetchFundUsages = useCallback(async (campaignId: string) => {
     if (!campaignId) { setFundUsages([]); return }
@@ -224,14 +224,14 @@ export default function Home() {
   useEffect(() => {
     if (session?.user) {
       fetchDonations(); fetchNotifications(); fetchAllCampaigns()
-      if ((session.user as any).role === 'donatur') fetchRecommendations()
-      if ((session.user as any).role === 'admin') { fetchAllCampaigns(); fetchDonations() }
+      if (session.user.role === 'donatur') fetchRecommendations()
+      if (session.user.role === 'admin') { fetchAllCampaigns(); fetchDonations() }
     }
   }, [session?.user, fetchDonations, fetchNotifications, fetchAllCampaigns, fetchRecommendations])
 
   useEffect(() => {
     if (session?.user) {
-      setView((session.user as any).role === 'admin' ? 'admin' : 'donatur')
+      setView(session.user.role === 'admin' ? 'admin' : 'donatur')
     } else {
       setView('landing')
     }
@@ -247,19 +247,15 @@ export default function Home() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault(); setLoading(true)
     try {
-      const res = await fetch('/api/custom-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email: loginForm.email, password: loginForm.password }),
+      const result = await signIn('credentials', {
+        email: loginForm.email,
+        password: loginForm.password,
+        redirect: false,
       })
-      const data = await res.json()
-      if (res.ok && data.success) {
+      if (result?.ok) {
         toast.success('Berhasil masuk!')
-        // Reload page so NextAuth picks up the new session cookie
-        setTimeout(() => { window.location.href = '/' }, 500)
       } else {
-        toast.error(data.error || 'Email atau password salah')
+        toast.error('Email atau password salah')
       }
     } catch {
       toast.error('Terjadi kesalahan saat masuk')
@@ -285,12 +281,8 @@ export default function Home() {
   }
 
   const handleSignOut = async () => {
-    // Clear cookies first
-    document.cookie = 'next-auth.session-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
-    document.cookie = 'session-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
     try { await signOut({ redirect: false }) } catch { /* ignore */ }
-    setView('landing'); toast.success('Berhasil keluar')
-    setTimeout(() => { window.location.href = '/' }, 300)
+    toast.success('Berhasil keluar')
   }
 
   // ============================================================
@@ -325,7 +317,7 @@ export default function Home() {
       if (res.ok) {
         setDonationStep(3); toast.success('Donasi berhasil dikirim!')
         fetchCampaigns(); fetchStats(); fetchDonations()
-        if ((session.user as any).role === 'donatur') fetchRecommendations()
+        if (session.user.role === 'donatur') fetchRecommendations()
       } else { const data = await res.json(); toast.error(data.error || 'Gagal mengirim donasi') }
     } catch { toast.error('Terjadi kesalahan') }
     finally { setSubmitting(false) }
@@ -470,12 +462,13 @@ export default function Home() {
   })
 
   const filteredDonations = donations.filter(d => donationFilter === 'all' || d.status === donationFilter)
-  const userDonations = donations.filter(d => d.userId === (session?.user as any)?.id)
+  const userDonations = donations.filter(d => d.userId === session?.user?.id)
+
   // ============================================================
   // HANDLERS PASSED TO COMPONENTS
   // ============================================================
   const headerProps = {
-    session, view, setView: (v: any) => setView(v), setAdminTab, setDonaturTab,
+    session, view, setView, setAdminTab, setDonaturTab,
     mobileMenuOpen, setMobileMenuOpen,
     notifDropdownOpen, setNotifDropdownOpen, unreadCount,
     notifications, markNotificationRead, markAllNotificationsRead,
@@ -486,11 +479,11 @@ export default function Home() {
     campaigns: filteredLandingCampaigns, stats, publicRecommendations,
     proposals, landingSearch, setLandingSearch, landingCategory, setLandingCategory,
     session, setSelectedCampaign, fetchCampaignDetail, openDonationModal,
-    setProposalFormModalOpen, voteProposal, setView: (v: any) => setView(v),
+    setProposalFormModalOpen, voteProposal, setView,
   }
 
-  const loginProps = { handleLogin, loginForm, setLoginForm, loading, setView: (v: any) => setView(v) }
-  const registerProps = { handleRegister, registerForm, setRegisterForm, loading, setView: (v: any) => setView(v) }
+  const loginProps = { handleLogin, loginForm, setLoginForm, loading, setView }
+  const registerProps = { handleRegister, registerForm, setRegisterForm, loading, setView }
 
   // ============================================================
   // LOADING STATE
@@ -513,7 +506,7 @@ export default function Home() {
   // ============================================================
   // MAIN RENDER
   // ============================================================
-  const isAdminView = view === 'admin' && (session?.user as any)?.role === 'admin'
+  const isAdminView = view === 'admin' && session?.user?.role === 'admin'
 
   return (
     <div className="flex flex-col min-h-screen" onClick={() => { if (notifDropdownOpen) setNotifDropdownOpen(false) }}>
@@ -539,7 +532,7 @@ export default function Home() {
             verifyDonation={verifyDonation} updateProposalStatus={updateProposalStatus}
             markNotificationRead={markNotificationRead} markAllNotificationsRead={markAllNotificationsRead}
             setFundUsageForm={setFundUsageForm} setFundUsageModalOpen={setFundUsageModalOpen}
-            setView={(v: any) => setView(v)} handleSignOut={handleSignOut}
+            setView={setView} handleSignOut={handleSignOut}
             session={session}
             notifDropdownOpen={notifDropdownOpen} setNotifDropdownOpen={setNotifDropdownOpen}
             campaignForm={campaignForm} setCampaignForm={setCampaignForm}
@@ -549,7 +542,7 @@ export default function Home() {
             fundUsageForm={fundUsageForm} submitFundUsage={submitFundUsage}
           />
         )}
-        {view === 'donatur' && (session?.user as any)?.role === 'donatur' && (
+        {view === 'donatur' && session?.user?.role === 'donatur' && (
           <DonaturDashboard
             donaturTab={donaturTab} setDonaturTab={setDonaturTab}
             campaigns={campaigns} userDonations={userDonations}
@@ -561,14 +554,14 @@ export default function Home() {
             notifications={notifications} unreadCount={unreadCount}
             markNotificationRead={markNotificationRead}
             markAllNotificationsRead={markAllNotificationsRead}
-            setView={(v: any) => setView(v)} handleSignOut={handleSignOut}
+            setView={setView} handleSignOut={handleSignOut}
             notifDropdownOpen={notifDropdownOpen} setNotifDropdownOpen={setNotifDropdownOpen}
             stats={stats}
           />
         )}
 
         {/* Fallback if role doesn't match */}
-        {view === 'admin' && (session?.user as any)?.role !== 'admin' && (
+        {view === 'admin' && session?.user?.role !== 'admin' && (
           <div className="min-h-[60vh] flex items-center justify-center">
             <Card className="p-8 text-center">
               <p className="text-muted-foreground">Anda tidak memiliki akses ke halaman ini</p>
@@ -611,7 +604,7 @@ export default function Home() {
         <FundUsageModal
           open={fundUsageModalOpen} onClose={() => setFundUsageModalOpen(false)}
           fundUsageForm={fundUsageForm} setFundUsageForm={setFundUsageForm}
-          allCampaigns={allCampaigns} submitting={submitting} onSubmit={submitFundUsage}
+        allCampaigns={allCampaigns} submitting={submitting} onSubmit={submitFundUsage}
         />
       )}
     </div>
