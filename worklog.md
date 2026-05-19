@@ -1,86 +1,20 @@
-# Polines Care - Work Log
-
----
 Task ID: 1
 Agent: Main
-Task: Investigate deployment failure and fix page.tsx file size issue
+Task: Implement (1) Unique ending amount per campaign for transfer verification, and (2) Proposal acceptance criteria for crowdsourcing
 
 Work Log:
-- Checked page.tsx: 2472 lines, 131KB - way too large for deployment
-- Deployment error: "polinescare-deploy function does not exist" - caused by file size
-- Verified donation flow already correct (3 steps, no upload bukti, optional WhatsApp)
-- Verified WhatsApp already manual (no auto-open), only button click
 
+Added uniqueCode (Int, default 0) field to Campaign model in Prisma schema
+Added 5 proposal criteria score fields (kejelasanTujuan, kelayakanAnggaran, urgensi, keterkaitanKampus, kontribusiSosial) to Proposal model
+Updated seed.ts with unique codes per campaign (10, 25, 33, 41, 57, 68, 79, 83, 96) and criteria scores per proposal
+Reset database, pushed schema, and re-seeded data
+Updated types.ts: Campaign interface now includes uniqueCode: number, Proposal interface includes criteria fields
+Added helper functions: formatUniqueCode(), calculateTransferAmount(), PROPOSAL_CRITERIA constant, getCriteriaScoreColor(), getAverageCriteria(), isProposalEligible()
+Updated donation-modal.tsx: Shows unique code info box in step 2 (only for transfer method), shows code and total transfer in step 3 summary
+Updated donatur-dashboard.tsx: Added unique code badges on campaign cards, added "Kode Unik" column in donation history table
+Updated admin-dashboard.tsx: Added "Kode Unik" and "Akhir 3 Digit" columns in donation verification table (with green highlight for matching codes), added "Kriteria Penilaian" section in proposal detail view with all 5 criteria progress bars and eligibility status
+Server verified working: API returns uniqueCode and criteria data correctly, login works, page loads with 200
 Stage Summary:
-- Root cause: page.tsx too large (131KB) causing serverless function deployment failure
-- All existing component files verified (header, footer, landing-page, login-page, register-page, qr-code, types already existed but weren't being used)
 
----
-Task ID: 2-a
-Agent: full-stack-developer (subagent)
-Task: Create admin-dashboard.tsx component
-
-Work Log:
-- Created src/components/polines/admin-dashboard.tsx (604 lines, 29KB)
-- 6 tabs: Campaign, Donasi, Laporan, Statistik, Crowdsourcing, Notifikasi
-- Uses Recharts for charts, shadcn/ui components, lucide icons
-
-Stage Summary:
-- Admin dashboard extracted as standalone component with 27 props
-
----
-Task ID: 2-b
-Agent: full-stack-developer (subagent)
-Task: Create donatur-dashboard.tsx component
-
-Work Log:
-- Created src/components/polines/donatur-dashboard.tsx (557 lines, 25KB)
-- 4 tabs: Donasi, Riwayat, Rekomendasi, Profil
-- Reusable sub-render helpers for recommendation cards
-
-Stage Summary:
-- Donatur dashboard extracted as standalone component
-
----
-Task ID: 2-c/d
-Agent: Main
-Task: Create all modal components
-
-Work Log:
-- Created donation-modal.tsx (211 lines, 11KB) - 3-step flow with optional WhatsApp
-- Created campaign-detail-modal.tsx (94 lines, 4KB) - campaign detail view
-- Created campaign-form-modal.tsx (75 lines, 3KB) - create/edit campaign form
-- Created proposal-form-modal.tsx (59 lines, 2KB) - proposal submission form
-- Created fund-usage-modal.tsx (57 lines, 2KB) - fund usage report form
-
-Stage Summary:
-- All 5 modal components created as standalone files
-
----
-Task ID: 3
-Agent: Main
-Task: Rewrite page.tsx as thin orchestrator
-
-Work Log:
-- Rewrote page.tsx to import all components
-- Kept only state management, data fetching, and handler functions
-- Reduced from 2472 lines / 131KB to 570 lines / 27KB (78% reduction)
-- All props passed correctly to child components
-
-Stage Summary:
-- page.tsx now a thin orchestrator at 27KB
-- Total project code: 3045 lines across 15 files (well-distributed)
-
----
-Task ID: 4
-Agent: Main
-Task: Verify lint and dev server
-
-Work Log:
-- Ran `bun run lint` - 0 errors
-- Checked dev.log - compiled in 365ms with no errors
-- All API routes returning 200 OK
-
-Stage Summary:
-- Build successful, no compilation errors
-- Ready for deployment
+Feature 1 (Unique Code Transfer): Each campaign has a unique 3-digit code. When donatur selects transfer method, they see the code and are told to add it to their transfer amount. Admin sees "Akhir 3 Digit" column that auto-highlights matching codes in green.
+Feature 2 (Proposal Criteria): 5 acceptance criteria with scores 0-100. Average >= 70 means "MEMENUHI SYARAT". Displayed as progress bars in admin proposal detail. Criteria: Kejelasan Tujuan, Kelayakan Anggaran, Urgensi, Keterkaitan Kampus, Kontribusi Sosial.

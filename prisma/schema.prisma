@@ -39,6 +39,7 @@ model Campaign {
   image       String?
   status      String   @default("active") // active, closed, completed
   isUrgent    Boolean  @default(false)
+  uniqueCode  Int      @default(0) // Kode unik 3 digit untuk identifikasi transfer per campaign
   createdBy   String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -106,6 +107,13 @@ model Proposal {
   updatedAt   DateTime @updatedAt
 
   proposer    User     @relation(fields: [proposedBy], references: [id])
+
+  // Proposal acceptance criteria scores (each 0-100, minimum avg 70 to be eligible)
+  kejelasanTujuan   Int @default(0) // Kejelasan tujuan dan dampak
+  kelayakanAnggaran Int @default(0) // Kelayakan anggaran yang diajukan
+  urgensi          Int @default(0) // Tingkat urgensi kebutuhan
+  keterkaitanKampus Int @default(0) // Keterkaitan dengan kegiatan kampus
+  kontribusiSosial  Int @default(0) // Kontribusi sosial bagi civitas
   votes       Vote[]
 }
 

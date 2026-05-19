@@ -19,7 +19,7 @@ function calculateScore(campaign: {
   category: string;
   collectedAmount: number;
   targetAmount: number;
-  createdAt: string;
+  createdAt: Date | string; // ✅ FIX: Ditambahkan 'Date' agar cocok dengan Prisma
   isUrgent: boolean;
   _count: { donations: number };
 }, preferredCategories: string[], daysSinceCreation: number): number {
@@ -122,7 +122,6 @@ export async function GET(request: NextRequest) {
     const userId = (session.user as { id: string }).id;
 
     // --- Step 1: Build user preference profile ---
-    // 1a. From donation history (weight: high)
     const userDonations = await db.donation.findMany({
       where: { userId, status: "approved" },
       select: {
@@ -152,7 +151,6 @@ export async function GET(request: NextRequest) {
       .map(([cat]) => cat);
 
     // --- Step 2: Collaborative filtering ---
-    // Find similar users (users who donated to same categories)
     const similarUserIds = new Set<string>();
     if (preferredCategories.length > 0) {
       const similarDonations = await db.donation.findMany({

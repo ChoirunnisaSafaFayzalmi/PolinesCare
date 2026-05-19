@@ -7,7 +7,7 @@ export interface User {
 export interface Campaign {
   id: string; title: string; description: string; category: string; targetAmount: number;
   collectedAmount: number; startDate: string; endDate: string; image?: string;
-  status: string; isUrgent: boolean; createdBy: string; creator?: { name: string };
+  status: string; isUrgent: boolean; uniqueCode: number; createdBy: string; creator?: { name: string };
   _count?: { donations: number };
 }
 export interface Donation {
@@ -20,6 +20,8 @@ export interface Proposal {
   id: string; title: string; description: string; category: string;
   targetAmount?: number; proposedBy: string; votesCount: number; status: string;
   createdAt: string; proposer?: { name: string };
+  kejelasanTujuan?: number; kelayakanAnggaran?: number; urgensi?: number;
+  keterkaitanKampus?: number; kontribusiSosial?: number;
 }
 export interface AppNotification {
   id: string; title: string; message: string; type: string; isRead: boolean; createdAt: string;
@@ -64,6 +66,40 @@ export const getCategoryColor = (cat: string): string => {
     default: return 'bg-gray-100 text-gray-700 border-gray-200'
   }
 }
+
+export const formatUniqueCode = (code: number): string =>
+  String(code).padStart(3, '0')
+
+export const calculateTransferAmount = (baseAmount: number, uniqueCode: number): number =>
+  baseAmount + uniqueCode
+
+export const PROPOSAL_CRITERIA = [
+  { key: 'kejelasanTujuan', label: 'Kejelasan Tujuan & Dampak', description: 'Sejauh mana tujuan proposal jelas, terukur, dan memberikan dampak nyata bagi penerima manfaat.' },
+  { key: 'kelayakanAnggaran', label: 'Kelayakan Anggaran', description: 'Apakah rincian anggaran realistis, transparan, dan proporsional dengan output yang dijanjikan.' },
+  { key: 'urgensi', label: 'Tingkat Urgensi', description: 'Seberapa mendesak kebutuhan tersebut dan apakah ada batas waktu pelaksanaan yang kritis.' },
+  { key: 'keterkaitanKampus', label: 'Keterkaitan Kampus', description: 'Sejauh mana proposal mendukung kegiatan atau civitas akademika Polines.' },
+  { key: 'kontribusiSosial', label: 'Kontribusi Sosial', description: 'Besar dampak sosial yang dihasilkan bagi komunitas sekitar kampus dan masyarakat luas.' },
+] as const
+
+export const getCriteriaScoreColor = (score: number): string => {
+  if (score >= 80) return 'bg-emerald-500 text-white'
+  if (score >= 60) return 'bg-amber-500 text-white'
+  return 'bg-red-500 text-white'
+}
+
+export const getAverageCriteria = (proposal: Proposal): number => {
+  const scores = [
+    proposal.kejelasanTujuan ?? 0,
+    proposal.kelayakanAnggaran ?? 0,
+    proposal.urgensi ?? 0,
+    proposal.keterkaitanKampus ?? 0,
+    proposal.kontribusiSosial ?? 0,
+  ]
+  return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+}
+
+export const isProposalEligible = (proposal: Proposal): boolean =>
+  getAverageCriteria(proposal) >= 70
 
 export const getStatusColor = (status: string): string => {
   switch (status) {
