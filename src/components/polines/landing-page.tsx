@@ -51,7 +51,7 @@ export function LandingPage({
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-teal-600 via-teal-700 to-emerald-700 text-white overflow-hidden">
+      <section className="relative bg-linear-to-r from-teal-600 via-teal-700 to-emerald-700 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-72 h-72 rounded-full bg-white/20 blur-3xl" />
           <div className="absolute bottom-10 right-10 w-96 h-96 rounded-full bg-white/10 blur-3xl" />
@@ -80,7 +80,7 @@ export function LandingPage({
             </div>
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-white to-transparent" />
       </section>
 
       {/* Stats Section */}
@@ -94,7 +94,7 @@ export function LandingPage({
           ].map((stat, i) => (
             <Card key={i} className="shadow-lg border-0">
               <CardContent className="p-4 md:p-6 flex items-center gap-3 md:gap-4">
-                <div className={`${stat.color} text-white rounded-xl p-2.5 md:p-3 flex-shrink-0`}>{stat.icon}</div>
+                <div className={`${stat.color} text-white rounded-xl p-2.5 md:p-3 shrink-0`}>{stat.icon}</div>
                 <div>
                   <p className="text-xl md:text-2xl font-bold">{stat.value}</p>
                   <p className="text-xs md:text-sm text-muted-foreground">{stat.label}</p>
@@ -138,7 +138,7 @@ export function LandingPage({
             {filteredLandingCampaigns.map(campaign => (
               <Card key={campaign.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
                 <div className="relative">
-                  <div className="h-40 bg-gradient-to-br from-teal-100 to-emerald-100 flex items-center justify-center">
+                  <div className="h-40 bg-linear-to-r from-teal-100 to-emerald-100 flex items-center justify-center">
                     <Heart className="h-16 w-16 text-teal-300 group-hover:scale-110 transition-transform" />
                   </div>
                   {campaign.isUrgent && (
@@ -230,12 +230,12 @@ export function LandingPage({
       </section>
 
       {/* Rekomendasi Section - Powered by Recommender System */}
-      <section className="bg-gradient-to-b from-teal-50/50 to-white py-12 md:py-16">
+      <section className="bg-linear-to-b from-teal-50/50 to-white py-12 md:py-16">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-2">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500">
+                <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-linear-to-r from-amber-400 to-orange-500">
                   <Sparkles className="h-4 w-4 text-white" />
                 </div>
                 <span className="text-xs font-semibold text-amber-600 uppercase tracking-wider">Recommender System</span>
@@ -258,11 +258,11 @@ export function LandingPage({
                 return (
                   <Card key={c.id} className={`overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${isTop ? 'ring-2 ring-amber-400' : ''}`}>
                     {isTop && (
-                      <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-semibold text-center py-1 z-10 flex items-center justify-center gap-1">
+                      <div className="absolute top-0 left-0 right-0 bg-linear-to-r from-amber-400 to-orange-500 text-white text-xs font-semibold text-center py-1 z-10 flex items-center justify-center gap-1">
                         <Trophy className="h-3 w-3" /> Top Rekomendasi
                       </div>
                     )}
-                    <div className={`h-28 flex items-center justify-center relative ${isTop ? 'bg-gradient-to-br from-amber-50 to-orange-50' : 'bg-gradient-to-br from-teal-50/50 to-emerald-50/50'}`}>
+                    <div className={`h-28 flex items-center justify-center relative ${isTop ? 'bg-linear-to-r from-amber-50 to-orange-50' : 'bg-linear-to-r from-teal-50/50 to-emerald-50/50'}`}>
                       {isTop ? (
                         <Trophy className="h-10 w-10 text-amber-300 group-hover:scale-110 transition-transform" />
                       ) : (
@@ -299,7 +299,7 @@ export function LandingPage({
 
           <div className="mt-8 p-4 bg-white rounded-lg border border-dashed border-teal-200">
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center mt-0.5">
+              <div className="shrink-0 w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center mt-0.5">
                 <Activity className="h-4 w-4 text-teal-600" />
               </div>
               <div>

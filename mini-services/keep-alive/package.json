@@ -1,0 +1,9 @@
+{
+  "name": "keep-alive",
+  "scripts": {
+    "dev": "bun --hot index.ts"
+  },
+  "dependencies": {
+    "bun": "^1.2.0"
+  }
+}

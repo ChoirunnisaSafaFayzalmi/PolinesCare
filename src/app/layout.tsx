@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   keywords: ["Polines Care", "Donasi Kampus", "Politeknik Negeri Semarang", "Sosial", "Bencana", "Ramadhan"],
   authors: [{ name: "Polines Care Team" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "",
   },
   openGraph: {
     title: "Polines Care - Sistem Informasi Donasi Kampus",

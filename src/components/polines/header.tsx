@@ -37,13 +37,13 @@ export function Header({
   handleSignOut, markNotificationRead, markAllNotificationsRead,
 }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView(session?.user ? (session.user.role === 'admin' ? 'admin' : 'donatur') : 'landing')}>
-          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600">
+          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-linear-to-br from-teal-500 to-emerald-600">
             <Heart className="h-5 w-5 text-white" />
           </div>
-          <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">Polines Care</span>
+          <span className="text-xl font-bold bg-linear-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">Polines Care</span>
         </div>
 
         {/* Desktop Nav */}

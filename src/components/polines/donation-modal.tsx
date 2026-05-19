@@ -7,9 +7,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card } from '@/components/ui/card'
-import { Check, ArrowLeft, ArrowRight, Send, DollarSign, Gift, Banknote, QrCode, CreditCard } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Check, ArrowLeft, ArrowRight, Send, DollarSign, Gift, Banknote, QrCode, CreditCard, Copy, CheckCheck } from 'lucide-react'
+import { useState } from 'react'
 import type { Campaign } from './types'
-import { formatRupiah, ADMIN_WHATSAPP } from './types'
+import { formatRupiah, formatUniqueCode, calculateTransferAmount, ADMIN_WHATSAPP } from './types'
 import { QRCodeSVG } from './qr-code'
 
 interface DonationModalProps {
@@ -30,6 +32,20 @@ export function DonationModal({
   donationForm, setDonationForm, campaigns, submitting,
   submitDonation, session
 }: DonationModalProps) {
+  const selectedCampaign = campaigns.find(c => c.id === donationForm.campaignId)
+  const uniqueCode = selectedCampaign?.uniqueCode ?? 0
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyUniqueCode = () => {
+    const amountNum = Number(donationForm.amount) || 0
+    const totalTransfer = calculateTransferAmount(amountNum, uniqueCode)
+    const text = `Kode Unik: ${formatUniqueCode(uniqueCode)}\nTotal Transfer: ${formatRupiah(totalTransfer)}`
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose() }}>
       <DialogContent className="sm:max-w-md">
@@ -99,6 +115,44 @@ export function DonationModal({
                 </Button>
               </div>
             </div>
+            {/* Unique Code Info Box — only for transfer */}
+            {donationForm.paymentMethod === 'transfer' && donationForm.campaignId && donationForm.amount && (
+              <div className="rounded-lg border-2 border-violet-200 bg-violet-50 p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold">Kode Unik Transfer</Badge>
+                </div>
+                <p className="text-sm text-violet-800 leading-relaxed">
+                  Untuk membantu admin <strong>memverifikasi</strong> donasi Anda, silakan transfer dengan nominal:
+                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm text-muted-foreground">Nominal:</span>
+                  <Badge variant="outline" className="border-violet-300 text-violet-700 font-mono text-xs">
+                    {formatRupiah(Number(donationForm.amount) || 0)}
+                  </Badge>
+                  <span className="text-violet-500 font-bold">+</span>
+                  <Badge variant="outline" className="border-violet-300 text-violet-700 font-mono text-xs">
+                    Kode Unik: {formatUniqueCode(uniqueCode)}
+                  </Badge>
+                  <span className="text-violet-500 font-bold">=</span>
+                  <Badge className="bg-violet-600 hover:bg-violet-700 text-white font-mono text-sm font-bold">
+                    {formatRupiah(calculateTransferAmount(Number(donationForm.amount) || 0, uniqueCode))}
+                  </Badge>
+                </div>
+                <p className="text-xs text-violet-600">
+                  💡 Transfer tepat <strong>{formatRupiah(calculateTransferAmount(Number(donationForm.amount) || 0, uniqueCode))}</strong> agar donasi Anda mudah dikenali oleh admin.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full border-violet-300 text-violet-700 hover:bg-violet-100 text-xs"
+                  onClick={handleCopyUniqueCode}
+                >
+                  {copied ? <CheckCheck className="h-3.5 w-3.5 mr-1" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
+                  {copied ? 'Tersalin!' : 'Salin Kode Unik & Total Transfer'}
+                </Button>
+              </div>
+            )}
             {donationForm.paymentMethod === 'qris' && (
               <div className="flex flex-col items-center p-4 bg-gray-50 rounded-lg">
                 <p className="text-sm font-medium mb-2">Scan QR Code untuk Pembayaran</p>
@@ -133,7 +187,7 @@ export function DonationModal({
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Campaign</span>
-                  <span className="font-medium text-right max-w-[180px] truncate">{campaigns.find(c => c.id === donationForm.campaignId)?.title ?? '-'}</span>
+                  <span className="font-medium text-right max-w-45 truncate">{campaigns.find(c => c.id === donationForm.campaignId)?.title ?? '-'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Nama Donatur</span>
@@ -151,6 +205,22 @@ export function DonationModal({
                   <span className="text-muted-foreground">Metode Pembayaran</span>
                   <span className="font-medium capitalize">{donationForm.paymentMethod === 'qris' ? '📱 QRIS' : donationForm.paymentMethod === 'transfer' ? '🏦 Transfer Bank' : '💵 Tunai'}</span>
                 </div>
+                {donationForm.paymentMethod === 'transfer' && uniqueCode > 0 && (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Kode Unik Transfer</span>
+                      <Badge className="bg-violet-600 hover:bg-violet-700 text-white text-xs font-mono">
+                        {formatUniqueCode(uniqueCode)}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Total Transfer</span>
+                      <span className="font-bold text-violet-600 font-mono">
+                        {formatRupiah(calculateTransferAmount(Number(donationForm.amount) || 0, uniqueCode))}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
             </Card>
 

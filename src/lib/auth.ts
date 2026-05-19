@@ -13,7 +13,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email dan password wajib diisi");
+          return null;
         }
 
         const user = await db.user.findUnique({
@@ -21,7 +21,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) {
-          throw new Error("Email tidak ditemukan");
+          return null;
         }
 
         const isPasswordValid = await bcrypt.compare(
@@ -30,7 +30,7 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!isPasswordValid) {
-          throw new Error("Password salah");
+          return null;
         }
 
         return {
