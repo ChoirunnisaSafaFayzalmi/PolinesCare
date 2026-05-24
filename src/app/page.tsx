@@ -211,7 +211,7 @@ export default function Home() {
         fetch(`/api/campaigns/${campaignId}`),
         fetch(`/api/donations?campaignId=${campaignId}`)
       ])
-      if (campRes.ok) { const data = await campRes.json(); setSelectedCampaign(data); setCampaignDetailModalOpen(true) }
+      if (campRes.ok) { const data = await campRes.json(); setSelectedCampaign(data.campaign); setCampaignDetailModalOpen(true) }
       if (donRes.ok) { const donData = await donRes.json(); setCampaignDonations(donData.donations || donData || []) }
     } catch { toast.error('Gagal memuat detail campaign') }
   }, [])
