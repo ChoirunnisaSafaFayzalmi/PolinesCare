@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { Calendar, HandHeart, AlertTriangle, MapPin, Tag, Target } from 'lucide-react'
+import { Calendar, HandHeart, AlertTriangle, MapPin, Tag, Target, Heart } from 'lucide-react'
 import type { Campaign, Donation } from './types'
 import { formatRupiah, formatDate, getCategoryColor, getStatusColor } from './types'
 
@@ -36,6 +36,79 @@ const DUMMY: Campaign = {
   _count: { donations: 87 },
 }
 
+// ── Komponen Carousel terpisah agar useState tidak melanggar Rules of Hooks ──
+interface CampaignCarouselProps {
+  image?: string
+  title: string
+}
+
+function CampaignCarousel({ image, title }: CampaignCarouselProps) {
+  // Nanti bisa diganti dengan images[] dari backend
+  const images = image ? [image] : []
+  const [activeIdx, setActiveIdx] = React.useState(0)
+
+  if (images.length === 0) {
+    return (
+      <div className="relative mb-4 h-36 rounded-xl bg-gradient-to-br from-teal-100 to-emerald-100 flex items-center justify-center overflow-hidden border border-teal-100">
+        <Heart className="h-16 w-16 text-teal-300" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="relative mb-4 rounded-xl overflow-hidden border border-gray-100">
+      {/* Gambar */}
+      <div className="relative h-48">
+        <img
+          src={images[activeIdx]}
+          alt={`${title} ${activeIdx + 1}`}
+          className="w-full h-full object-cover"
+        />
+        {/* Overlay gelap tipis di bawah untuk dots */}
+        {images.length > 1 && (
+          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/30 to-transparent" />
+        )}
+      </div>
+
+      {/* Tombol prev/next — hanya muncul jika > 1 gambar */}
+      {images.length > 1 && (
+        <>
+          <button
+            type="button"
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center"
+            onClick={() => setActiveIdx(i => (i - 1 + images.length) % images.length)}
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center"
+            onClick={() => setActiveIdx(i => (i + 1) % images.length)}
+          >
+            ›
+          </button>
+        </>
+      )}
+
+      {/* Dots indicator */}
+      {images.length > 1 && (
+        <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5">
+          {images.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`w-1.5 h-1.5 rounded-full transition-colors ${i === activeIdx ? 'bg-white' : 'bg-white/50'
+                }`}
+              onClick={() => setActiveIdx(i)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Komponen Utama ──
 export function CampaignDetailModal({
   open,
   onClose,
@@ -79,6 +152,9 @@ export function CampaignDetailModal({
             <Badge className={getStatusColor(campaign.status)}>{campaign.status}</Badge>
           </div>
         </DialogHeader>
+
+        {/* ── Gambar Campaign (Carousel) ── */}
+        <CampaignCarousel image={(campaign as any).image} title={campaign.title} />
 
         <div className="space-y-4 mt-2">
 
