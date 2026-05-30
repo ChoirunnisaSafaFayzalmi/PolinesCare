@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Calendar, HandHeart, AlertTriangle, MapPin, Tag, Target, Heart } from 'lucide-react'
-import type { Campaign, Donation } from './types'
-import { formatRupiah, formatDate, getCategoryColor, getStatusColor } from './types'
+import type { Campaign, Donation } from '../types'
+import { formatRupiah, formatDate, getCategoryColor, getStatusColor } from '../types'
 
 interface CampaignDetailModalProps {
   open: boolean

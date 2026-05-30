@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Check, Send } from 'lucide-react'
-import type { Campaign } from './types'
-import { formatRupiah, formatUniqueCode, calculateTransferAmount, ADMIN_WHATSAPP } from './types'
+import type { Campaign } from '../types'
+import { formatRupiah, formatUniqueCode, calculateTransferAmount, ADMIN_WHATSAPP } from '../types'
 
 interface SuksesModalProps {
   open: boolean

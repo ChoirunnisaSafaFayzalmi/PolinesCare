@@ -10,8 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, ArrowRight, Send, DollarSign, Gift, Banknote, QrCode, CreditCard, Copy, CheckCheck, Plus, Trash2, Upload, X, ImageIcon } from 'lucide-react'
-import type { Campaign } from './types'
-import { formatRupiah, formatUniqueCode, calculateTransferAmount } from './types'
+import type { Campaign } from '../types'
+import { formatRupiah, formatUniqueCode, calculateTransferAmount } from '../types'
 import { QRCodeSVG } from './qr-code'
 import { SuksesModal } from './sukses-modal'
 
@@ -32,15 +32,15 @@ interface BarangItem { name: string; qty: string }
 
 // ── Data dummy rekening bank ──
 const BANK_ACCOUNTS: Record<string, { norek: string; atas: string } | null> = {
-  bri:   { norek: '1234-5678-9012-3456', atas: 'Yayasan Polines Care' },
-  bca:   { norek: '8765-4321-0987-6543', atas: 'Yayasan Polines Care' },
+  bri: { norek: '1234-5678-9012-3456', atas: 'Yayasan Polines Care' },
+  bca: { norek: '8765-4321-0987-6543', atas: 'Yayasan Polines Care' },
   mandiri: { norek: '1100-2200-3300-4400', atas: 'Yayasan Polines Care' },
-  bni:   null,
-  bsi:   { norek: '7788-9900-1122-3344', atas: 'Yayasan Polines Care' },
-  cimb:  null,
-  dana:  { norek: '0812-3456-7890', atas: 'Polines Care' },
+  bni: null,
+  bsi: { norek: '7788-9900-1122-3344', atas: 'Yayasan Polines Care' },
+  cimb: null,
+  dana: { norek: '0812-3456-7890', atas: 'Polines Care' },
   gopay: null,
-  ovo:   null,
+  ovo: null,
 }
 
 const BANK_LABELS: Record<string, string> = {

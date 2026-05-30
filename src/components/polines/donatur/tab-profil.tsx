@@ -13,8 +13,8 @@ import {
   Mail, Phone, MapPin, Camera, Edit2, Save, X,
   Calendar, Trophy, Heart, TrendingUp, Star, BadgeCheck,
 } from 'lucide-react'
-import type { Donation } from './types'
-import { formatRupiah, formatDate, getCategoryColor } from './types'
+import type { Donation } from '../types'
+import { formatRupiah, formatDate, getCategoryColor } from '../types'
 
 // ============================================================
 // TYPES
@@ -36,10 +36,10 @@ interface ProfilDonaturProps {
 // ============================================================
 function getBadgeLevel(totalApproved: number) {
   if (totalApproved >= 20) return { label: 'Donatur Legendaris', color: 'bg-purple-100 text-purple-700', icon: '👑' }
-  if (totalApproved >= 10) return { label: 'Donatur Setia',      color: 'bg-amber-100 text-amber-700',  icon: '🏆' }
-  if (totalApproved >= 5)  return { label: 'Donatur Aktif',      color: 'bg-teal-100 text-teal-700',    icon: '⭐' }
-  if (totalApproved >= 1)  return { label: 'Donatur Baru',       color: 'bg-blue-100 text-blue-700',    icon: '🌱' }
-  return                          { label: 'Belum Berdonasi',    color: 'bg-gray-100 text-gray-600',    icon: '👤' }
+  if (totalApproved >= 10) return { label: 'Donatur Setia', color: 'bg-amber-100 text-amber-700', icon: '🏆' }
+  if (totalApproved >= 5) return { label: 'Donatur Aktif', color: 'bg-teal-100 text-teal-700', icon: '⭐' }
+  if (totalApproved >= 1) return { label: 'Donatur Baru', color: 'bg-blue-100 text-blue-700', icon: '🌱' }
+  return { label: 'Belum Berdonasi', color: 'bg-gray-100 text-gray-600', icon: '👤' }
 }
 
 // ============================================================
@@ -61,9 +61,9 @@ export function ProfilDonatur({ session, userDonations }: ProfilDonaturProps) {
 
   // ── Stats ──
   const approvedDonations = userDonations.filter(d => d.status === 'approved')
-  const pendingDonations  = userDonations.filter(d => d.status === 'pending')
-  const totalNominal      = approvedDonations.reduce((s, d) => s + Number(d.amount), 0)
-  const badgeLevel        = getBadgeLevel(approvedDonations.length)
+  const pendingDonations = userDonations.filter(d => d.status === 'pending')
+  const totalNominal = approvedDonations.reduce((s, d) => s + Number(d.amount), 0)
+  const badgeLevel = getBadgeLevel(approvedDonations.length)
 
   // ── Kategori favorit ──
   const categoryCount = approvedDonations.reduce<Record<string, number>>((acc, d) => {

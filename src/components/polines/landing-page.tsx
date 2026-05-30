@@ -1,6 +1,7 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -16,37 +17,105 @@ import { formatRupiah, formatDate, getCategoryColor, CATEGORIES } from './types'
 import type { Campaign, PlatformStats, RecommendedCampaign, Proposal } from './types'
 
 interface LandingPageProps {
-  campaigns: Campaign[]
-  stats: PlatformStats | null
-  publicRecommendations: RecommendedCampaign[]
-  proposals: Proposal[]
-  landingSearch: string
-  setLandingSearch: (v: string) => void
-  landingCategory: string
-  setLandingCategory: (v: string) => void
-  session: any
-  setSelectedCampaign: (c: Campaign | null) => void
-  fetchCampaignDetail: (id: string) => void
-  openDonationModal: (c?: Campaign) => void
-  setProposalFormModalOpen: (v: boolean) => void
-  voteProposal: (id: string) => void
-  setView: (v: string) => void
+  session?: any
 }
 
-export function LandingPage({
-  campaigns, stats, publicRecommendations, proposals,
-  landingSearch, setLandingSearch, landingCategory, setLandingCategory,
-  session, setSelectedCampaign, fetchCampaignDetail, openDonationModal,
-  setProposalFormModalOpen, voteProposal, setView,
-}: LandingPageProps) {
+export function LandingPage({ session }: LandingPageProps) {
+  const router = useRouter()
+
+  // ---- State ----
+  const [campaigns, setCampaigns] = useState<Campaign[]>([])
+  const [stats, setStats] = useState<PlatformStats | null>(null)
+  const [publicRecommendations, setPublicRecommendations] = useState<RecommendedCampaign[]>([])
+  const [proposals, setProposals] = useState<Proposal[]>([])
+  const [landingSearch, setLandingSearch] = useState('')
+  const [landingCategory, setLandingCategory] = useState('all')
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
+  const [proposalFormModalOpen, setProposalFormModalOpen] = useState(false)
+
+  // ---- Fetch Data ----
+  useEffect(() => {
+    fetch('/api/campaigns?status=active')
+      .then(r => r.json())
+      .then(d => setCampaigns(d.campaigns || []))
+      .catch(() => {})
+
+    fetch('/api/stats')
+      .then(r => r.json())
+      .then(d => setStats({
+        totalCampaigns: d.campaigns?.total ?? 0,
+        totalDonations: d.donations?.total ?? 0,
+        totalAmount: d.donations?.totalAmount ?? 0,
+        totalDonors: d.users?.total ?? 0,
+        categoryBreakdown: d.campaigns?.byCategory || [],
+        typeBreakdown: d.donations?.byType || [],
+        recentDonations: d.recentDonations || [],
+      }))
+      .catch(() => {})
+
+    fetch('/api/proposals')
+      .then(r => r.json())
+      .then(d => setProposals(d.proposals || []))
+      .catch(() => {})
+
+    fetch('/api/recommendations?mode=public')
+      .then(r => r.json())
+      .then(d => setPublicRecommendations(d.recommendations || d.trending || []))
+      .catch(() => {})
+  }, [])
+
+  // ---- Computed ----
   const filteredLandingCampaigns = campaigns.filter(c => {
-    const matchSearch = c.title.toLowerCase().includes(landingSearch.toLowerCase()) ||
+    const matchSearch =
+      c.title.toLowerCase().includes(landingSearch.toLowerCase()) ||
       c.description.toLowerCase().includes(landingSearch.toLowerCase())
     const matchCategory = landingCategory === 'all' || c.category === landingCategory
     return matchSearch && matchCategory
   })
 
   const approvedProposals = proposals.filter(p => p.status === 'approved')
+
+  // ---- Handlers ----
+  const fetchCampaignDetail = useCallback(async (id: string) => {
+    try {
+      const res = await fetch(`/api/campaigns/${id}`)
+      if (res.ok) {
+        const data = await res.json()
+        setSelectedCampaign(data.campaign)
+        // Kalau kamu punya modal detail, buka di sini
+        // Atau redirect ke halaman detail: router.push(`/campaign/${id}`)
+      }
+    } catch {}
+  }, [])
+
+  const openDonationModal = useCallback((campaign?: Campaign) => {
+    // Kalau sudah ada halaman /donasi terpisah:
+    if (campaign) {
+      router.push(`/donasi?campaignId=${campaign.id}`)
+    } else {
+      router.push('/donasi')
+    }
+  }, [router])
+
+  const voteProposal = useCallback(async (id: string) => {
+    if (!session?.user) {
+      router.push('/login')
+      return
+    }
+    try {
+      const res = await fetch('/api/proposals/vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ proposalId: id }),
+      })
+      if (res.ok) {
+        // Refresh proposals
+        fetch('/api/proposals')
+          .then(r => r.json())
+          .then(d => setProposals(d.proposals || []))
+      }
+    } catch {}
+  }, [session, router])
 
   return (
     <div className="min-h-screen">
@@ -69,12 +138,19 @@ export function LandingPage({
               Berbagi kepedulian, membangun kebersamaan. Salurkan donasi Anda untuk membantu sesama di lingkungan kampus Politeknik Negeri Semarang.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button size="lg" className="bg-white text-teal-700 hover:bg-teal-50 font-semibold px-8" onClick={() => {
-                document.getElementById('campaigns-section')?.scrollIntoView({ behavior: 'smooth' })
-              }}>
+              <Button
+                size="lg"
+                className="bg-white text-teal-700 hover:bg-teal-50 font-semibold px-8"
+                onClick={() => document.getElementById('campaigns-section')?.scrollIntoView({ behavior: 'smooth' })}
+              >
                 <HandHeart className="h-5 w-5 mr-2" /> Mulai Donasi
               </Button>
-              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 px-8" onClick={() => setView('register')}>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white/30 text-white hover:bg-white/10 px-8"
+                onClick={() => router.push('/register')}
+              >
                 <UserPlus className="h-5 w-5 mr-2" /> Daftar Sekarang
               </Button>
             </div>
@@ -115,7 +191,12 @@ export function LandingPage({
           <div className="flex flex-col sm:flex-row gap-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Cari campaign..." className="pl-9 w-full sm:w-64" value={landingSearch} onChange={(e) => setLandingSearch(e.target.value)} />
+              <Input
+                placeholder="Cari campaign..."
+                className="pl-9 w-full sm:w-64"
+                value={landingSearch}
+                onChange={(e) => setLandingSearch(e.target.value)}
+              />
             </div>
             <Select value={landingCategory} onValueChange={setLandingCategory}>
               <SelectTrigger className="w-full sm:w-40">
@@ -158,7 +239,10 @@ export function LandingPage({
                       <span className="text-muted-foreground">Terkumpul</span>
                       <span className="font-semibold text-teal-600">{formatRupiah(campaign.collectedAmount)}</span>
                     </div>
-                    <Progress value={campaign.targetAmount > 0 ? Math.min((campaign.collectedAmount / campaign.targetAmount) * 100, 100) : 0} className="h-2 [&>div]:bg-teal-500" />
+                    <Progress
+                      value={campaign.targetAmount > 0 ? Math.min((campaign.collectedAmount / campaign.targetAmount) * 100, 100) : 0}
+                      className="h-2 [&>div]:bg-teal-500"
+                    />
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>Target: {formatRupiah(campaign.targetAmount)}</span>
                       <span>{campaign.targetAmount > 0 ? Math.round((campaign.collectedAmount / campaign.targetAmount) * 100) : 0}%</span>
@@ -229,7 +313,7 @@ export function LandingPage({
         </div>
       </section>
 
-      {/* Rekomendasi Section - Powered by Recommender System */}
+      {/* Rekomendasi Section */}
       <section className="bg-linear-to-b from-teal-50/50 to-white py-12 md:py-16">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-2">
@@ -269,7 +353,11 @@ export function LandingPage({
                         <Star className={`h-8 w-8 ${i < 3 ? 'text-amber-300' : 'text-teal-200'} group-hover:scale-110 transition-transform`} />
                       )}
                       <Badge className={`absolute top-2 right-2 text-xs ${getCategoryColor(c.category)}`}>{c.category}</Badge>
-                      {c.isUrgent && <Badge className="absolute top-2 left-2 bg-red-500 text-white text-xs"><AlertTriangle className="h-3 w-3 mr-1" />Mendesak</Badge>}
+                      {c.isUrgent && (
+                        <Badge className="absolute top-2 left-2 bg-red-500 text-white text-xs">
+                          <AlertTriangle className="h-3 w-3 mr-1" />Mendesak
+                        </Badge>
+                      )}
                       {c.score !== undefined && c.score > 0 && (
                         <Badge className={`absolute bottom-2 right-2 text-xs font-bold ${c.score >= 70 ? 'bg-emerald-100 text-emerald-700' : c.score >= 40 ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'}`}>
                           {c.score}% cocok
@@ -287,7 +375,11 @@ export function LandingPage({
                         <span>{formatRupiah(c.collectedAmount)}</span>
                         <span>{Math.round(progress)}%</span>
                       </div>
-                      <Button size="sm" className="w-full bg-teal-600 hover:bg-teal-700 text-white" onClick={() => { setSelectedCampaign(c); fetchCampaignDetail(c.id) }}>
+                      <Button
+                        size="sm"
+                        className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+                        onClick={() => { setSelectedCampaign(c as unknown as Campaign); fetchCampaignDetail(c.id) }}
+                      >
                         <Eye className="h-3.5 w-3.5 mr-1" /> Detail & Donasi
                       </Button>
                     </CardContent>

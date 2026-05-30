@@ -15,7 +15,7 @@ import {
   ShieldCheck, Info, Camera, Megaphone, FileCheck,
   Clock, CheckCheck, XCircle, ChevronRight,
 } from 'lucide-react'
-import { CATEGORIES, formatRupiah, formatDate } from './types'
+import { CATEGORIES, formatRupiah, formatDate } from '../types'
 
 // ============================================================
 // TYPES
@@ -182,7 +182,7 @@ interface AjuanFormProps {
 
 export function AjuanForm({ session, onSubmit }: AjuanFormProps) {
   const [view, setView] = useState<'list' | 'form' | 'detail'>('list')
-const [selectedAjuan, setSelectedAjuan] = useState<RiwayatAjuan | null>(null)
+  const [selectedAjuan, setSelectedAjuan] = useState<RiwayatAjuan | null>(null)
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<AjuanForm>({
     ...INITIAL_FORM,
@@ -284,10 +284,10 @@ const [selectedAjuan, setSelectedAjuan] = useState<RiwayatAjuan | null>(null)
           <div className="space-y-3">
             {DUMMY_RIWAYAT.map(r => (
               <Card
-  key={r.id}
-  className="hover:shadow-md transition-shadow cursor-pointer"
-  onClick={() => { setSelectedAjuan(r); setView('detail') }}
->
+                key={r.id}
+                className="hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => { setSelectedAjuan(r); setView('detail') }}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0 space-y-1">
@@ -356,101 +356,101 @@ const [selectedAjuan, setSelectedAjuan] = useState<RiwayatAjuan | null>(null)
   }
 
   // ── VIEW: DETAIL RIWAYAT ──
-if (view === 'detail' && selectedAjuan) {
-  return (
-    <div className="max-w-2xl mx-auto space-y-5">
+  if (view === 'detail' && selectedAjuan) {
+    return (
+      <div className="max-w-2xl mx-auto space-y-5">
 
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <Button
-          variant="ghost" size="sm"
-          className="p-0 h-auto text-muted-foreground hover:text-foreground"
-          onClick={() => { setView('list'); setSelectedAjuan(null) }}
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" /> Kembali
-        </Button>
-        <div className="h-4 w-px bg-gray-200" />
-        <div>
-          <h2 className="text-lg font-bold">Detail Ajuan</h2>
-          <p className="text-sm text-muted-foreground">Rincian proposal yang diajukan</p>
-        </div>
-      </div>
-
-      {/* Status Banner */}
-      {selectedAjuan.status === 'disetujui' && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-2">
-          <CheckCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-          <p className="text-sm text-emerald-700 font-medium">Campaign Anda telah disetujui dan akan segera dipublikasikan.</p>
-        </div>
-      )}
-      {selectedAjuan.status === 'ditolak' && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg space-y-1">
-          <div className="flex items-center gap-2">
-            <XCircle className="h-4 w-4 text-red-600 shrink-0" />
-            <p className="text-sm text-red-700 font-medium">Ajuan ditolak</p>
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost" size="sm"
+            className="p-0 h-auto text-muted-foreground hover:text-foreground"
+            onClick={() => { setView('list'); setSelectedAjuan(null) }}
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" /> Kembali
+          </Button>
+          <div className="h-4 w-px bg-gray-200" />
+          <div>
+            <h2 className="text-lg font-bold">Detail Ajuan</h2>
+            <p className="text-sm text-muted-foreground">Rincian proposal yang diajukan</p>
           </div>
-          {selectedAjuan.catatan && (
-            <p className="text-xs text-red-600 pl-6">Catatan admin: {selectedAjuan.catatan}</p>
-          )}
         </div>
-      )}
-      {selectedAjuan.status === 'menunggu' && (
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2">
-          <Clock className="h-4 w-4 text-amber-600 shrink-0" />
-          <p className="text-sm text-amber-700">Ajuan sedang dalam proses review admin (1–3 hari kerja).</p>
-        </div>
-      )}
 
-      {/* Info Umum */}
-      <Card>
-        <CardContent className="p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="font-semibold">Informasi Ajuan</p>
-            <StatusBadge status={selectedAjuan.status} />
+        {/* Status Banner */}
+        {selectedAjuan.status === 'disetujui' && (
+          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-2">
+            <CheckCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+            <p className="text-sm text-emerald-700 font-medium">Campaign Anda telah disetujui dan akan segera dipublikasikan.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-            <div className="space-y-0.5">
-              <p className="text-xs text-muted-foreground">Judul Campaign</p>
-              <p className="font-medium">{selectedAjuan.judul}</p>
+        )}
+        {selectedAjuan.status === 'ditolak' && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-lg space-y-1">
+            <div className="flex items-center gap-2">
+              <XCircle className="h-4 w-4 text-red-600 shrink-0" />
+              <p className="text-sm text-red-700 font-medium">Ajuan ditolak</p>
             </div>
-            <div className="space-y-0.5">
-              <p className="text-xs text-muted-foreground">Kategori</p>
-              <p className="font-medium">{selectedAjuan.kategori}</p>
-            </div>
-            <div className="space-y-0.5">
-              <p className="text-xs text-muted-foreground">Target Dana</p>
-              <p className="font-medium text-teal-600">{formatRupiah(selectedAjuan.targetDana)}</p>
-            </div>
-            <div className="space-y-0.5">
-              <p className="text-xs text-muted-foreground">Tanggal Diajukan</p>
-              <p className="font-medium">{formatDate(selectedAjuan.tanggalAjuan)}</p>
-            </div>
+            {selectedAjuan.catatan && (
+              <p className="text-xs text-red-600 pl-6">Catatan admin: {selectedAjuan.catatan}</p>
+            )}
           </div>
-        </CardContent>
-      </Card>
+        )}
+        {selectedAjuan.status === 'menunggu' && (
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2">
+            <Clock className="h-4 w-4 text-amber-600 shrink-0" />
+            <p className="text-sm text-amber-700">Ajuan sedang dalam proses review admin (1–3 hari kerja).</p>
+          </div>
+        )}
 
-      {/* Aksi jika ditolak — bisa ajukan ulang */}
-      {selectedAjuan.status === 'ditolak' && (
-        <Card className="border-dashed border-red-200 bg-red-50/30">
-          <CardContent className="p-4 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-medium text-red-700">Ingin mengajukan ulang?</p>
-              <p className="text-xs text-red-600 mt-0.5">Perbaiki sesuai catatan admin lalu kirim kembali</p>
+        {/* Info Umum */}
+        <Card>
+          <CardContent className="p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="font-semibold">Informasi Ajuan</p>
+              <StatusBadge status={selectedAjuan.status} />
             </div>
-            <Button
-              size="sm"
-              className="bg-teal-600 hover:bg-teal-700 text-white shrink-0"
-              onClick={() => { setView('form'); setStep(1); setSelectedAjuan(null) }}
-            >
-              <Megaphone className="h-4 w-4 mr-1" /> Ajukan Ulang
-            </Button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">Judul Campaign</p>
+                <p className="font-medium">{selectedAjuan.judul}</p>
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">Kategori</p>
+                <p className="font-medium">{selectedAjuan.kategori}</p>
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">Target Dana</p>
+                <p className="font-medium text-teal-600">{formatRupiah(selectedAjuan.targetDana)}</p>
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">Tanggal Diajukan</p>
+                <p className="font-medium">{formatDate(selectedAjuan.tanggalAjuan)}</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
-      )}
 
-    </div>
-  )
-}
+        {/* Aksi jika ditolak — bisa ajukan ulang */}
+        {selectedAjuan.status === 'ditolak' && (
+          <Card className="border-dashed border-red-200 bg-red-50/30">
+            <CardContent className="p-4 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-red-700">Ingin mengajukan ulang?</p>
+                <p className="text-xs text-red-600 mt-0.5">Perbaiki sesuai catatan admin lalu kirim kembali</p>
+              </div>
+              <Button
+                size="sm"
+                className="bg-teal-600 hover:bg-teal-700 text-white shrink-0"
+                onClick={() => { setView('form'); setStep(1); setSelectedAjuan(null) }}
+              >
+                <Megaphone className="h-4 w-4 mr-1" /> Ajukan Ulang
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+      </div>
+    )
+  }
 
   // ── VIEW: FORM ──
   return (
