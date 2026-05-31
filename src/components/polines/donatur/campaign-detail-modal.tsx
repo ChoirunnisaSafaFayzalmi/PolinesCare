@@ -123,7 +123,7 @@ export function CampaignDetailModal({
     ...raw,
     targetAmount: Number(raw.targetAmount) || 0,
     collectedAmount: Number(raw.collectedAmount) || 0,
-    address: (raw as any).address ?? 'Jl. Prof. Sudarto, Tembalang, Semarang',
+    location: raw.location ?? '-',
   }
 
   const progressPct =
@@ -199,7 +199,7 @@ export function CampaignDetailModal({
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <MapPin className="h-3.5 w-3.5" /> Lokasi
               </div>
-              <p className="text-sm font-medium leading-snug">{campaign.address}</p>
+              <p className="text-sm font-medium leading-snug">{campaign.location}</p>
             </div>
 
           </div>

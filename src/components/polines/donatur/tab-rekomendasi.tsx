@@ -54,9 +54,17 @@ export function TabRekomendasi({ recommendations, openDonationModal }: TabRekome
   }
 
   const RekomCard = ({ c, gradient, icon }: { c: RecommendedCampaign; gradient: string; icon: React.ReactNode }) => (
-    <Card key={c.id} className="overflow-hidden hover:shadow-md transition-shadow">
-      <div className={`h-28 ${gradient} flex items-center justify-center relative`}>
-        {icon}
+    <Card className="overflow-hidden hover:shadow-md transition-shadow p-0">
+      <div className={`h-28 relative overflow-hidden${!(c as any).image ? ` ${gradient} flex items-center justify-center` : ''}`}>
+        {(c as any).image ? (
+          <img
+            src={(c as any).image}
+            alt={c.title}
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          icon
+        )}
         <Badge className={`absolute top-2 right-2 text-xs ${getCategoryColor(c.category)}`}>
           {c.category}
         </Badge>

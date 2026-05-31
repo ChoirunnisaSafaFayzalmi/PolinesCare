@@ -6,7 +6,7 @@ export interface User {
 }
 export interface Campaign {
   id: string; title: string; description: string; category: string; targetAmount: number;
-  collectedAmount: number; startDate: string; endDate: string; image?: string;
+  collectedAmount: number; startDate: string; endDate: string; image?: string; location?: string;
   status: string; isUrgent: boolean; uniqueCode: number; createdBy: string; creator?: { name: string };
   _count?: { donations: number };
 }

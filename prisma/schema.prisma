@@ -8,65 +8,75 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  password  String
-  role      String   @default("donatur") // admin, donatur
-  phone     String?
-  avatar    String?
-  isVerified Boolean @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid())
+  email      String   @unique
+  name       String
+  password   String
+  role       String   @default("donatur") // admin, donatur
+  phone      String?
+  avatar     String?
+  address    String?  // lokasi/alamat profil donatur
+  isVerified Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  donations    Donation[]
-  proposals    Proposal[]
-  votes        Vote[]
-  preferences  UserPreference[]
+  donations     Donation[]
+  proposals     Proposal[]
+  votes         Vote[]
+  preferences   UserPreference[]
   notifications Notification[]
-  campaigns    Campaign[]
+  campaigns     Campaign[]
 }
 
 model Campaign {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  category    String   // Bencana, Ramadhan, Sosial, Donasi Rutin
-  targetAmount Int
-  collectedAmount Int  @default(0)
-  startDate   DateTime
-  endDate     DateTime
-  image       String?
-  status      String   @default("active") // active, closed, completed
-  isUrgent    Boolean  @default(false)
-  uniqueCode  Int      @default(0) // Kode unik 3 digit untuk identifikasi transfer per campaign
-  createdBy   String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  category        String   // Bencana, Ramadhan, Sosial, Donasi Rutin
+  targetAmount    Int
+  collectedAmount Int      @default(0)
+  startDate       DateTime
+  endDate         DateTime
+  image           String?
+  location        String?  // lokasi campaign
+  status          String   @default("active") // active, closed, completed
+  isUrgent        Boolean  @default(false)
+  uniqueCode      Int      @default(0) // Kode unik 3 digit untuk identifikasi transfer per campaign
+  createdBy       String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  donations   Donation[]
-  fundUsages  FundUsage[]
-  creator     User     @relation(fields: [createdBy], references: [id])
+  donations  Donation[]
+  fundUsages FundUsage[]
+  creator    User        @relation(fields: [createdBy], references: [id])
 }
 
 model Donation {
-  id          String   @id @default(cuid())
-  campaignId  String
-  userId      String
-  amount      Int
-  donorName   String
-  donorEmail  String
-  donorPhone  String
-  type        String   @default("uang") // uang, barang
-  paymentMethod String @default("transfer") // transfer, qris, tunai
-  proofUrl    String?
-  status      String   @default("pending") // pending, approved, rejected
-  message     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  campaignId      String
+  userId          String
+  amount          Int
+  donorName       String
+  donorEmail      String
+  donorPhone      String
+  type            String   @default("uang")     // uang, barang
+  paymentMethod   String   @default("transfer") // transfer, qris, tunai
+  proofUrl        String?  // bukti pembayaran / bukti barang
+  status          String   @default("pending")  // pending, approved, rejected
+  message         String?  // keterangan/pesan dari donatur
+  rejectionReason String?  // alasan ditolak oleh admin
 
-  campaign    Campaign @relation(fields: [campaignId], references: [id])
-  user        User     @relation(fields: [userId], references: [id])
+  // Khusus donasi barang
+  itemName        String?  // jenis barang
+  itemQuantity    Int?     // jumlah barang
+  senderAddress   String?  // alamat pengirim barang
+  dropOffLocation String?  // info lokasi donasi barang
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
 }
 
 model FundUsage {
@@ -79,7 +89,7 @@ model FundUsage {
   createdBy   String
   createdAt   DateTime @default(now())
 
-  campaign    Campaign @relation(fields: [campaignId], references: [id])
+  campaign Campaign @relation(fields: [campaignId], references: [id])
 }
 
 model Notification {
@@ -91,40 +101,59 @@ model Notification {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Proposal {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  category    String   @default("Sosial")
-  targetAmount Int?
-  proposedBy  String
-  votesCount  Int      @default(0)
-  status      String   @default("pending") // pending, approved, rejected
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String    @id @default(cuid())
+  title            String
+  description      String
+  category         String    @default("Sosial")
+  targetAmount     Int?
+  proposedBy       String
 
-  proposer    User     @relation(fields: [proposedBy], references: [id])
+  // Data pengaju
+  proposerEmail    String?   // email pengaju
+  proposerPhone    String?   // no telp pengaju
+  proposerAddress  String?   // alamat pengaju
 
-  // Proposal acceptance criteria scores (each 0-100, minimum avg 70 to be eligible)
+  // Detail campaign yang diajukan
+  campaignLocation String?   // alamat lokasi campaign
+  startDate        DateTime? // tanggal dibuka campaign
+  endDate          DateTime? // tanggal ditutup campaign
+
+  // Dokumen pendukung
+  officialDocUrl   String?   // surat resmi TTD kepala (wajib)
+  photoUrl         String?   // foto keadaan (opsional)
+
+  // Status & voting
+  votesCount       Int       @default(0)
+  status           String    @default("pending") // pending, approved, rejected
+  rejectionReason  String?   // alasan ditolak (ditampilkan ke donatur)
+  resubmittedFrom  String?   // id proposal sebelumnya jika pengajuan ulang
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  proposer User   @relation(fields: [proposedBy], references: [id])
+  votes    Vote[]
+
+  // Skor kelayakan proposal (masing-masing 0-100, rata-rata min 70 untuk lolos)
   kejelasanTujuan   Int @default(0) // Kejelasan tujuan dan dampak
   kelayakanAnggaran Int @default(0) // Kelayakan anggaran yang diajukan
-  urgensi          Int @default(0) // Tingkat urgensi kebutuhan
+  urgensi           Int @default(0) // Tingkat urgensi kebutuhan
   keterkaitanKampus Int @default(0) // Keterkaitan dengan kegiatan kampus
   kontribusiSosial  Int @default(0) // Kontribusi sosial bagi civitas
-  votes       Vote[]
 }
 
 model Vote {
-  id          String   @id @default(cuid())
-  proposalId  String
-  userId      String
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  proposalId String
+  userId     String
+  createdAt  DateTime @default(now())
 
-  proposal    Proposal @relation(fields: [proposalId], references: [id])
-  user        User     @relation(fields: [userId], references: [id])
+  proposal Proposal @relation(fields: [proposalId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
 
   @@unique([proposalId, userId])
 }
@@ -136,7 +165,7 @@ model UserPreference {
   weight    Float    @default(1.0)
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@unique([userId, category])
 }

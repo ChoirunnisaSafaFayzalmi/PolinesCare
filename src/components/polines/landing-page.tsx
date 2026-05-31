@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
@@ -15,12 +16,10 @@ import {
 } from 'lucide-react'
 import { formatRupiah, formatDate, getCategoryColor, CATEGORIES } from './types'
 import type { Campaign, PlatformStats, RecommendedCampaign, Proposal } from './types'
+import { CampaignDetailModal } from './donatur/campaign-detail-modal' // sesuaikan path
 
-interface LandingPageProps {
-  session?: any
-}
-
-export function LandingPage({ session }: LandingPageProps) {
+export function LandingPage() {
+  const { data: session } = useSession()
   const router = useRouter()
 
   // ---- State ----
@@ -30,7 +29,12 @@ export function LandingPage({ session }: LandingPageProps) {
   const [proposals, setProposals] = useState<Proposal[]>([])
   const [landingSearch, setLandingSearch] = useState('')
   const [landingCategory, setLandingCategory] = useState('all')
+
+  // Modal state — sama persis polanya dengan DonaturDashboard
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
+  const [campaignDetailModalOpen, setCampaignDetailModalOpen] = useState(false)
+  const [campaignDonations, setCampaignDonations] = useState([])
+
   const [proposalFormModalOpen, setProposalFormModalOpen] = useState(false)
 
   // ---- Fetch Data ----
@@ -76,26 +80,48 @@ export function LandingPage({ session }: LandingPageProps) {
   const approvedProposals = proposals.filter(p => p.status === 'approved')
 
   // ---- Handlers ----
+
+  /**
+   * Fetch detail campaign lalu buka modal — sama persis dengan DonaturDashboard.
+   * Donasi dari modal juga tetap lewat openDonationModal (ada cek login di sana).
+   */
   const fetchCampaignDetail = useCallback(async (id: string) => {
     try {
-      const res = await fetch(`/api/campaigns/${id}`)
-      if (res.ok) {
-        const data = await res.json()
-        setSelectedCampaign(data.campaign)
-        // Kalau kamu punya modal detail, buka di sini
-        // Atau redirect ke halaman detail: router.push(`/campaign/${id}`)
+      const [campRes, donRes] = await Promise.all([
+        fetch(`/api/campaigns/${id}`),
+        fetch(`/api/donations?campaignId=${id}`),
+      ])
+      if (campRes.ok) {
+        const d = await campRes.json()
+        setSelectedCampaign(d.campaign)
+        setCampaignDetailModalOpen(true)
+      }
+      if (donRes.ok) {
+        const d = await donRes.json()
+        setCampaignDonations(d.donations || [])
       }
     } catch {}
   }, [])
 
+  /**
+   * Cek login dulu.
+   * - Sudah login  → langsung ke halaman donasi
+   * - Belum login  → redirect ke /login (dengan callbackUrl supaya balik lagi setelah login)
+   */
   const openDonationModal = useCallback((campaign?: Campaign) => {
-    // Kalau sudah ada halaman /donasi terpisah:
+    if (!session?.user) {
+      const callbackUrl = campaign
+        ? `/donasi?campaignId=${campaign.id}`
+        : '/donasi'
+      router.push(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`)
+      return
+    }
     if (campaign) {
       router.push(`/donasi?campaignId=${campaign.id}`)
     } else {
       router.push('/donasi')
     }
-  }, [router])
+  }, [session, router])
 
   const voteProposal = useCallback(async (id: string) => {
     if (!session?.user) {
@@ -109,7 +135,6 @@ export function LandingPage({ session }: LandingPageProps) {
         body: JSON.stringify({ proposalId: id }),
       })
       if (res.ok) {
-        // Refresh proposals
         fetch('/api/proposals')
           .then(r => r.json())
           .then(d => setProposals(d.proposals || []))
@@ -145,14 +170,16 @@ export function LandingPage({ session }: LandingPageProps) {
               >
                 <HandHeart className="h-5 w-5 mr-2" /> Mulai Donasi
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white/30 text-white hover:bg-white/10 px-8"
-                onClick={() => router.push('/register')}
-              >
-                <UserPlus className="h-5 w-5 mr-2" /> Daftar Sekarang
-              </Button>
+              {!session?.user && (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white/30 text-white hover:bg-white/10 px-8"
+                  onClick={() => router.push('/register')}
+                >
+                  <UserPlus className="h-5 w-5 mr-2" /> Daftar Sekarang
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -217,11 +244,19 @@ export function LandingPage({ session }: LandingPageProps) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {filteredLandingCampaigns.map(campaign => (
-              <Card key={campaign.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
+              <Card key={campaign.id} className="overflow-hidden hover:shadow-lg transition-shadow group p-0">
                 <div className="relative">
-                  <div className="h-40 bg-linear-to-r from-teal-100 to-emerald-100 flex items-center justify-center">
-                    <Heart className="h-16 w-16 text-teal-300 group-hover:scale-110 transition-transform" />
-                  </div>
+                  {campaign.image ? (
+                    <img
+                      src={campaign.image}
+                      alt={campaign.title}
+                      className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="h-40 bg-gradient-to-br from-teal-100 to-emerald-100 flex items-center justify-center">
+                      <Heart className="h-16 w-16 text-teal-300 group-hover:scale-110 transition-transform" />
+                    </div>
+                  )}
                   {campaign.isUrgent && (
                     <Badge className="absolute top-3 left-3 bg-red-500 text-white text-xs">
                       <AlertTriangle className="h-3 w-3 mr-1" /> Mendesak
@@ -254,10 +289,12 @@ export function LandingPage({ session }: LandingPageProps) {
                   </div>
                 </CardContent>
                 <CardFooter className="px-5 pb-5 pt-0 flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1" onClick={() => fetchCampaignDetail(campaign.id)}>
+                  <Button variant="outline" size="sm" className="flex-1"
+                    onClick={() => fetchCampaignDetail(campaign.id)}>
                     <Eye className="h-4 w-4 mr-1" /> Detail
                   </Button>
-                  <Button size="sm" className="flex-1 bg-teal-600 hover:bg-teal-700 text-white" onClick={() => openDonationModal(campaign)}>
+                  <Button size="sm" className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
+                    onClick={() => openDonationModal(campaign)}>
                     <HandHeart className="h-4 w-4 mr-1" /> Donasi
                   </Button>
                 </CardFooter>
@@ -346,8 +383,14 @@ export function LandingPage({ session }: LandingPageProps) {
                         <Trophy className="h-3 w-3" /> Top Rekomendasi
                       </div>
                     )}
-                    <div className={`h-28 flex items-center justify-center relative ${isTop ? 'bg-linear-to-r from-amber-50 to-orange-50' : 'bg-linear-to-r from-teal-50/50 to-emerald-50/50'}`}>
-                      {isTop ? (
+                    <div className={`h-28 flex items-center justify-center relative overflow-hidden ${isTop ? 'bg-gradient-to-br from-amber-50 to-orange-50' : 'bg-gradient-to-br from-teal-50 to-emerald-50'}`}>
+                      {(c as any).image ? (
+                        <img
+                          src={(c as any).image}
+                          alt={c.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : isTop ? (
                         <Trophy className="h-10 w-10 text-amber-300 group-hover:scale-110 transition-transform" />
                       ) : (
                         <Star className={`h-8 w-8 ${i < 3 ? 'text-amber-300' : 'text-teal-200'} group-hover:scale-110 transition-transform`} />
@@ -378,7 +421,7 @@ export function LandingPage({ session }: LandingPageProps) {
                       <Button
                         size="sm"
                         className="w-full bg-teal-600 hover:bg-teal-700 text-white"
-                        onClick={() => { setSelectedCampaign(c as unknown as Campaign); fetchCampaignDetail(c.id) }}
+                        onClick={() => fetchCampaignDetail(c.id)}
                       >
                         <Eye className="h-3.5 w-3.5 mr-1" /> Detail & Donasi
                       </Button>
@@ -432,6 +475,22 @@ export function LandingPage({ session }: LandingPageProps) {
           </div>
         </div>
       </section>
+
+      {/* ── Campaign Detail Modal ── */}
+      <CampaignDetailModal
+        open={campaignDetailModalOpen}
+        onClose={() => {
+          setCampaignDetailModalOpen(false)
+          setSelectedCampaign(null)
+          setCampaignDonations([])
+        }}
+        selectedCampaign={selectedCampaign}
+        campaignDonations={campaignDonations}
+        onDonate={() => {
+          setCampaignDetailModalOpen(false)
+          if (selectedCampaign) openDonationModal(selectedCampaign)
+        }}
+      />
     </div>
   )
 }
