@@ -3,7 +3,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { DonaturNav } from '@/components/polines/donatur/donatur-navbar'
-import { AjuanForm } from '@/components/polines/donatur/ajuan-form'
+import { TabAjuan } from '@/components/polines/donatur/tab-ajuan'  // ← ganti ini
 
 export default function AjuanPage() {
   const { data: session, status } = useSession()
@@ -16,7 +16,7 @@ export default function AjuanPage() {
   return (
     <div className="container mx-auto px-4 py-6">
       <DonaturNav />
-      <AjuanForm session={session} />
+      <TabAjuan session={session} />
     </div>
   )
 }

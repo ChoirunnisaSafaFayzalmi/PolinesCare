@@ -434,9 +434,14 @@ export function DonationModal({
                 className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
                 disabled={submitting || barangItems.every(i => !i.name)}
                 onClick={() => {
-                  setDonationForm({ ...donationForm, amount: '1', paymentMethod: 'tunai' })
-                  submitDonation()
-                }}
+  const totalQty = barangItems.reduce((sum, item) => sum + (Number(item.qty) || 0), 0)
+  setDonationForm({ 
+    ...donationForm, 
+    amount: String(totalQty || 1),  // fallback 1 kalau qty kosong semua
+    paymentMethod: 'tunai' 
+  })
+  submitDonation()
+}}
               >
                 {submitting ? 'Mengirim...' : 'Kirim Donasi'} <Send className="h-4 w-4 ml-1" />
               </Button>

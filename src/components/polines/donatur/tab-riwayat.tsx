@@ -26,8 +26,9 @@ export function TabRiwayat({ userDonations }: TabRiwayatProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Campaign</TableHead>
-                  <TableHead>Nominal</TableHead>
+                  <TableHead>Tipe</TableHead>
                   <TableHead className="hidden md:table-cell">Metode</TableHead>
+                  <TableHead>Nominal / Jumlah</TableHead>
                   <TableHead className="hidden md:table-cell">Tanggal</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
@@ -35,18 +36,36 @@ export function TabRiwayat({ userDonations }: TabRiwayatProps) {
               <TableBody>
                 {userDonations.map(d => (
                   <TableRow key={d.id}>
-                    <TableCell className="font-medium max-w-[200px] truncate">
+                    <TableCell className="font-medium max-w-[180px] truncate">
                       {d.campaign?.title}
                     </TableCell>
-                    <TableCell className="font-semibold text-teal-600">
-                      {formatRupiah(d.amount)}
+
+                    <TableCell>
+                      <Badge variant={d.type === 'barang' ? 'secondary' : 'default'}>
+                        {d.type === 'barang' ? 'Barang' : 'Uang'}
+                      </Badge>
                     </TableCell>
+
                     <TableCell className="hidden md:table-cell">
-                      <Badge variant="outline">{d.paymentMethod}</Badge>
+                      {d.type === 'barang' ? (
+                        <span className="text-muted-foreground">—</span>
+                      ) : (
+                        <Badge variant="outline">{d.paymentMethod}</Badge>
+                      )}
                     </TableCell>
+
+                    <TableCell className="font-semibold">
+                      {d.type === 'barang' ? (
+                        <span className="text-orange-600">{d.amount} pcs</span>
+                      ) : (
+                        <span className="text-teal-600">{formatRupiah(d.amount)}</span>
+                      )}
+                    </TableCell>
+
                     <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
                       {formatDate(d.createdAt)}
                     </TableCell>
+
                     <TableCell>
                       <Badge className={getStatusColor(d.status)}>{d.status}</Badge>
                     </TableCell>
