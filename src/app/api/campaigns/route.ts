@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, description, category, targetAmount, startDate, endDate, image, isUrgent } = body;
+    const { title, description, category, targetAmount, startDate, endDate, image, isUrgent, uniqueCode } = body;
 
     if (!title || !description || !category || !targetAmount || !startDate || !endDate) {
       return NextResponse.json(
@@ -91,6 +91,7 @@ export async function POST(request: NextRequest) {
         endDate: new Date(endDate),
         image: image || null,
         isUrgent: isUrgent || false,
+        uniqueCode: typeof uniqueCode === 'number' ? Math.min(999, Math.max(0, uniqueCode)) : 0,
         createdBy: (session.user as { id: string }).id,
       },
     });

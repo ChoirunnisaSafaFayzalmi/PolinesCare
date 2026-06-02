@@ -18,10 +18,10 @@ import {
   PieChart, Pie, Cell, Legend,
 } from 'recharts'
 import {
-  LayoutDashboard, Target, CreditCard, FileText, BarChart3, Bell, Vote, Plus, Edit, Trash2,
+  LayoutDashboard, Target, CreditCard, FileText, Bell, Vote, Plus, Edit, Trash2,
   Check, X, AlertTriangle, Search, TrendingUp, CircleDollarSign, ThumbsUp, ThumbsDown,
   Heart, Home as HomeIcon, ChevronLeft, ChevronRight, LogOut, Users, HandCoins,
-  ArrowLeft, Eye,
+  ArrowLeft, Eye, Printer,
 } from 'lucide-react'
 import type {
   Campaign, Donation, Proposal, AppNotification, PlatformStats, FundUsage,
@@ -67,12 +67,12 @@ interface AdminDashboardProps {
   session: any
   notifDropdownOpen: boolean
   setNotifDropdownOpen: (v: boolean) => void
-  // New props for inline campaign form
+  // Campaign form props
   campaignForm: {
     organizerName: string; organizerEmail: string; organizerPhone: string; organizerAddress: string;
     title: string; description: string; category: string; targetAmount: string;
     startDate: string; endDate: string; isUrgent: boolean;
-    paymentMethod: string; accountNumber: string
+    paymentMethod: string; accountNumber: string; uniqueCode: string
   }
   setCampaignForm: (form: any) => void
   editingCampaign: Campaign | null
@@ -84,19 +84,32 @@ interface AdminDashboardProps {
   // Fund usage form and submit
   fundUsageForm: { campaignId: string; description: string; amount: string }
   submitFundUsage: () => void
+  // New prop: update proposal criteria scores
+  updateProposalCriteria: (id: string, criteria: Record<string, number>) => void
+  // URL sync: initial campaign sub-tab from URL
+  initialCampaignSubTab?: string
+  // URL sync: current campaign sub-tab (managed by parent for URL sync)
+  adminCampaignSubTab?: string
+  setAdminCampaignSubTab?: (subTab: string) => void
+  // URL sync: callback to navigate campaign sub-tab (uses pushState)
+  onNavigateCampaignSubTab?: (subTab: string) => void
 }
 
 // ============================================================
-// SIDEBAR MENU
+// SIDEBAR MENU (updated: removed Statistik & Ajuan as separate)
 // ============================================================
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'campaign', label: 'Campaign', icon: Target },
   { id: 'donasi', label: 'Donasi', icon: CreditCard },
   { id: 'laporan', label: 'Laporan', icon: FileText },
-  { id: 'crowdsourcing', label: 'Ajuan', icon: Vote },
-  { id: 'statistik', label: 'Statistik', icon: BarChart3 },
   { id: 'notifikasi', label: 'Notifikasi', icon: Bell },
+]
+
+// Campaign sub-tabs
+const campaignSubTabs = [
+  { id: 'campaigns', label: 'Campaign' },
+  { id: 'ajuan', label: 'Ajuan' },
 ]
 
 const PIE_COLORS = ['#0d9488', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6', '#ec4899']
@@ -121,12 +134,15 @@ export function AdminDashboard(props: AdminDashboardProps) {
     setFundUsageForm, setFundUsageModalOpen,
     setView, handleSignOut, session,
     notifDropdownOpen, setNotifDropdownOpen,
-    // New props
     campaignForm, setCampaignForm,
     editingCampaign, setEditingCampaign,
     submitCampaign, submitting,
     donations,
     fundUsageForm, submitFundUsage,
+    updateProposalCriteria,
+    adminCampaignSubTab: parentCampaignSubTab,
+    setAdminCampaignSubTab: parentSetCampaignSubTab,
+    onNavigateCampaignSubTab,
   } = props
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -144,17 +160,24 @@ export function AdminDashboard(props: AdminDashboardProps) {
   const [donationPage, setDonationPage] = useState(1)
   const [laporanSearch, setLaporanSearch] = useState('')
   const [laporanStatusFilter, setLaporanStatusFilter] = useState('all')
-  const [laporanSubView, setLaporanSubView] = useState<'view' | 'edit'>('view')
+  const [laporanSubView, setLaporanSubView] = useState<'view' | 'edit' | 'print'>('view')
   const [editFundUsage, setEditFundUsage] = useState({ description: '', amount: '' })
+  // Campaign sub-tab: use parent state if available, otherwise local
+  const [localCampaignSubTab, setLocalCampaignSubTab] = useState<string>(props.initialCampaignSubTab || 'campaigns')
+  const adminCampaignSubTab = parentCampaignSubTab || localCampaignSubTab
+  const setAdminCampaignSubTab = parentSetCampaignSubTab || setLocalCampaignSubTab
+  // Criteria scoring state (local editing before save)
+  const [criteriaScores, setCriteriaScores] = useState<Record<string, number>>({})
 
   // Wrap setAdminTab to reset sub-view when switching tabs
+  // propSetAdminTab now handles pushState URL update in parent
   const setAdminTab = (tab: string) => {
     setSubView(null)
     setSelectedDonation(null)
     setSelectedReportCampaign(null)
     setSelectedProposal(null)
     setDonationPage(1)
-    propSetAdminTab(tab)
+    propSetAdminTab(tab) // triggers pushState('/admin/<tab>') in parent
   }
 
   // ============================================================
@@ -208,10 +231,10 @@ export function AdminDashboard(props: AdminDashboardProps) {
       case 'laporan-detail':
         return {
           parentLabel: 'Laporan',
-          currentLabel: laporanSubView === 'edit' ? 'Edit Laporan' : 'Detail Laporan',
+          currentLabel: laporanSubView === 'edit' ? 'Edit Laporan' : laporanSubView === 'print' ? 'Print Laporan' : 'Detail Laporan',
         }
       case 'ajuan-detail':
-        return { parentLabel: 'Ajuan', currentLabel: 'Detail Proposal' }
+        return { parentLabel: 'Campaign / Ajuan', currentLabel: 'Detail Proposal' }
       default:
         return null
     }
@@ -259,6 +282,22 @@ export function AdminDashboard(props: AdminDashboardProps) {
   })
 
   // ============================================================
+  // COMPUTED: LOCAL CRITERIA WITH PROPOSAL DATA
+  // ============================================================
+  const getEffectiveProposal = (): Proposal | null => {
+    if (!selectedProposal) return null
+    // Merge stored criteria with local editing state
+    return {
+      ...selectedProposal,
+      kejelasanTujuan: criteriaScores.kejelasanTujuan ?? selectedProposal.kejelasanTujuan ?? 0,
+      kelayakanAnggaran: criteriaScores.kelayakanAnggaran ?? selectedProposal.kelayakanAnggaran ?? 0,
+      urgensi: criteriaScores.urgensi ?? selectedProposal.urgensi ?? 0,
+      keterkaitanKampus: criteriaScores.keterkaitanKampus ?? selectedProposal.keterkaitanKampus ?? 0,
+      kontribusiSosial: criteriaScores.kontribusiSosial ?? selectedProposal.kontribusiSosial ?? 0,
+    }
+  }
+
+  // ============================================================
   // HANDLER: BACK
   // ============================================================
   const handleBack = () => {
@@ -267,6 +306,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
     setSelectedReportCampaign(null)
     setSelectedProposal(null)
     setLaporanSubView('view')
+    setCriteriaScores({})
   }
 
   // ============================================================
@@ -278,7 +318,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
       organizerName: '', organizerEmail: '', organizerPhone: '', organizerAddress: '',
       title: '', description: '', category: 'Sosial', targetAmount: '',
       startDate: '', endDate: '', isUrgent: false,
-      paymentMethod: 'transfer', accountNumber: ''
+      paymentMethod: 'transfer', accountNumber: '', uniqueCode: ''
     })
     setSubView('campaign-form')
   }
@@ -293,7 +333,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
       title: campaign.title, description: campaign.description, category: campaign.category,
       targetAmount: String(campaign.targetAmount), startDate: campaign.startDate.split('T')[0],
       endDate: campaign.endDate.split('T')[0], isUrgent: campaign.isUrgent,
-      paymentMethod: 'transfer', accountNumber: ''
+      paymentMethod: 'transfer', accountNumber: '', uniqueCode: String(campaign.uniqueCode ?? 0)
     })
     setSubView('campaign-form')
   }
@@ -308,17 +348,53 @@ export function AdminDashboard(props: AdminDashboardProps) {
   }
 
   // ============================================================
+  // HANDLER: PROPOSAL DETAIL
+  // ============================================================
+  const handleProposalDetail = (p: Proposal) => {
+    setSelectedProposal(p)
+    // Initialize local criteria from proposal
+    setCriteriaScores({
+      kejelasanTujuan: p.kejelasanTujuan ?? 0,
+      kelayakanAnggaran: p.kelayakanAnggaran ?? 0,
+      urgensi: p.urgensi ?? 0,
+      keterkaitanKampus: p.keterkaitanKampus ?? 0,
+      kontribusiSosial: p.kontribusiSosial ?? 0,
+    })
+    setSubView('ajuan-detail')
+  }
+
+  // ============================================================
+  // HANDLER: SAVE CRITERIA
+  // ============================================================
+  const handleSaveCriteria = () => {
+    if (!selectedProposal) return
+    updateProposalCriteria(selectedProposal.id, criteriaScores)
+    // Update local selected proposal to reflect saved state
+    setSelectedProposal({
+      ...selectedProposal,
+      ...criteriaScores,
+    } as Proposal)
+  }
+
+  // ============================================================
+  // HANDLER: HANDLE CRITERIA SLIDER CHANGE
+  // ============================================================
+  const handleCriteriaChange = (key: string, value: number) => {
+    setCriteriaScores(prev => ({ ...prev, [key]: value }))
+  }
+
+  // ============================================================
   // RENDER: SIDEBAR
   // ============================================================
   const renderSidebar = () => (
     <aside
       className={`fixed top-0 left-0 h-full z-40 flex flex-col transition-all duration-300 ${
-        sidebarCollapsed ? 'w-18' : 'w-65'
-      } bg-linear-to-b from-teal-700 to-teal-800 text-white`}
+        sidebarCollapsed ? 'w-[72px]' : 'w-[260px]'
+      } bg-gradient-to-b from-teal-700 to-teal-800 text-white`}
     >
       {/* Logo */}
-      <div className="flex items-center gap-3 px-5 h-16 border-b border-white/10 shrink-0">
-        <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-white/15 shrink-0">
+      <div className="flex items-center gap-3 px-5 h-16 border-b border-white/10 flex-shrink-0">
+        <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-white/15 flex-shrink-0">
           <Heart className="h-5 w-5 text-white" />
         </div>
         {!sidebarCollapsed && (
@@ -344,7 +420,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
                   : 'text-teal-100 hover:bg-white/10 hover:text-white'
               }`}
             >
-              <Icon className={`h-5 w-5 shrink-0 ${active ? 'text-white' : 'text-teal-200'}`} />
+              <Icon className={`h-5 w-5 flex-shrink-0 ${active ? 'text-white' : 'text-teal-200'}`} />
               {!sidebarCollapsed && <span>{item.label}</span>}
               {item.id === 'notifikasi' && unreadCount > 0 && (
                 <span className={`${sidebarCollapsed ? 'absolute top-1 right-1' : 'ml-auto'} flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white`}>
@@ -362,14 +438,14 @@ export function AdminDashboard(props: AdminDashboardProps) {
           onClick={() => setView('landing')}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-teal-100 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
         >
-          <HomeIcon className="h-5 w-5 shrink-0" />
+          <HomeIcon className="h-5 w-5 flex-shrink-0" />
           {!sidebarCollapsed && <span>Lihat Website</span>}
         </button>
         <button
           onClick={handleSignOut}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-200 hover:bg-red-500/20 hover:text-white transition-all cursor-pointer"
         >
-          <LogOut className="h-5 w-5 shrink-0" />
+          <LogOut className="h-5 w-5 flex-shrink-0" />
           {!sidebarCollapsed && <span>Keluar</span>}
         </button>
       </div>
@@ -406,12 +482,10 @@ export function AdminDashboard(props: AdminDashboardProps) {
               {menuItems.find(m => m.id === adminTab)?.label || 'Dashboard'}
             </h2>
             <p className="text-xs text-gray-400">
-              {adminTab === 'dashboard' && 'Ringkasan data platform'}
-              {adminTab === 'campaign' && 'Kelola campaign donasi'}
+              {adminTab === 'dashboard' && 'Ringkasan data platform & statistik'}
+              {adminTab === 'campaign' && 'Kelola campaign donasi & proposal ajuan'}
               {adminTab === 'donasi' && 'Verifikasi transaksi donasi'}
               {adminTab === 'laporan' && 'Penggunaan dana campaign'}
-              {adminTab === 'crowdsourcing' && 'Kelola proposal warga kampus'}
-              {adminTab === 'statistik' && 'Statistik dan grafik'}
               {adminTab === 'notifikasi' && 'Pemberitahuan sistem'}
             </p>
           </div>
@@ -472,7 +546,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
   )
 
   // ============================================================
-  // RENDER: DASHBOARD (default view)
+  // RENDER: DASHBOARD (with merged statistics)
   // ============================================================
   const renderDashboard = () => (
     <div className="space-y-6">
@@ -481,7 +555,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
         {statsCards.map((s, i) => {
           const Icon = s.icon
           return (
-            <div key={i} className={`bg-linear-to-br ${s.color} rounded-xl p-5 text-white shadow-md`}>
+            <div key={i} className={`bg-gradient-to-br ${s.color} rounded-xl p-5 text-white shadow-md`}>
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm font-medium text-white/80">{s.label}</p>
                 <div className="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center">
@@ -500,7 +574,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
         <Card className="shadow-sm border-gray-100">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-bold">Donasi</CardTitle>
+              <CardTitle className="text-lg font-bold">Donasi per Kategori</CardTitle>
               <Badge variant="outline" className="text-xs">6 Bulan</Badge>
             </div>
           </CardHeader>
@@ -519,7 +593,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-70 flex items-center justify-center text-muted-foreground">Belum ada data</div>
+              <div className="h-[280px] flex items-center justify-center text-muted-foreground">Belum ada data</div>
             )}
           </CardContent>
         </Card>
@@ -553,7 +627,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-70 flex items-center justify-center text-muted-foreground">Belum ada data</div>
+              <div className="h-[280px] flex items-center justify-center text-muted-foreground">Belum ada data</div>
             )}
           </CardContent>
         </Card>
@@ -577,7 +651,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
               const pct = c.targetAmount > 0 ? Math.min((c.collectedAmount / c.targetAmount) * 100, 100) : 0
               return (
                 <div key={c.id} className="flex items-center gap-4">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
                     i === 0 ? 'bg-amber-100 text-amber-700' : i === 1 ? 'bg-gray-100 text-gray-600' : i === 2 ? 'bg-orange-100 text-orange-700' : 'bg-gray-50 text-gray-400'
                   }`}>
                     {i + 1}
@@ -600,7 +674,51 @@ export function AdminDashboard(props: AdminDashboardProps) {
   )
 
   // ============================================================
-  // RENDER: CAMPAIGN LIST
+  // RENDER: CAMPAIGN TAB (with sub-tabs: Campaigns & Ajuan)
+  // ============================================================
+  const renderCampaignTab = () => {
+    // If in sub-view (form or ajuan detail), render that
+    if (subView === 'campaign-form') return renderCampaignForm()
+    if (subView === 'ajuan-detail') return renderAjuanDetail()
+
+    return (
+      <div className="space-y-4">
+        {/* Sub-tab Switcher */}
+        <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1 w-fit">
+          {campaignSubTabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setAdminCampaignSubTab(tab.id)
+                setSubView(null)
+                setSelectedProposal(null)
+                setCriteriaScores({})
+                // Navigate via router.push (parent handles cache + URL)
+                props.onNavigateCampaignSubTab?.(tab.id)
+              }}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${
+                adminCampaignSubTab === tab.id
+                  ? 'bg-white text-teal-700 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {tab.id === 'ajuan' && <Vote className="h-4 w-4 inline mr-1.5 -mt-0.5" />}
+              {tab.label}
+              {tab.id === 'ajuan' && (
+                <Badge variant="secondary" className="ml-2 text-[10px] h-4 px-1.5">{proposals.length}</Badge>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Content based on sub-tab */}
+        {adminCampaignSubTab === 'campaigns' ? renderCampaignList() : renderAjuanList()}
+      </div>
+    )
+  }
+
+  // ============================================================
+  // RENDER: CAMPAIGN LIST (with Kode column)
   // ============================================================
   const renderCampaignList = () => (
     <Card className="shadow-sm border-gray-100">
@@ -639,6 +757,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
               <TableHeader>
                 <TableRow className="bg-teal-600 hover:bg-teal-600">
                   <TableHead className="text-white font-semibold">Judul</TableHead>
+                  <TableHead className="text-white font-semibold hidden md:table-cell">Kode</TableHead>
                   <TableHead className="text-white font-semibold hidden md:table-cell">Kategori</TableHead>
                   <TableHead className="text-white font-semibold">Status</TableHead>
                   <TableHead className="text-white font-semibold hidden md:table-cell">Terkumpul</TableHead>
@@ -649,11 +768,16 @@ export function AdminDashboard(props: AdminDashboardProps) {
               <TableBody>
                 {filteredAdminCampaigns.map(c => (
                   <TableRow key={c.id}>
-                    <TableCell className="font-medium max-w-50">
+                    <TableCell className="font-medium max-w-[200px]">
                       <div className="flex items-center gap-2">
-                        {c.isUrgent && <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />}
+                        {c.isUrgent && <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0" />}
                         <span className="truncate">{c.title}</span>
                       </div>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Badge className="bg-violet-100 text-violet-700 border-violet-200">
+                        {formatUniqueCode(c.uniqueCode)}
+                      </Badge>
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       <Badge variant="outline" className={getCategoryColor(c.category)}>{c.category}</Badge>
@@ -686,7 +810,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
   )
 
   // ============================================================
-  // RENDER: CAMPAIGN FORM (Inline)
+  // RENDER: CAMPAIGN FORM (with Unique Code field in Pembayaran)
   // ============================================================
   const inputCls = 'rounded-lg border-gray-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500'
 
@@ -874,6 +998,23 @@ export function AdminDashboard(props: AdminDashboardProps) {
                 className={inputCls}
               />
             </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label className="text-sm font-medium text-gray-700">Kode Unik Transfer (3 digit)</Label>
+              <div className="flex items-center gap-3">
+                <Input
+                  type="number"
+                  min={0}
+                  max={999}
+                  value={campaignForm.uniqueCode}
+                  onChange={(e) => setCampaignForm({ ...campaignForm, uniqueCode: e.target.value })}
+                  placeholder="000"
+                  className={`${inputCls} w-32`}
+                />
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  Kode unik 3 digit untuk identifikasi transfer. Contoh: kode <span className="font-semibold text-violet-600">010</span>, donasi 200.000 → transfer <span className="font-semibold text-violet-600">200.010</span>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </CardContent>
@@ -881,14 +1022,14 @@ export function AdminDashboard(props: AdminDashboardProps) {
   )
 
   // ============================================================
-  // RENDER: DONASI LIST (Redesigned)
+  // RENDER: DONASI LIST
   // ============================================================
   const renderDonasiList = () => (
     <Card className="shadow-sm border-gray-100">
       <CardContent className="p-6">
         {/* Filter Row */}
         <div className="flex flex-wrap gap-3 mb-4">
-          <div className="relative flex-1 min-w-50">
+          <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               value={donationSearch}
@@ -945,7 +1086,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
                     <TableCell className="hidden md:table-cell text-sm text-gray-500">
                       {formatDate(d.createdAt)}
                     </TableCell>
-                    <TableCell className="max-w-37.5 truncate text-sm">
+                    <TableCell className="max-w-[150px] truncate text-sm">
                       {d.campaign?.title}
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
@@ -1081,32 +1222,32 @@ export function AdminDashboard(props: AdminDashboardProps) {
             {/* Detail Fields */}
             <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-4">
               <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Nama Donatur</span>
+                <span className="text-gray-500 w-32 flex-shrink-0 text-sm">Nama Donatur</span>
                 <span className="text-sm font-medium text-gray-900">{d.donorName}</span>
               </div>
               <Separator />
               <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Email</span>
+                <span className="text-gray-500 w-32 flex-shrink-0 text-sm">Email</span>
                 <span className="text-sm font-medium text-gray-900">{d.donorEmail}</span>
               </div>
               <Separator />
               <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">No Telp</span>
+                <span className="text-gray-500 w-32 flex-shrink-0 text-sm">No Telp</span>
                 <span className="text-sm font-medium text-gray-900">{d.donorPhone || '-'}</span>
               </div>
               <Separator />
               <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Tanggal Donasi</span>
+                <span className="text-gray-500 w-32 flex-shrink-0 text-sm">Tanggal Donasi</span>
                 <span className="text-sm font-medium text-gray-900">{formatDate(d.createdAt)}</span>
               </div>
               <Separator />
               <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Campaign</span>
+                <span className="text-gray-500 w-32 flex-shrink-0 text-sm">Campaign</span>
                 <span className="text-sm font-medium text-gray-900">{d.campaign?.title || '-'}</span>
               </div>
               <Separator />
               <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Tipe Donasi</span>
+                <span className="text-gray-500 w-32 flex-shrink-0 text-sm">Tipe Donasi</span>
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                   d.type === 'uang'
                     ? 'bg-orange-100 text-orange-700'
@@ -1117,34 +1258,34 @@ export function AdminDashboard(props: AdminDashboardProps) {
               </div>
               <Separator />
               <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Metode Pembayaran</span>
+                <span className="text-gray-500 w-32 flex-shrink-0 text-sm">Metode Pembayaran</span>
                 <span className="text-sm font-medium text-gray-900">{d.paymentMethod || '-'}</span>
               </div>
               <Separator />
               <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Nominal</span>
+                <span className="text-gray-500 w-32 flex-shrink-0 text-sm">Nominal</span>
                 <span className="text-sm font-medium text-gray-900">{formatRupiah(d.amount)}</span>
               </div>
               <Separator />
               <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Status</span>
+                <span className="text-gray-500 w-32 flex-shrink-0 text-sm">Status</span>
                 <Badge className={getStatusColor(d.status)}>{d.status}</Badge>
               </div>
               <Separator />
               <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Pesan</span>
+                <span className="text-gray-500 w-32 flex-shrink-0 text-sm">Pesan</span>
                 <span className="text-sm font-medium text-gray-900">{d.message || '-'}</span>
               </div>
               {d.proofUrl && (
                 <>
                   <Separator />
                   <div className="flex items-start">
-                    <span className="text-gray-500 w-32 shrink-0 text-sm">Bukti Transfer</span>
+                    <span className="text-gray-500 w-32 flex-shrink-0 text-sm">Bukti Transfer</span>
                     <a
-                       href={d.proofUrl}
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       className="text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors underline"
+                      href={d.proofUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors"
                     >
                       Lihat Bukti
                     </a>
@@ -1159,14 +1300,14 @@ export function AdminDashboard(props: AdminDashboardProps) {
   }
 
   // ============================================================
-  // RENDER: LAPORAN LIST (Redesigned with table)
+  // RENDER: LAPORAN LIST (with Eye + Printer icons)
   // ============================================================
   const renderLaporanList = () => (
     <Card className="shadow-sm border-gray-100">
       <CardContent className="p-6">
         {/* Filter Row */}
         <div className="flex flex-wrap gap-3 mb-4">
-          <div className="relative flex-1 min-w-50">
+          <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               value={laporanSearch}
@@ -1205,7 +1346,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
               <TableBody>
                 {filteredLaporanCampaigns.map(c => (
                   <TableRow key={c.id}>
-                    <TableCell className="font-medium max-w-50">
+                    <TableCell className="font-medium max-w-[200px]">
                       <span className="truncate">{c.title}</span>
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-sm text-gray-700">
@@ -1231,7 +1372,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
                             setLaporanSubView('view')
                             setSubView('laporan-detail')
                           }}
-                          title="Lihat"
+                          title="Lihat & Edit"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -1242,12 +1383,12 @@ export function AdminDashboard(props: AdminDashboardProps) {
                           onClick={() => {
                             setSelectedReportCampaign(c)
                             setReportCampaignId(c.id)
-                            setLaporanSubView('edit')
+                            setLaporanSubView('print')
                             setSubView('laporan-detail')
                           }}
-                          title="Edit"
+                          title="Print / Laporan"
                         >
-                          <Edit className="h-4 w-4" />
+                          <Printer className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -1262,12 +1403,94 @@ export function AdminDashboard(props: AdminDashboardProps) {
   )
 
   // ============================================================
-  // RENDER: LAPORAN DETAIL (View & Edit)
+  // RENDER: LAPORAN DETAIL (View, Edit, Print)
   // ============================================================
   const renderLaporanDetail = () => {
     const camp = selectedReportCampaign
     if (!camp) return null
     const totalUsed = (fundUsages || []).reduce((sum, f) => sum + f.amount, 0)
+
+    // ---- PRINT VIEW ----
+    if (laporanSubView === 'print') {
+      return (
+        <div className="space-y-6 print-area">
+          {/* Print Header */}
+          <div className="text-center space-y-2 pb-4 border-b-2 border-teal-600">
+            <div className="flex items-center justify-center gap-2">
+              <Heart className="h-6 w-6 text-teal-600" />
+              <h1 className="text-xl font-bold text-gray-900">Polines Care</h1>
+            </div>
+            <h2 className="text-lg font-bold text-gray-800">Laporan Penggunaan Dana</h2>
+            <p className="text-sm text-gray-500">{camp.title}</p>
+          </div>
+
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="border rounded-lg p-4 text-center">
+              <p className="text-sm text-gray-500 mb-1">Total Terkumpul</p>
+              <p className="text-lg font-bold text-teal-600">{formatRupiah(camp.collectedAmount)}</p>
+            </div>
+            <div className="border rounded-lg p-4 text-center">
+              <p className="text-sm text-gray-500 mb-1">Total Digunakan</p>
+              <p className="text-lg font-bold text-orange-600">{formatRupiah(totalUsed)}</p>
+            </div>
+            <div className="border rounded-lg p-4 text-center">
+              <p className="text-sm text-gray-500 mb-1">Sisa Dana</p>
+              <p className="text-lg font-bold text-emerald-600">{formatRupiah(camp.collectedAmount - totalUsed)}</p>
+            </div>
+          </div>
+
+          {/* Fund Usage Table */}
+          <Card className="shadow-sm border-gray-100">
+            <CardHeader>
+              <CardTitle className="text-base font-bold">Rincian Penggunaan Dana</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {(fundUsages || []).length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">Belum ada laporan penggunaan dana</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-gray-100 hover:bg-gray-100">
+                        <TableHead className="font-semibold">No</TableHead>
+                        <TableHead className="font-semibold">Deskripsi</TableHead>
+                        <TableHead className="font-semibold">Tanggal</TableHead>
+                        <TableHead className="font-semibold text-right">Jumlah</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {fundUsages.map((f, idx) => (
+                        <TableRow key={f.id}>
+                          <TableCell>{idx + 1}</TableCell>
+                          <TableCell className="font-medium">{f.description}</TableCell>
+                          <TableCell className="text-sm text-gray-500">{formatDate(f.date)}</TableCell>
+                          <TableCell className="text-right font-semibold text-orange-600">{formatRupiah(f.amount)}</TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow className="bg-gray-50 font-bold">
+                        <TableCell colSpan={3} className="text-right">TOTAL</TableCell>
+                        <TableCell className="text-right text-orange-600">{formatRupiah(totalUsed)}</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Print Action */}
+          <div className="flex justify-end">
+            <Button
+              className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg"
+              onClick={() => window.print()}
+            >
+              <Printer className="h-4 w-4 mr-1" /> Cetak Laporan
+            </Button>
+          </div>
+        </div>
+      )
+    }
 
     // ---- EDIT VIEW ----
     if (laporanSubView === 'edit') {
@@ -1373,15 +1596,15 @@ export function AdminDashboard(props: AdminDashboardProps) {
       <div className="space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-linear-to-br from-teal-600 to-teal-700 rounded-xl p-5 text-white shadow-md">
+          <div className="bg-gradient-to-br from-teal-600 to-teal-700 rounded-xl p-5 text-white shadow-md">
             <p className="text-sm text-white/80 mb-1">Total Terkumpul</p>
             <p className="text-2xl font-bold">{formatRupiah(camp.collectedAmount)}</p>
           </div>
-          <div className="bg-linear-to-br from-orange-500 to-orange-600 rounded-xl p-5 text-white shadow-md">
+          <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-5 text-white shadow-md">
             <p className="text-sm text-white/80 mb-1">Total Digunakan</p>
             <p className="text-2xl font-bold">{formatRupiah(totalUsed)}</p>
           </div>
-          <div className="bg-linear-to-br from-emerald-600 to-emerald-700 rounded-xl p-5 text-white shadow-md">
+          <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl p-5 text-white shadow-md">
             <p className="text-sm text-white/80 mb-1">Sisa Dana</p>
             <p className="text-2xl font-bold">{formatRupiah(camp.collectedAmount - totalUsed)}</p>
           </div>
@@ -1395,22 +1618,22 @@ export function AdminDashboard(props: AdminDashboardProps) {
           <CardContent>
             <div className="space-y-3 max-w-2xl">
               <div className="flex items-start">
-                <span className="text-gray-500 w-36 shrink-0 text-sm">Judul</span>
+                <span className="text-gray-500 w-36 flex-shrink-0 text-sm">Judul</span>
                 <span className="text-sm font-medium text-gray-900">{camp.title}</span>
               </div>
               <Separator />
               <div className="flex items-start">
-                <span className="text-gray-500 w-36 shrink-0 text-sm">Kategori</span>
+                <span className="text-gray-500 w-36 flex-shrink-0 text-sm">Kategori</span>
                 <Badge variant="outline" className={getCategoryColor(camp.category)}>{camp.category}</Badge>
               </div>
               <Separator />
               <div className="flex items-start">
-                <span className="text-gray-500 w-36 shrink-0 text-sm">Tanggal Mulai - Selesai</span>
+                <span className="text-gray-500 w-36 flex-shrink-0 text-sm">Tanggal Mulai - Selesai</span>
                 <span className="text-sm font-medium text-gray-900">{formatDate(camp.startDate)} — {formatDate(camp.endDate)}</span>
               </div>
               <Separator />
               <div className="flex items-start">
-                <span className="text-gray-500 w-36 shrink-0 text-sm">Target Dana</span>
+                <span className="text-gray-500 w-36 flex-shrink-0 text-sm">Target Dana</span>
                 <span className="text-sm font-medium text-gray-900">{formatRupiah(camp.targetAmount)}</span>
               </div>
             </div>
@@ -1467,8 +1690,15 @@ export function AdminDashboard(props: AdminDashboardProps) {
                   <p className="text-xs text-gray-500">{fundUsages?.length ?? 0} catatan · {formatRupiah(totalUsed)} total digunakan</p>
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="rounded-lg text-sm">
-                <FileText className="h-4 w-4 mr-1" /> Unduh Laporan
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-lg text-sm"
+                onClick={() => {
+                  setLaporanSubView('print')
+                }}
+              >
+                <Printer className="h-4 w-4 mr-1" /> Print Laporan
               </Button>
             </div>
           </CardContent>
@@ -1478,11 +1708,18 @@ export function AdminDashboard(props: AdminDashboardProps) {
   }
 
   // ============================================================
-  // RENDER: AJUAN LIST (Redesigned with table)
+  // RENDER: AJUAN LIST (under Campaign sub-tab)
   // ============================================================
   const renderAjuanList = () => (
     <Card className="shadow-sm border-gray-100">
       <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-base font-bold text-gray-800">Proposal / Ajuan Crowdsourcing</h3>
+            <p className="text-xs text-gray-500 mt-0.5">Kelola proposal yang diajukan oleh warga kampus</p>
+          </div>
+        </div>
+
         {proposals.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">Belum ada proposal</p>
         ) : (
@@ -1501,7 +1738,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
               <TableBody>
                 {proposals.map(p => (
                   <TableRow key={p.id}>
-                    <TableCell className="font-medium max-w-50 truncate">
+                    <TableCell className="font-medium max-w-[200px] truncate">
                       {p.title}
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-sm text-gray-500">
@@ -1519,35 +1756,12 @@ export function AdminDashboard(props: AdminDashboardProps) {
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end items-center gap-1">
-                        <button
-                          onClick={() => {
-                            setSelectedProposal(p)
-                            setSubView('ajuan-detail')
-                          }}
-                          className="text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors cursor-pointer"
-                        >
-                          Detail
-                        </button>
-                        {p.status === 'pending' && (
-                          <>
-                            <Button
-                              size="sm"
-                              className="h-7 text-xs bg-green-600 hover:bg-green-700 text-white rounded-lg"
-                              onClick={() => updateProposalStatus(p.id, 'approved')}
-                            >
-                              <Check className="h-3 w-3 mr-1" /> Setuju
-                            </Button>
-                            <Button
-                              size="sm"
-                              className="h-7 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg"
-                              onClick={() => updateProposalStatus(p.id, 'rejected')}
-                            >
-                              <X className="h-3 w-3 mr-1" /> Tolak
-                            </Button>
-                          </>
-                        )}
-                      </div>
+                      <button
+                        onClick={() => handleProposalDetail(p)}
+                        className="text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors cursor-pointer"
+                      >
+                        Detail
+                      </button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -1560,273 +1774,171 @@ export function AdminDashboard(props: AdminDashboardProps) {
   )
 
   // ============================================================
-  // RENDER: AJUAN DETAIL
+  // RENDER: AJUAN DETAIL (with scoring flow)
   // ============================================================
   const renderAjuanDetail = () => {
     if (!selectedProposal) return null
     const p = selectedProposal
-    return (
-      <Card className="shadow-sm border-gray-100">
-        <CardContent className="p-6">
-          <div className="max-w-2xl space-y-6">
-            {/* Header with actions */}
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div />
-              {p.status === 'pending' && (
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white rounded-lg"
-                    onClick={() => {
-                      updateProposalStatus(p.id, 'approved')
-                      setSelectedProposal({ ...p, status: 'approved' })
-                    }}
-                  >
-                    <Check className="h-4 w-4 mr-1" /> Setuju
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="bg-red-600 hover:bg-red-700 text-white rounded-lg"
-                    onClick={() => {
-                      updateProposalStatus(p.id, 'rejected')
-                      setSelectedProposal({ ...p, status: 'rejected' })
-                    }}
-                  >
-                    <X className="h-4 w-4 mr-1" /> Tolak
-                  </Button>
-                </div>
-              )}
-            </div>
+    const effectiveProposal = getEffectiveProposal()
+    const avgScore = effectiveProposal ? getAverageCriteria(effectiveProposal) : 0
+    const eligible = effectiveProposal ? isProposalEligible(effectiveProposal) : false
 
-            {/* Detail Fields */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-4">
-              <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Judul Proposal</span>
-                <span className="text-sm font-medium text-gray-900">{p.title}</span>
+    return (
+      <div className="space-y-6">
+        {/* Proposal Info */}
+        <Card className="shadow-sm border-gray-100">
+          <CardContent className="p-6">
+            <div className="max-w-2xl space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800">{p.title}</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    <Badge variant="outline" className={getCategoryColor(p.category)}>{p.category}</Badge>
+                    <span className="ml-2">Diajukan oleh: <span className="font-medium text-gray-700">{p.proposer?.name ?? 'Anonim'}</span></span>
+                  </p>
+                </div>
+                <Badge className={getStatusColor(p.status)}>{p.status}</Badge>
               </div>
               <Separator />
-              <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Deskripsi</span>
-                <span className="text-sm font-medium text-gray-900 whitespace-pre-wrap">{p.description}</span>
-              </div>
-              <Separator />
-              <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Kategori</span>
-                <Badge variant="outline" className={getCategoryColor(p.category)}>{p.category}</Badge>
-              </div>
-              <Separator />
-              <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Diajukan oleh</span>
-                <span className="text-sm font-medium text-gray-900">{p.proposer?.name ?? 'Anonim'}</span>
-              </div>
-              <Separator />
-              <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Tanggal</span>
-                <span className="text-sm font-medium text-gray-900">{formatDate(p.createdAt)}</span>
-              </div>
-              <Separator />
-              <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Suara</span>
-                <span className="text-sm font-medium text-gray-900 flex items-center gap-1">
-                  <ThumbsUp className="h-4 w-4" /> {p.votesCount}
-                </span>
+              <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                {p.description}
               </div>
               {p.targetAmount && (
                 <>
                   <Separator />
                   <div className="flex items-start">
-                    <span className="text-gray-500 w-32 shrink-0 text-sm">Target Dana</span>
+                    <span className="text-gray-500 w-32 flex-shrink-0 text-sm">Target Dana</span>
                     <span className="text-sm font-medium text-gray-900">{formatRupiah(p.targetAmount)}</span>
                   </div>
                 </>
               )}
               <Separator />
               <div className="flex items-start">
-                <span className="text-gray-500 w-32 shrink-0 text-sm">Status</span>
-                <Badge className={getStatusColor(p.status)}>{p.status}</Badge>
-              </div>
-            </div>
-
-            {/* Kriteria Penilaian */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-gray-800">Kriteria Penilaian</h3>
-                <Badge className={isProposalEligible(p) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
-                  {isProposalEligible(p) ? 'MEMENUHI SYARAT' : 'TIDAK MEMENUHI SYARAT'}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
-                <span className="text-sm text-gray-500">Rata-rata Skor</span>
-                <span className={`text-2xl font-bold ${getAverageCriteria(p) >= 70 ? 'text-green-600' : 'text-red-600'}`}>
-                  {getAverageCriteria(p)}
+                <span className="text-gray-500 w-32 flex-shrink-0 text-sm">Jumlah Suara</span>
+                <span className="flex items-center gap-1 text-sm font-medium text-gray-900">
+                  <ThumbsUp className="h-3.5 w-3.5" /> {p.votesCount}
                 </span>
-                <span className="text-sm text-gray-400">/ 100</span>
-              </div>
-              <div className="space-y-4">
-                {PROPOSAL_CRITERIA.map(criterion => {
-                  const score = (p as any)[criterion.key] ?? 0
-                  return (
-                    <div key={criterion.key} className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-700">{criterion.label}</span>
-                        </div>
-                        <span className={`text-sm font-bold px-2 py-0.5 rounded-md ${getCriteriaScoreColor(score)}`}>
-                          {score}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-400 mb-1">{criterion.description}</p>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full transition-all duration-500 ${
-                            score >= 80 ? 'bg-emerald-500' : score >= 60 ? 'bg-amber-500' : 'bg-red-500'
-                          }`}
-                          style={{ width: `${score}%` }}
-                        />
-                      </div>
-                    </div>
-                  )
-                })}
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
+          </CardContent>
+        </Card>
 
-  // ============================================================
-  // RENDER: STATISTIK TAB
-  // ============================================================
-  const renderStatistik = () => (
-    <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Alur Penilaian Proposal */}
         <Card className="shadow-sm border-gray-100">
-          <CardContent className="p-5">
+          <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="bg-teal-100 rounded-lg p-2.5">
-                <CircleDollarSign className="h-5 w-5 text-teal-600" />
-              </div>
+              <div className="h-8 w-1 rounded-full bg-teal-600" />
               <div>
-                <p className="text-sm text-muted-foreground">Total Dana</p>
-                <p className="text-xl font-bold">{stats ? formatRupiah(stats.totalAmount) : '-'}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm border-gray-100">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3">
-              <div className="bg-emerald-100 rounded-lg p-2.5">
-                <CreditCard className="h-5 w-5 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Transaksi</p>
-                <p className="text-xl font-bold">{stats?.totalDonations ?? 0}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm border-gray-100">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3">
-              <div className="bg-cyan-100 rounded-lg p-2.5">
-                <TrendingUp className="h-5 w-5 text-cyan-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Rata-rata Donasi</p>
-                <p className="text-xl font-bold">
-                  {stats && stats.totalDonations > 0
-                    ? formatRupiah(Math.round(stats.totalAmount / stats.totalDonations))
-                    : '-'}
+                <CardTitle className="text-base font-bold">Alur Penilaian Proposal</CardTitle>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Proposal dinilai oleh Admin berdasarkan 5 kriteria (skor 0-100). Rata-rata skor ≥ 70 memenuhi syarat untuk diterima.
                 </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="shadow-sm border-gray-100">
-          <CardHeader><CardTitle className="text-lg font-bold">Donasi per Kategori</CardTitle></CardHeader>
-          <CardContent>
-            {chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="category" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => `${Math.round(v / 1000000)}jt`} />
-                  <Tooltip formatter={(value: number) => formatRupiah(value)} />
-                  <Bar dataKey="total" fill="#0d9488" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="text-center text-muted-foreground py-8">Belum ada data</p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm border-gray-100">
-          <CardHeader><CardTitle className="text-lg font-bold">Tipe Donasi</CardTitle></CardHeader>
-          <CardContent>
-            {pieData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    dataKey="count"
-                    nameKey="type"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    innerRadius={55}
-                    paddingAngle={3}
-                    label={({ name, count }: { name: string; count: number }) => `${name}: ${count}`}
-                  >
-                    {pieData.map((_, index: number) => (
-                      <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="text-center text-muted-foreground py-8">Belum ada data</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Top Campaigns */}
-      <Card className="shadow-sm border-gray-100">
-        <CardHeader><CardTitle className="text-lg font-bold">Top Campaigns</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          {topCampaigns.length === 0 ? (
-            <p className="text-center text-muted-foreground py-6">Belum ada campaign</p>
-          ) : (
-            topCampaigns.map((c, i) => {
-              const pct = c.targetAmount > 0 ? Math.min((c.collectedAmount / c.targetAmount) * 100, 100) : 0
+          </CardHeader>
+          <CardContent className="space-y-5">
+            {PROPOSAL_CRITERIA.map(criterion => {
+              const score = criteriaScores[criterion.key] ?? 0
               return (
-                <div key={c.id} className="flex items-center gap-4">
-                  <span className="text-lg font-bold text-muted-foreground w-6">{i + 1}.</span>
-                  <div className="flex-1">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-medium truncate max-w-75">{c.title}</span>
-                      <span className="font-semibold text-teal-600 ml-2 whitespace-nowrap">{formatRupiah(c.collectedAmount)}</span>
+                <div key={criterion.key} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">{criterion.label}</Label>
+                      <p className="text-xs text-gray-400 mt-0.5">{criterion.description}</p>
                     </div>
-                    <Progress value={pct} className="h-2 [&>div]:bg-teal-500" />
+                    <span className={`inline-flex items-center justify-center w-12 h-7 rounded-md text-sm font-bold ${getCriteriaScoreColor(score)}`}>
+                      {score}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-gray-400 w-6">0</span>
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      step={5}
+                      value={score}
+                      onChange={(e) => handleCriteriaChange(criterion.key, Number(e.target.value))}
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-teal-600"
+                    />
+                    <span className="text-xs text-gray-400 w-8">100</span>
                   </div>
                 </div>
               )
-            })
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  )
+            })}
+
+            {/* Average Score & Eligibility */}
+            <div className={`mt-4 p-4 rounded-lg border-2 ${
+              eligible
+                ? 'border-emerald-200 bg-emerald-50'
+                : 'border-red-200 bg-red-50'
+            }`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-bold text-gray-800">Rata-rata Skor</p>
+                  <p className="text-2xl font-bold mt-1">
+                    <span className={eligible ? 'text-emerald-600' : 'text-red-600'}>{avgScore}</span>
+                    <span className="text-sm text-gray-400 ml-2">/ 100</span>
+                  </p>
+                </div>
+                <div className="text-right">
+                  <Badge className={`text-sm px-3 py-1 ${
+                    eligible
+                      ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                      : 'bg-red-100 text-red-700 border-red-200'
+                  }`}>
+                    {eligible ? 'MEMENUHI SYARAT' : 'TIDAK MEMENUHI SYARAT'}
+                  </Badge>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {eligible
+                      ? 'Proposal dapat disetujui'
+                      : 'Rata-rata skor harus ≥ 70'
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3 pt-2">
+              <Button
+                className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg"
+                onClick={handleSaveCriteria}
+              >
+                <Check className="h-4 w-4 mr-1" /> Simpan Penilaian
+              </Button>
+              {p.status === 'pending' && (
+                <>
+                  <Button
+                    className="bg-green-600 hover:bg-green-700 text-white rounded-lg"
+                    onClick={() => {
+                      handleSaveCriteria()
+                      updateProposalStatus(p.id, 'approved')
+                      setSelectedProposal({ ...p, status: 'approved' })
+                    }}
+                    disabled={!eligible}
+                    title={eligible ? 'Setujui proposal' : 'Proposal belum memenuhi syarat (skor rata-rata < 70)'}
+                  >
+                    <ThumbsUp className="h-4 w-4 mr-1" /> Setujui
+                  </Button>
+                  <Button
+                    className="bg-red-600 hover:bg-red-700 text-white rounded-lg"
+                    onClick={() => {
+                      handleSaveCriteria()
+                      updateProposalStatus(p.id, 'rejected')
+                      setSelectedProposal({ ...p, status: 'rejected' })
+                    }}
+                  >
+                    <ThumbsDown className="h-4 w-4 mr-1" /> Tolak
+                  </Button>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   // ============================================================
   // RENDER: NOTIFIKASI TAB
@@ -1836,7 +1948,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-bold">Notifikasi ({notifications.length})</CardTitle>
         {unreadCount > 0 && (
-          <Button variant="outline" size="sm" onClick={markAllNotificationsRead}>
+          <Button variant="outline" size="sm" className="rounded-lg text-sm" onClick={markAllNotificationsRead}>
             Tandai semua dibaca
           </Button>
         )}
@@ -1845,23 +1957,30 @@ export function AdminDashboard(props: AdminDashboardProps) {
         {notifications.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">Tidak ada notifikasi</p>
         ) : (
-          <div className="space-y-2 max-h-125 overflow-y-auto">
+          <div className="space-y-2 max-h-[600px] overflow-y-auto">
             {notifications.map(n => (
               <div
                 key={n.id}
                 className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                  !n.isRead ? 'bg-teal-50 border-teal-100' : 'hover:bg-gray-50 border-gray-100'
+                  !n.isRead
+                    ? 'bg-teal-50/50 border-teal-100 hover:bg-teal-50'
+                    : 'border-gray-100 hover:bg-gray-50'
                 }`}
                 onClick={() => markNotificationRead(n.id)}
               >
-                <div className="flex items-start justify-between gap-2">
+                <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
-                    <p className="text-sm font-medium">{n.title}</p>
-                    <p className="text-sm text-muted-foreground mt-0.5">{n.message}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-gray-800">{n.title}</p>
+                      {!n.isRead && <span className="w-2 h-2 rounded-full bg-teal-500 flex-shrink-0" />}
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">{n.message}</p>
+                    <p className="text-xs text-gray-400 mt-1.5">{formatDate(n.createdAt)}</p>
                   </div>
-                  {!n.isRead && <div className="w-2 h-2 rounded-full bg-teal-500 mt-1.5 shrink-0" />}
+                  <Badge variant="outline" className="text-xs flex-shrink-0">
+                    {n.type}
+                  </Badge>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">{formatDate(n.createdAt)}</p>
               </div>
             ))}
           </div>
@@ -1871,9 +1990,8 @@ export function AdminDashboard(props: AdminDashboardProps) {
   )
 
   // ============================================================
-  // MAIN RENDER
+  // MAIN RETURN
   // ============================================================
-  // Determine what to render based on subView
   const renderContent = () => {
     // Sub-views take priority
     if (subView === 'campaign-form') return renderCampaignForm()
@@ -1881,24 +1999,28 @@ export function AdminDashboard(props: AdminDashboardProps) {
     if (subView === 'laporan-detail') return renderLaporanDetail()
     if (subView === 'ajuan-detail') return renderAjuanDetail()
 
-    // Tab-based views
+    // Tab-based content
     switch (adminTab) {
       case 'dashboard': return renderDashboard()
-      case 'campaign': return renderCampaignList()
+      case 'campaign': return renderCampaignTab()
       case 'donasi': return renderDonasiList()
       case 'laporan': return renderLaporanList()
-      case 'crowdsourcing': return renderAjuanList()
-      case 'statistik': return renderStatistik()
       case 'notifikasi': return renderNotifikasi()
       default: return renderDashboard()
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/80">
+    <div className="min-h-screen bg-gray-50/50">
       {renderSidebar()}
-      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-18' : 'ml-65'}`}>
+      <div
+        className={`transition-all duration-300 ${
+          sidebarCollapsed ? 'ml-[72px]' : 'ml-[260px]'
+        }`}
+      >
+        {/* Top bar */}
         {renderTopBar()}
+        {/* Main content */}
         <main className="p-6">
           {renderContent()}
         </main>

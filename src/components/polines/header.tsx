@@ -17,7 +17,7 @@ interface HeaderProps {
   session: any
   view: string
   setView: (v: string) => void
-  setAdminTab: (v: string) => void
+  setAdminTab?: (v: string) => void
   setDonaturTab: (v: string) => void
   mobileMenuOpen: boolean
   setMobileMenuOpen: (v: boolean) => void
@@ -39,7 +39,7 @@ export function Header({
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView(session?.user ? (session.user.role === 'admin' ? 'admin' : 'donatur') : 'landing')}>
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => { if (session?.user?.role === 'admin') { window.location.href = '/admin/dashboard' } else if (session?.user) { setView('donatur') } else { setView('landing') } }}>
           <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-linear-to-br from-teal-500 to-emerald-600">
             <Heart className="h-5 w-5 text-white" />
           </div>
@@ -51,7 +51,7 @@ export function Header({
           {session?.user ? (
             <>
               {session.user.role === 'admin' && (
-                <Button variant="ghost" size="sm" onClick={() => { setView('admin'); setAdminTab('campaign') }}>
+                <Button variant="ghost" size="sm" onClick={() => { window.location.href = '/admin/dashboard' }}>
                   <LayoutDashboard className="h-4 w-4 mr-1" /> Dashboard
                 </Button>
               )}
@@ -154,7 +154,7 @@ export function Header({
                   <p className="text-xs text-muted-foreground">{session.user.email}</p>
                 </div>
               </div>
-              <Button variant="ghost" className="w-full justify-start" onClick={() => { setView(session.user.role === 'admin' ? 'admin' : 'donatur'); setMobileMenuOpen(false) }}>
+              <Button variant="ghost" className="w-full justify-start" onClick={() => { if (session.user.role === 'admin') { window.location.href = '/admin/dashboard' } else { setView('donatur'); setMobileMenuOpen(false) } }}>
                 <LayoutDashboard className="h-4 w-4 mr-2" /> Dashboard
               </Button>
               <Button variant="ghost" className="w-full justify-start" onClick={() => { setView('landing'); setMobileMenuOpen(false) }}>

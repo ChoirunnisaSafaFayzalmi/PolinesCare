@@ -5,29 +5,9 @@ import { useSession, signIn, signOut } from 'next-auth/react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Textarea } from '@/components/ui/textarea'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import {
-  Heart, Menu, X, Bell, LogOut, ChevronDown, Search,
-  Plus, Edit, Trash2, Check, AlertTriangle, TrendingUp,
-  Users, ArrowLeft, ArrowRight, Calendar,
-  Phone, Mail, Globe, CreditCard, QrCode, Banknote,
-  Eye, ThumbsUp, ThumbsDown, FileText, BarChart3,
-  Activity, Gift, Shield, Star, MapPin, Building2, Award,
-  ChevronRight, ExternalLink, Send, CircleDollarSign, Home as HomeIcon,
-  Megaphone, Vote, ClipboardList, UserCircle, LayoutDashboard,
-  HandHeart, DollarSign, UserPlus, Sparkles, Trophy,
-} from 'lucide-react'
 
 // Types & Helpers
-import type { Campaign, Donation, Proposal, AppNotification, RecommendedCampaign, FundUsage, PlatformStats } from '@/components/polines/types'
+import type { Campaign, Donation, Proposal, AppNotification, RecommendedCampaign, PlatformStats } from '@/components/polines/types'
 import { CATEGORIES, formatRupiah, formatDate, getCategoryColor, getStatusColor } from '@/components/polines/types'
 
 // Components
@@ -36,16 +16,13 @@ import { Footer } from '@/components/polines/footer'
 import { LandingPage } from '@/components/polines/landing-page'
 import { LoginPage } from '@/components/polines/login-page'
 import { RegisterPage } from '@/components/polines/register-page'
-import { AdminDashboard } from '@/components/polines/admin-dashboard'
 import { DonaturDashboard } from '@/components/polines/donatur-dashboard'
 import { DonationModal } from '@/components/polines/donation-modal'
 import { CampaignDetailModal } from '@/components/polines/campaign-detail-modal'
-import { CampaignFormModal } from '@/components/polines/campaign-form-modal'
 import { ProposalFormModal } from '@/components/polines/proposal-form-modal'
-import { FundUsageModal } from '@/components/polines/fund-usage-modal'
 
 // ============================================================
-// MAIN APP COMPONENT
+// MAIN APP COMPONENT (Landing + Login + Register + Donatur)
 // ============================================================
 export default function Home() {
   const { data: session, status: sessionStatus } = useSession()
@@ -63,27 +40,17 @@ export default function Home() {
   const [stats, setStats] = useState<PlatformStats | null>(null)
   const [recommendations, setRecommendations] = useState<{ personalized: RecommendedCampaign[]; trending: RecommendedCampaign[]; becauseYouLiked: RecommendedCampaign[] }>({ personalized: [], trending: [], becauseYouLiked: [] })
   const [publicRecommendations, setPublicRecommendations] = useState<RecommendedCampaign[]>([])
-  const [fundUsages, setFundUsages] = useState<FundUsage[]>([])
-  const [allCampaigns, setAllCampaigns] = useState<Campaign[]>([])
 
   // ---- Filter States ----
   const [landingSearch, setLandingSearch] = useState('')
   const [landingCategory, setLandingCategory] = useState('all')
-  const [adminCampaignFilter, setAdminCampaignFilter] = useState('all')
-  const [adminCampaignStatus, setAdminCampaignStatus] = useState('all')
-  const [donationFilter, setDonationFilter] = useState('all')
-  const [adminTab, setAdminTab] = useState('dashboard')
   const [donaturTab, setDonaturTab] = useState('dashboard')
-  const [reportCampaignId, setReportCampaignId] = useState('')
 
   // ---- Modal States ----
   const [donationModalOpen, setDonationModalOpen] = useState(false)
-  const [campaignFormModalOpen, setCampaignFormModalOpen] = useState(false)
   const [proposalFormModalOpen, setProposalFormModalOpen] = useState(false)
   const [campaignDetailModalOpen, setCampaignDetailModalOpen] = useState(false)
-  const [fundUsageModalOpen, setFundUsageModalOpen] = useState(false)
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
-  const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null)
 
   // ---- Donation Form State ----
   const [donationStep, setDonationStep] = useState(1)
@@ -91,21 +58,10 @@ export default function Home() {
     campaignId: '', type: 'uang', amount: '', paymentMethod: 'transfer', message: '', proofUrl: ''
   })
 
-  // ---- Campaign Form State ----
-  const [campaignForm, setCampaignForm] = useState({
-    organizerName: '', organizerEmail: '', organizerPhone: '', organizerAddress: '',
-    title: '', description: '', category: 'Sosial', targetAmount: '',
-    startDate: '', endDate: '', isUrgent: false,
-    paymentMethod: 'transfer', accountNumber: ''
-  })
-
   // ---- Proposal Form State ----
   const [proposalForm, setProposalForm] = useState({
     title: '', description: '', category: 'Sosial', targetAmount: ''
   })
-
-  // ---- Fund Usage Form State ----
-  const [fundUsageForm, setFundUsageForm] = useState({ campaignId: '', description: '', amount: '' })
 
   // ---- Auth Form States ----
   const [loginForm, setLoginForm] = useState({ email: '', password: '' })
@@ -123,13 +79,6 @@ export default function Home() {
     try {
       const res = await fetch('/api/campaigns?status=active')
       if (res.ok) { const data = await res.json(); setCampaigns(data.campaigns || data || []) }
-    } catch { /* silent */ }
-  }, [])
-
-  const fetchAllCampaigns = useCallback(async () => {
-    try {
-      const res = await fetch('/api/campaigns')
-      if (res.ok) { const data = await res.json(); setAllCampaigns(data.campaigns || data || []) }
     } catch { /* silent */ }
   }, [])
 
@@ -197,14 +146,6 @@ export default function Home() {
     } catch { /* silent */ }
   }, [session?.user?.id])
 
-  const fetchFundUsages = useCallback(async (campaignId: string) => {
-    if (!campaignId) { setFundUsages([]); return }
-    try {
-      const res = await fetch(`/api/fund-usage?campaignId=${campaignId}`)
-      if (res.ok) { const data = await res.json(); setFundUsages(data.fundUsages || data || []) }
-    } catch { setFundUsages([]) }
-  }, [])
-
   const fetchCampaignDetail = useCallback(async (campaignId: string) => {
     try {
       const [campRes, donRes] = await Promise.all([
@@ -223,23 +164,27 @@ export default function Home() {
 
   useEffect(() => {
     if (session?.user) {
-      fetchDonations(); fetchNotifications(); fetchAllCampaigns()
+      fetchDonations(); fetchNotifications()
       if (session.user.role === 'donatur') fetchRecommendations()
-      if (session.user.role === 'admin') { fetchAllCampaigns(); fetchDonations() }
     }
-  }, [session?.user, fetchDonations, fetchNotifications, fetchAllCampaigns, fetchRecommendations])
+  }, [session?.user, fetchDonations, fetchNotifications, fetchRecommendations])
 
+  // ---- Set view based on login status ----
   useEffect(() => {
+    if (sessionStatus === 'loading') return // wait for session to load
     if (session?.user) {
-      setView(session.user.role === 'admin' ? 'admin' : 'donatur')
+      const role = (session.user as any)?.role || session.user.role
+      if (role === 'admin') {
+        // Auto-redirect admin to admin dashboard
+        window.location.href = '/admin/dashboard'
+        return
+      } else if (role === 'donatur') {
+        setView('donatur')
+      }
     } else {
       setView('landing')
     }
-  }, [session?.user])
-
-  useEffect(() => {
-    if (reportCampaignId) fetchFundUsages(reportCampaignId)
-  }, [reportCampaignId, fetchFundUsages])
+  }, [session?.user, sessionStatus])
 
   // ============================================================
   // AUTH HANDLERS
@@ -286,7 +231,7 @@ export default function Home() {
   }
 
   // ============================================================
-  // DONATION HANDLERS
+  // DONATION HANDLERS (Donatur)
   // ============================================================
   const openDonationModal = (campaign?: Campaign) => {
     if (campaign) {
@@ -324,69 +269,7 @@ export default function Home() {
   }
 
   // ============================================================
-  // CAMPAIGN CRUD (Admin)
-  // ============================================================
-  const openCampaignForm = (campaign?: Campaign) => {
-    if (campaign) {
-      setEditingCampaign(campaign)
-      setCampaignForm({
-        organizerName: '', organizerEmail: '', organizerPhone: '', organizerAddress: '',
-        title: campaign.title, description: campaign.description, category: campaign.category,
-        targetAmount: String(campaign.targetAmount), startDate: campaign.startDate.split('T')[0],
-        endDate: campaign.endDate.split('T')[0], isUrgent: campaign.isUrgent,
-        paymentMethod: 'transfer', accountNumber: ''
-      })
-    } else {
-      setEditingCampaign(null)
-      setCampaignForm({
-        organizerName: '', organizerEmail: '', organizerPhone: '', organizerAddress: '',
-        title: '', description: '', category: 'Sosial', targetAmount: '',
-        startDate: '', endDate: '', isUrgent: false,
-        paymentMethod: 'transfer', accountNumber: ''
-      })
-    }
-    setCampaignFormModalOpen(true)
-  }
-
-  const submitCampaign = async () => {
-    setSubmitting(true)
-    try {
-      const body = { ...campaignForm, targetAmount: Number(campaignForm.targetAmount), startDate: new Date(campaignForm.startDate).toISOString(), endDate: new Date(campaignForm.endDate).toISOString() }
-      const url = editingCampaign ? `/api/campaigns/${editingCampaign.id}` : '/api/campaigns'
-      const method = editingCampaign ? 'PUT' : 'POST'
-      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      if (res.ok) {
-        toast.success(editingCampaign ? 'Campaign berhasil diperbarui' : 'Campaign berhasil dibuat')
-        setCampaignFormModalOpen(false); fetchCampaigns(); fetchAllCampaigns(); fetchStats()
-      } else { const data = await res.json(); toast.error(data.error || 'Gagal menyimpan campaign') }
-    } catch { toast.error('Terjadi kesalahan') }
-    finally { setSubmitting(false) }
-  }
-
-  const deleteCampaign = async (id: string) => {
-    if (!confirm('Yakin ingin menghapus campaign ini?')) return
-    try {
-      const res = await fetch(`/api/campaigns/${id}`, { method: 'DELETE' })
-      if (res.ok) { toast.success('Campaign berhasil dihapus'); fetchCampaigns(); fetchAllCampaigns(); fetchStats() }
-      else toast.error('Gagal menghapus campaign')
-    } catch { toast.error('Terjadi kesalahan') }
-  }
-
-  // ============================================================
-  // DONATION VERIFICATION (Admin)
-  // ============================================================
-  const verifyDonation = async (id: string, status: 'approved' | 'rejected') => {
-    try {
-      const res = await fetch(`/api/donations/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) })
-      if (res.ok) {
-        toast.success(`Donasi berhasil ${status === 'approved' ? 'disetujui' : 'ditolak'}`)
-        fetchDonations(); fetchCampaigns(); fetchAllCampaigns(); fetchStats(); fetchNotifications()
-      } else toast.error('Gagal memverifikasi donasi')
-    } catch { toast.error('Terjadi kesalahan') }
-  }
-
-  // ============================================================
-  // PROPOSAL HANDLERS
+  // PROPOSAL HANDLERS (Donatur)
   // ============================================================
   const submitProposal = async () => {
     if (!session?.user) return; setSubmitting(true)
@@ -401,12 +284,26 @@ export default function Home() {
     finally { setSubmitting(false) }
   }
 
-  const updateProposalStatus = async (id: string, status: 'approved' | 'rejected') => {
+  const updateProfile = async (data: { name: string; phone: string }) => {
+    if (!session?.user) return
+    setSubmitting(true)
     try {
-      const res = await fetch(`/api/proposals/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) })
-      if (res.ok) { toast.success(`Proposal berhasil ${status === 'approved' ? 'disetujui' : 'ditolak'}`); fetchProposals(); fetchNotifications() }
-      else toast.error('Gagal memperbarui proposal')
-    } catch { toast.error('Terjadi kesalahan') }
+      const res = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      if (res.ok) {
+        toast.success('Profil berhasil diperbarui')
+        window.location.reload()
+      } else {
+        const d = await res.json()
+        toast.error(d.error || 'Gagal memperbarui profil')
+      }
+    } catch {
+      toast.error('Terjadi kesalahan')
+    }
+    finally { setSubmitting(false) }
   }
 
   const voteProposal = async (id: string) => {
@@ -415,21 +312,8 @@ export default function Home() {
   }
 
   // ============================================================
-  // FUND USAGE HANDLERS (Admin)
+  // NOTIFICATION HANDLERS
   // ============================================================
-  const submitFundUsage = async () => {
-    setSubmitting(true)
-    try {
-      const res = await fetch('/api/fund-usage', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ campaignId: fundUsageForm.campaignId, description: fundUsageForm.description, amount: Number(fundUsageForm.amount) })
-      })
-      if (res.ok) { toast.success('Laporan penggunaan dana berhasil ditambahkan'); setFundUsageModalOpen(false); if (reportCampaignId) fetchFundUsages(reportCampaignId) }
-      else toast.error('Gagal menambahkan laporan')
-    } catch { toast.error('Terjadi kesalahan') }
-    finally { setSubmitting(false) }
-  }
-
   const markNotificationRead = async (id: string) => {
     try {
       await fetch('/api/notifications', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notificationIds: [id] }) })
@@ -455,20 +339,13 @@ export default function Home() {
     return matchSearch && matchCategory
   })
 
-  const filteredAdminCampaigns = allCampaigns.filter(c => {
-    const matchStatus = adminCampaignStatus === 'all' || c.status === adminCampaignStatus
-    const matchCategory = adminCampaignFilter === 'all' || c.category === adminCampaignFilter
-    return matchStatus && matchCategory
-  })
-
-  const filteredDonations = donations.filter(d => donationFilter === 'all' || d.status === donationFilter)
   const userDonations = donations.filter(d => d.userId === session?.user?.id)
 
   // ============================================================
   // HANDLERS PASSED TO COMPONENTS
   // ============================================================
   const headerProps = {
-    session, view, setView, setAdminTab, setDonaturTab,
+    session, view, setView, setDonaturTab,
     mobileMenuOpen, setMobileMenuOpen,
     notifDropdownOpen, setNotifDropdownOpen, unreadCount,
     notifications, markNotificationRead, markAllNotificationsRead,
@@ -503,49 +380,39 @@ export default function Home() {
     )
   }
 
+  // Show redirecting message if admin is logged in (before window.location.href kicks in)
+  if (session?.user && ((session.user as any)?.role || session.user.role) === 'admin') {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header {...headerProps} />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Mengalihkan ke Dashboard Admin...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
   // ============================================================
   // MAIN RENDER
   // ============================================================
-  const isAdminView = view === 'admin' && session?.user?.role === 'admin'
-
   return (
     <div className="flex flex-col min-h-screen" onClick={() => { if (notifDropdownOpen) setNotifDropdownOpen(false) }}>
-      {/* Global Header & Footer: hidden when admin dashboard is active */}
-      {!isAdminView && <Header {...headerProps} />}
+      {/* Global Header & Footer: hidden when donatur dashboard is active */}
+      {view !== 'donatur' && <Header {...headerProps} />}
 
       <main className="flex-1">
         {view === 'landing' && <LandingPage {...landingProps} />}
         {view === 'login' && <LoginPage {...loginProps} />}
         {view === 'register' && <RegisterPage {...registerProps} />}
-        {isAdminView && (
-          <AdminDashboard
-            adminTab={adminTab} setAdminTab={setAdminTab}
-            allCampaigns={allCampaigns} filteredAdminCampaigns={filteredAdminCampaigns}
-            filteredDonations={filteredDonations} proposals={proposals}
-            notifications={notifications} stats={stats} fundUsages={fundUsages}
-            reportCampaignId={reportCampaignId} setReportCampaignId={setReportCampaignId}
-            unreadCount={unreadCount}
-            adminCampaignFilter={adminCampaignFilter} setAdminCampaignFilter={setAdminCampaignFilter}
-            adminCampaignStatus={adminCampaignStatus} setAdminCampaignStatus={setAdminCampaignStatus}
-            donationFilter={donationFilter} setDonationFilter={setDonationFilter}
-            openCampaignForm={openCampaignForm} deleteCampaign={deleteCampaign}
-            verifyDonation={verifyDonation} updateProposalStatus={updateProposalStatus}
-            markNotificationRead={markNotificationRead} markAllNotificationsRead={markAllNotificationsRead}
-            setFundUsageForm={setFundUsageForm} setFundUsageModalOpen={setFundUsageModalOpen}
-            setView={setView} handleSignOut={handleSignOut}
-            session={session}
-            notifDropdownOpen={notifDropdownOpen} setNotifDropdownOpen={setNotifDropdownOpen}
-            campaignForm={campaignForm} setCampaignForm={setCampaignForm}
-            editingCampaign={editingCampaign} setEditingCampaign={setEditingCampaign}
-            submitCampaign={submitCampaign} submitting={submitting}
-            donations={donations}
-            fundUsageForm={fundUsageForm} submitFundUsage={submitFundUsage}
-          />
-        )}
         {view === 'donatur' && session?.user?.role === 'donatur' && (
           <DonaturDashboard
             donaturTab={donaturTab} setDonaturTab={setDonaturTab}
             campaigns={campaigns} userDonations={userDonations}
+            proposals={proposals}
             recommendations={recommendations}
             landingSearch={landingSearch} setLandingSearch={setLandingSearch}
             landingCategory={landingCategory} setLandingCategory={setLandingCategory}
@@ -557,21 +424,12 @@ export default function Home() {
             setView={setView} handleSignOut={handleSignOut}
             notifDropdownOpen={notifDropdownOpen} setNotifDropdownOpen={setNotifDropdownOpen}
             stats={stats}
+            updateProfile={updateProfile}
           />
-        )}
-
-        {/* Fallback if role doesn't match */}
-        {view === 'admin' && session?.user?.role !== 'admin' && (
-          <div className="min-h-[60vh] flex items-center justify-center">
-            <Card className="p-8 text-center">
-              <p className="text-muted-foreground">Anda tidak memiliki akses ke halaman ini</p>
-              <Button className="mt-4 bg-teal-600 hover:bg-teal-700 text-white" onClick={() => setView('landing')}>Kembali</Button>
-            </Card>
-          </div>
         )}
       </main>
 
-      {!isAdminView && <Footer />}
+      {view !== 'donatur' && <Footer />}
 
       {/* Modals */}
       <DonationModal
@@ -586,27 +444,11 @@ export default function Home() {
         selectedCampaign={selectedCampaign} campaignDonations={campaignDonations}
         onDonate={() => { if (selectedCampaign) openDonationModal(selectedCampaign) }}
       />
-      {/* CampaignFormModal handled inline in AdminDashboard when admin view is active */}
-      {!isAdminView && (
-        <CampaignFormModal
-          open={campaignFormModalOpen} onClose={() => { setCampaignFormModalOpen(false); setEditingCampaign(null) }}
-          editingCampaign={editingCampaign} campaignForm={campaignForm}
-          setCampaignForm={setCampaignForm} submitting={submitting} onSubmit={submitCampaign}
-        />
-      )}
       <ProposalFormModal
         open={proposalFormModalOpen} onClose={() => setProposalFormModalOpen(false)}
         proposalForm={proposalForm} setProposalForm={setProposalForm}
         submitting={submitting} onSubmit={submitProposal}
       />
-      {/* FundUsageModal handled inline in AdminDashboard when admin view is active */}
-      {!isAdminView && (
-        <FundUsageModal
-          open={fundUsageModalOpen} onClose={() => setFundUsageModalOpen(false)}
-          fundUsageForm={fundUsageForm} setFundUsageForm={setFundUsageForm}
-        allCampaigns={allCampaigns} submitting={submitting} onSubmit={submitFundUsage}
-        />
-      )}
     </div>
   )
 }
