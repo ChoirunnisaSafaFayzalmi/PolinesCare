@@ -76,7 +76,7 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { title, description, category, targetAmount, startDate, endDate, image, status, isUrgent } = body;
+    const { title, description, category, targetAmount, startDate, endDate, image, status, isUrgent, uniqueCode } = body;
 
     const existingCampaign = await db.campaign.findUnique({ where: { id } });
     if (!existingCampaign) {
@@ -98,6 +98,7 @@ export async function PUT(
         ...(image !== undefined && { image }),
         ...(status && { status }),
         ...(isUrgent !== undefined && { isUrgent }),
+        ...(uniqueCode !== undefined && { uniqueCode: Math.min(999, Math.max(0, Number(uniqueCode))) }),
       },
     });
 

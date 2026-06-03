@@ -8,8 +8,8 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
-import type { Campaign } from './types'
-import { CATEGORIES } from './types'
+import type { Campaign } from '../types'
+import { CATEGORIES } from '../types'
 
 interface CampaignFormModalProps {
   open: boolean

@@ -62,9 +62,9 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { status } = body;
+    const { status, kejelasanTujuan, kelayakanAnggaran, urgensi, keterkaitanKampus, kontribusiSosial } = body;
 
-    if (!["approved", "rejected", "pending"].includes(status)) {
+    if (status && !["approved", "rejected", "pending"].includes(status)) {
       return NextResponse.json(
         { error: "Status tidak valid. Gunakan: approved, rejected, pending" },
         { status: 400 }
@@ -79,9 +79,18 @@ export async function PUT(
       );
     }
 
+    // Build update data — support both status and criteria scores
+    const updateData: Record<string, unknown> = {}
+    if (status) updateData.status = status
+    if (kejelasanTujuan !== undefined) updateData.kejelasanTujuan = Number(kejelasanTujuan)
+    if (kelayakanAnggaran !== undefined) updateData.kelayakanAnggaran = Number(kelayakanAnggaran)
+    if (urgensi !== undefined) updateData.urgensi = Number(urgensi)
+    if (keterkaitanKampus !== undefined) updateData.keterkaitanKampus = Number(keterkaitanKampus)
+    if (kontribusiSosial !== undefined) updateData.kontribusiSosial = Number(kontribusiSosial)
+
     const proposal = await db.proposal.update({
       where: { id },
-      data: { status },
+      data: updateData,
       include: {
         proposer: {
           select: { id: true, name: true },

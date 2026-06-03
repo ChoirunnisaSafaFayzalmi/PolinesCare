@@ -16,7 +16,7 @@ export default async function RootPage() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1">
-        <LandingPage session={null} />
+        <LandingPage />
       </main>
       <Footer />
     </div>
