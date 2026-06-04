@@ -10,9 +10,9 @@ import { Card } from '@/components/ui/card'
 import type { Campaign, Donation, Proposal, AppNotification, FundUsage, PlatformStats } from '@/components/polines/types'
 
 // Components
-import { AdminDashboard } from '@/components/polines/admin-dashboard'
+import { AdminDashboard } from '@/components/polines/admin/admin-dashboard'
 import { CampaignFormModal } from '@/components/polines/admin/campaign-form-modal'
-import { FundUsageModal } from '@/components/polines/fund-usage-modal'
+import { FundUsageModal } from '@/components/polines/admin/fund-usage-modal'
 
 // ============================================================
 // URL → State mapping
