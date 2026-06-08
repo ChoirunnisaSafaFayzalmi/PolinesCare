@@ -246,9 +246,9 @@ export function LandingPage() {
             {filteredLandingCampaigns.map(campaign => (
               <Card key={campaign.id} className="overflow-hidden hover:shadow-lg transition-shadow group p-0">
                 <div className="relative">
-                  {campaign.image ? (
+                  {campaign.images ? (
                     <img
-                      src={campaign.image}
+                      src={campaign.images}
                       alt={campaign.title}
                       className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
                     />

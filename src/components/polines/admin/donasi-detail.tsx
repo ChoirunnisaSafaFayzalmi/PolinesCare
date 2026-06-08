@@ -23,15 +23,24 @@ export function DonasiDetailView({ donation: initialDonation, onVerify }: Donasi
   }
 
   const fields = [
-    { label: 'Nama Donatur', value: donation.donorName },
-    { label: 'Email', value: donation.donorEmail },
-    { label: 'No Telp', value: donation.donorPhone || '-' },
-    { label: 'Tanggal Donasi', value: formatDate(donation.createdAt) },
-    { label: 'Campaign', value: donation.campaign?.title || '-' },
-    { label: 'Metode Pembayaran', value: donation.paymentMethod || '-' },
-    { label: 'Nominal', value: formatRupiah(donation.amount) },
-    { label: 'Pesan', value: donation.message || '-' },
-  ]
+  { label: 'Nama Donatur',  value: donation.donorName },
+  { label: 'Email',         value: donation.donorEmail },
+  { label: 'No Telp',       value: donation.donorPhone || '-' },
+  { label: 'Tanggal',       value: formatDate(donation.createdAt) },
+  { label: 'Campaign',      value: donation.campaign?.title || '-' },
+  ...(donation.type === 'uang'
+    ? [
+        { label: 'Metode Pembayaran', value: donation.paymentMethod || '-' },
+        { label: 'Nominal',           value: formatRupiah(donation.amount) },
+      ]
+    : [
+        { label: 'Jenis Barang',      value: donation.itemName || '-' },
+        { label: 'Jumlah Barang',     value: donation.itemQuantity ? `${donation.itemQuantity} pcs` : '-' },
+        { label: 'Alamat Pengirim',   value: donation.senderAddress || '-' },
+      ]
+  ),
+  { label: 'Pesan', value: donation.message || '-' },
+]
 
   return (
     <Card className="shadow-sm border-gray-100">

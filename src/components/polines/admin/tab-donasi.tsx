@@ -22,6 +22,7 @@ interface DonasiTabProps {
 export function DonasiTab({ donations, allCampaigns, onSelectDonation }: DonasiTabProps) {
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('all')
   const [dateFilter, setDateFilter] = useState('')
   const [page, setPage] = useState(1)
 
@@ -29,17 +30,19 @@ export function DonasiTab({ donations, allCampaigns, onSelectDonation }: DonasiT
     const matchSearch = search === '' ||
       d.donorName.toLowerCase().includes(search.toLowerCase()) ||
       d.campaign?.title?.toLowerCase().includes(search.toLowerCase())
-    const matchType = typeFilter === 'all' || d.type === typeFilter
-    const matchDate = dateFilter === '' || d.createdAt?.startsWith(dateFilter)
-    return matchSearch && matchType && matchDate
+    const matchType   = typeFilter   === 'all' || d.type   === typeFilter
+    const matchStatus = statusFilter === 'all' || d.status === statusFilter
+    const matchDate   = dateFilter   === ''    || d.createdAt?.startsWith(dateFilter)
+    return matchSearch && matchType && matchStatus && matchDate
   })
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
-  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
+  const paginated  = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
 
   return (
     <Card className="shadow-sm border-gray-100">
       <CardContent className="p-6">
+
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-4">
           <div className="relative flex-1 min-w-[200px]">
@@ -57,12 +60,23 @@ export function DonasiTab({ donations, allCampaigns, onSelectDonation }: DonasiT
             onChange={(e) => { setDateFilter(e.target.value); setPage(1) }}
             className="w-auto rounded-lg border-gray-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
           />
+          {/* Filter Tipe */}
           <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setPage(1) }}>
-            <SelectTrigger className="w-40 rounded-lg border-gray-200"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-36 rounded-lg border-gray-200"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Semua Tipe</SelectItem>
               <SelectItem value="uang">Uang</SelectItem>
               <SelectItem value="barang">Barang</SelectItem>
+            </SelectContent>
+          </Select>
+          {/* Filter Status */}
+          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
+            <SelectTrigger className="w-36 rounded-lg border-gray-200"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -79,38 +93,46 @@ export function DonasiTab({ donations, allCampaigns, onSelectDonation }: DonasiT
                   <TableHead className="text-white font-semibold hidden md:table-cell">Tanggal</TableHead>
                   <TableHead className="text-white font-semibold">Campaign</TableHead>
                   <TableHead className="text-white font-semibold hidden lg:table-cell">Kode Unik</TableHead>
-                  <TableHead className="text-white font-semibold hidden lg:table-cell">Akhir 3 Digit</TableHead>
                   <TableHead className="text-white font-semibold hidden md:table-cell">Tipe</TableHead>
-                  <TableHead className="text-white font-semibold hidden md:table-cell">Nominal</TableHead>
+                  <TableHead className="text-white font-semibold hidden md:table-cell">Nominal / Barang</TableHead>
+                  <TableHead className="text-white font-semibold hidden lg:table-cell">Metode</TableHead>
                   <TableHead className="text-white font-semibold">Status</TableHead>
                   <TableHead className="text-white font-semibold text-right">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginated.map(d => {
-                  const camp = allCampaigns.find(c => c.id === d.campaignId)
-                  const last3 = String(d.amount % 1000).padStart(3, '0')
-                  const match = camp && (d.amount % 1000) === camp.uniqueCode
+                  const camp  = allCampaigns.find(c => c.id === d.campaignId)
+                  const match = camp && d.type === 'uang' && (d.amount % 1000) === camp.uniqueCode
                   return (
                     <TableRow key={d.id}>
+
+                      {/* Donatur */}
                       <TableCell className="font-medium">{d.donorName}</TableCell>
-                      <TableCell className="hidden md:table-cell text-sm text-gray-500">{formatDate(d.createdAt)}</TableCell>
-                      <TableCell className="max-w-[150px] truncate text-sm">{d.campaign?.title}</TableCell>
+
+                      {/* Tanggal */}
+                      <TableCell className="hidden md:table-cell text-sm text-gray-500">
+                        {formatDate(d.createdAt)}
+                      </TableCell>
+
+                      {/* Campaign */}
+                      <TableCell className="max-w-[150px] truncate text-sm">
+                        {d.campaign?.title}
+                      </TableCell>
+
+                      {/* Kode Unik — hanya tampil untuk donasi uang */}
                       <TableCell className="hidden lg:table-cell">
-                        {camp ? (
-                          <Badge className="bg-violet-100 text-violet-700 border-violet-200">
+                        {d.type === 'uang' && camp ? (
+                          <Badge className={`font-mono ${match ? 'bg-green-100 text-green-700 border-green-200' : 'bg-violet-100 text-violet-700 border-violet-200'}`}>
                             {formatUniqueCode(camp.uniqueCode)}
+                            {match && <Check className="h-3 w-3 ml-1 inline" />}
                           </Badge>
-                        ) : <span className="text-xs text-gray-400">-</span>}
+                        ) : (
+                          <span className="text-xs text-gray-300">—</span>
+                        )}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-bold ${
-                          match ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
-                        }`}>
-                          {last3}
-                          {match && <Check className="h-3 w-3 ml-1" />}
-                        </span>
-                      </TableCell>
+
+                      {/* Tipe */}
                       <TableCell className="hidden md:table-cell">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           d.type === 'uang' ? 'bg-orange-100 text-orange-700' : 'bg-amber-100 text-amber-700'
@@ -118,12 +140,31 @@ export function DonasiTab({ donations, allCampaigns, onSelectDonation }: DonasiT
                           {d.type}
                         </span>
                       </TableCell>
+
+                      {/* Nominal / Barang */}
                       <TableCell className="hidden md:table-cell text-sm font-medium text-gray-700">
-                        {formatRupiah(d.amount)}
+                        {d.type === 'uang'
+  ? formatRupiah(d.amount)
+  : <span className="text-gray-700 font-medium">
+      {d.itemName ? `${d.itemName} ` : ''}{d.itemQuantity ?? '-'} pcs
+    </span>
+}
                       </TableCell>
+
+                      {/* Metode — hanya untuk uang */}
+                      <TableCell className="hidden lg:table-cell text-sm text-gray-600">
+                        {d.type === 'uang'
+                          ? (d.paymentMethod || <span className="text-gray-300">—</span>)
+                          : <span className="text-gray-300">—</span>
+                        }
+                      </TableCell>
+
+                      {/* Status */}
                       <TableCell>
                         <Badge className={getStatusColor(d.status)}>{d.status}</Badge>
                       </TableCell>
+
+                      {/* Aksi */}
                       <TableCell className="text-right">
                         <button
                           onClick={() => onSelectDonation(d)}
@@ -132,6 +173,7 @@ export function DonasiTab({ donations, allCampaigns, onSelectDonation }: DonasiT
                           Detail
                         </button>
                       </TableCell>
+
                     </TableRow>
                   )
                 })}
@@ -160,6 +202,7 @@ export function DonasiTab({ donations, allCampaigns, onSelectDonation }: DonasiT
             </Button>
           </div>
         )}
+
       </CardContent>
     </Card>
   )

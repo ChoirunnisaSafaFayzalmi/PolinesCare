@@ -12,7 +12,7 @@ import { LaporanDetailView } from './laporan-detail'
 import { AjuanDetailView } from './ajuan-detail'
 import { NotifikasiTab } from './tab-notifikasi'
 import { ArrowLeft } from 'lucide-react'
-import type { Campaign, Donation, Proposal, AppNotification, PlatformStats, FundUsage } from '@/components/polines/types'
+import type { Campaign, Donation, Proposal, AppNotification, PlatformStats, FundUsage, PaymentMethod } from '@/components/polines/types'
 import type { LaporanCampaign } from './tab-laporan'
 
 // ── Types ──────────────────────────────────────────────────────
@@ -48,11 +48,18 @@ interface AdminDashboardProps {
   handleSignOut: () => void
   session: any
   campaignForm: {
-    organizerName: string; organizerEmail: string; organizerPhone: string; organizerAddress: string
-    title: string; description: string; category: string; targetAmount: string
-    startDate: string; endDate: string; isUrgent: boolean
-    paymentMethod: string; accountNumber: string; uniqueCode: string
-  }
+  title: string
+  description: string
+  category: string
+  targetAmount: string
+  startDate: string
+  endDate: string
+  isUrgent: boolean
+  isPublic: boolean
+  paymentMethods: PaymentMethod[]  // ← pakai type dari types.ts, bukan inline
+  uniqueCode: string
+  images?: string[]
+}
   setCampaignForm: (form: any) => void
   editingCampaign: Campaign | null
   setEditingCampaign: (c: Campaign | null) => void
@@ -132,26 +139,36 @@ export function AdminDashboard(props: AdminDashboardProps) {
   const handleNewCampaign = () => {
     setEditingCampaign(null)
     setCampaignForm({
-      organizerName: '', organizerEmail: '', organizerPhone: '', organizerAddress: '',
-      title: '', description: '', category: 'Sosial', targetAmount: '',
-      startDate: '', endDate: '', isUrgent: false,
-      paymentMethod: 'transfer', accountNumber: '', uniqueCode: '',
-    })
+  title: '', description: '', category: 'Sosial', targetAmount: '',
+  startDate: '', endDate: '', isUrgent: false, isPublic: true,
+  paymentMethods: [], uniqueCode: '',
+  images: [],
+})
     setSubView('campaign-form')
   }
 
   const handleEditCampaign = (c: Campaign) => {
-    setEditingCampaign(c)
-    setCampaignForm({
-      organizerName: '', organizerEmail: '', organizerPhone: '', organizerAddress: '',
-      title: c.title, description: c.description, category: c.category,
-      targetAmount: String(c.targetAmount),
-      startDate: c.startDate.split('T')[0], endDate: c.endDate.split('T')[0],
-      isUrgent: c.isUrgent,
-      paymentMethod: 'transfer', accountNumber: '', uniqueCode: String(c.uniqueCode ?? 0),
-    })
-    setSubView('campaign-form')
-  }
+  setEditingCampaign(c)
+  setCampaignForm({
+    title: c.title,
+    description: c.description,
+    category: c.category,
+    targetAmount: String(c.targetAmount),
+    startDate: c.startDate.split('T')[0],
+    endDate: c.endDate.split('T')[0],
+    isUrgent: c.isUrgent,
+    isPublic: c.isPublic ?? true,
+    paymentMethods: (c.paymentMethods ?? []).map(pm => ({
+      key: pm.key,
+      label: pm.label ?? '',
+      accountNumber: pm.accountNumber,
+      isVisible: pm.isVisible ?? true,
+    })),
+    uniqueCode: String(c.uniqueCode ?? 0),
+    images: c.images ? JSON.parse(c.images) : [],
+  })
+  setSubView('campaign-form')
+}
 
   const handleSaveCampaign = () => {
     submitCampaign()
@@ -185,6 +202,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
           submitting={submitting}
           onSave={handleSaveCampaign}
           onBack={handleBack}
+          session={session}
         />
       )
     }

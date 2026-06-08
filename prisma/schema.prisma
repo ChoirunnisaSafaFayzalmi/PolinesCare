@@ -37,7 +37,8 @@ model Campaign {
   collectedAmount Int      @default(0)
   startDate       DateTime
   endDate         DateTime
-  image           String?
+  images    String?  // JSON array URL, contoh: '["url1","url2"]'
+  isPublic  Boolean  @default(true)
   location        String?  // lokasi campaign
   status          String   @default("active") // active, closed, completed
   isUrgent        Boolean  @default(false)
@@ -45,6 +46,7 @@ model Campaign {
   createdBy       String
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  dropOffLocation String?  // alamat tujuan pengiriman barang donasi
 
   donations  Donation[]
   fundUsages FundUsage[]
@@ -64,13 +66,12 @@ model Donation {
   proofUrl        String?  // bukti pembayaran / bukti barang
   status          String   @default("pending")  // pending, approved, rejected
   message         String?  // keterangan/pesan dari donatur
-  rejectionReason String?  // alasan ditolak oleh admin
 
   // Khusus donasi barang
   itemName        String?  // jenis barang
   itemQuantity    Int?     // jumlah barang
   senderAddress   String?  // alamat pengirim barang
-  dropOffLocation String?  // info lokasi donasi barang
+  // dropOffLocation String?  
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
