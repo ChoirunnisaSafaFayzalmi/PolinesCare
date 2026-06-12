@@ -115,12 +115,13 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  // ---- Campaign Form State ----
+  // ---- Campaign Form State (struktur baru) ----
   const [campaignForm, setCampaignForm] = useState({
-    organizerName: '', organizerEmail: '', organizerPhone: '', organizerAddress: '',
     title: '', description: '', category: 'Sosial', targetAmount: '',
-    startDate: '', endDate: '', isUrgent: false,
-    paymentMethod: 'transfer', accountNumber: '', uniqueCode: ''
+    startDate: '', endDate: '', isUrgent: false, isPublic: true,
+    paymentMethods: [] as { key: string; label: string; accountNumber: string; isVisible: boolean }[],
+    uniqueCode: '',
+    images: [] as string[], location: '',
   })
 
   // ---- Fund Usage Form State ----
@@ -217,41 +218,82 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   // ============================================================
   // CAMPAIGN CRUD (Admin)
   // ============================================================
-  const openCampaignForm = (campaign?: Campaign) => {
-    if (campaign) {
-      setEditingCampaign(campaign)
-      setCampaignForm({
-        organizerName: '', organizerEmail: '', organizerPhone: '', organizerAddress: '',
-        title: campaign.title, description: campaign.description, category: campaign.category,
-        targetAmount: String(campaign.targetAmount), startDate: campaign.startDate.split('T')[0],
-        endDate: campaign.endDate.split('T')[0], isUrgent: campaign.isUrgent,
-        paymentMethod: 'transfer', accountNumber: '', uniqueCode: String(campaign.uniqueCode || '')
-      })
-    } else {
-      setEditingCampaign(null)
-      setCampaignForm({
-        organizerName: '', organizerEmail: '', organizerPhone: '', organizerAddress: '',
-        title: '', description: '', category: 'Sosial', targetAmount: '',
-        startDate: '', endDate: '', isUrgent: false,
-        paymentMethod: 'transfer', accountNumber: '', uniqueCode: ''
-      })
-    }
-    setCampaignFormModalOpen(true)
-  }
+  // const openCampaignForm = (campaign?: Campaign) => {
+  //   if (campaign) {
+  //     setEditingCampaign(campaign)
+  //     setCampaignForm({
+  //       organizerName: '', organizerEmail: '', organizerPhone: '', organizerAddress: '',
+  //       title: campaign.title, description: campaign.description, category: campaign.category,
+  //       targetAmount: String(campaign.targetAmount), startDate: campaign.startDate.split('T')[0],
+  //       endDate: campaign.endDate.split('T')[0], isUrgent: campaign.isUrgent,
+  //       paymentMethod: 'transfer', accountNumber: '', uniqueCode: String(campaign.uniqueCode || '')
+  //     })
+  //   } else {
+  //     setEditingCampaign(null)
+  //     setCampaignForm({
+  //       organizerName: '', organizerEmail: '', organizerPhone: '', organizerAddress: '',
+  //       title: '', description: '', category: 'Sosial', targetAmount: '',
+  //       startDate: '', endDate: '', isUrgent: false,
+  //       paymentMethod: 'transfer', accountNumber: '', uniqueCode: ''
+  //     })
+  //   }
+  //   setCampaignFormModalOpen(true)
+  // }
 
-  const submitCampaign = async () => {
+  const submitCampaign = async (imageFiles?: File[]) => {
     setSubmitting(true)
     try {
-      const body = { ...campaignForm, targetAmount: Number(campaignForm.targetAmount), uniqueCode: Number(campaignForm.uniqueCode) || 0, startDate: new Date(campaignForm.startDate).toISOString(), endDate: new Date(campaignForm.endDate).toISOString() }
+      // Upload gambar baru jika ada
+      let newImageUrls: string[] = []
+      if (imageFiles && imageFiles.length > 0) {
+        const formData = new FormData()
+        imageFiles.forEach(f => formData.append('files', f))
+        const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData })
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json()
+          newImageUrls = uploadData.urls || []
+        }
+      }
+
+      // Gabung: existing (non-blob) + baru
+      const existingImages = (campaignForm.images || []).filter(url => !url.startsWith('blob:'))
+      const allImages = [...existingImages, ...newImageUrls]
+
+      const body = {
+        title: campaignForm.title,
+        description: campaignForm.description,
+        location: campaignForm.location ?? '',
+        category: campaignForm.category,
+        targetAmount: Number(campaignForm.targetAmount),
+        startDate: new Date(campaignForm.startDate).toISOString(),
+        endDate: new Date(campaignForm.endDate).toISOString(),
+        isUrgent: campaignForm.isUrgent,
+        isPublic: campaignForm.isPublic,
+        paymentMethods: campaignForm.paymentMethods,
+        uniqueCode: Number(campaignForm.uniqueCode) || 0,
+        images: allImages,
+      }
+
       const url = editingCampaign ? `/api/campaigns/${editingCampaign.id}` : '/api/campaigns'
       const method = editingCampaign ? 'PUT' : 'POST'
-      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
       if (res.ok) {
         toast.success(editingCampaign ? 'Campaign berhasil diperbarui' : 'Campaign berhasil dibuat')
-        setCampaignFormModalOpen(false); fetchCampaigns(); fetchAllCampaigns(); fetchStats()
-      } else { const data = await res.json(); toast.error(data.error || 'Gagal menyimpan campaign') }
-    } catch { toast.error('Terjadi kesalahan') }
-    finally { setSubmitting(false) }
+        fetchCampaigns(); fetchAllCampaigns(); fetchStats()
+      } else {
+        const data = await res.json()
+        toast.error(data.error || 'Gagal menyimpan campaign')
+      }
+    } catch {
+      toast.error('Terjadi kesalahan')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const deleteCampaign = async (id: string) => {
@@ -389,13 +431,12 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
         adminCampaignFilter={adminCampaignFilter} setAdminCampaignFilter={setAdminCampaignFilter}
         adminCampaignStatus={adminCampaignStatus} setAdminCampaignStatus={setAdminCampaignStatus}
         donationFilter={donationFilter} setDonationFilter={setDonationFilter}
-        openCampaignForm={openCampaignForm} deleteCampaign={deleteCampaign}
+        deleteCampaign={deleteCampaign}
         verifyDonation={verifyDonation} updateProposalStatus={updateProposalStatus}
         markNotificationRead={markNotificationRead} markAllNotificationsRead={markAllNotificationsRead}
-        setFundUsageForm={setFundUsageForm} setFundUsageModalOpen={setFundUsageModalOpen}
+        setFundUsageForm={setFundUsageForm}
         setView={() => { window.location.href = '/' }} handleSignOut={handleSignOut}
         session={session}
-        notifDropdownOpen={notifDropdownOpen} setNotifDropdownOpen={setNotifDropdownOpen}
         campaignForm={campaignForm} setCampaignForm={setCampaignForm}
         editingCampaign={editingCampaign} setEditingCampaign={setEditingCampaign}
         submitCampaign={submitCampaign} submitting={submitting}

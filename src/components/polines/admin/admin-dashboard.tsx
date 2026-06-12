@@ -63,7 +63,8 @@ interface AdminDashboardProps {
   setCampaignForm: (form: any) => void
   editingCampaign: Campaign | null
   setEditingCampaign: (c: Campaign | null) => void
-  submitCampaign: () => void
+  // submitCampaign: () => void
+  submitCampaign: (imageFiles?: File[]) => void
   submitting: boolean
   donations: Donation[]
   fundUsageForm: { campaignId: string; description: string; amount: string }
@@ -72,6 +73,7 @@ interface AdminDashboardProps {
   adminCampaignSubTab?: string
   setAdminCampaignSubTab?: (v: string) => void
   onNavigateCampaignSubTab?: (subTab: string) => void
+  
 }
 
 // ── Component ──────────────────────────────────────────────────
@@ -142,7 +144,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
   title: '', description: '', category: 'Sosial', targetAmount: '',
   startDate: '', endDate: '', isUrgent: false, isPublic: true,
   paymentMethods: [], uniqueCode: '',
-  images: [],
+  images: [], location: '',
 })
     setSubView('campaign-form')
   }
@@ -152,6 +154,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
   setCampaignForm({
     title: c.title,
     description: c.description,
+    location: c.location ?? '',
     category: c.category,
     targetAmount: String(c.targetAmount),
     startDate: c.startDate.split('T')[0],
@@ -165,16 +168,18 @@ export function AdminDashboard(props: AdminDashboardProps) {
       isVisible: pm.isVisible ?? true,
     })),
     uniqueCode: String(c.uniqueCode ?? 0),
-    images: c.images ? JSON.parse(c.images) : [],
+    images: Array.isArray(c.images) 
+  ? c.images 
+  : (c.images ? JSON.parse(c.images) : []),
   })
   setSubView('campaign-form')
 }
 
-  const handleSaveCampaign = () => {
-    submitCampaign()
-    setSubView(null)
-    setEditingCampaign(null)
-  }
+  const handleSaveCampaign = (imageFiles?: File[]) => {
+  submitCampaign(imageFiles)
+  setSubView(null)
+  setEditingCampaign(null)
+}
 
   // ── Handler: Laporan
   const handleAddFundUsage = (campaignId: string, description: string, amount: string) => {

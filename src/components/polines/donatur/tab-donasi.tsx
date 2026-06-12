@@ -79,8 +79,8 @@ export function TabDonasi({
           filtered.map(campaign => (
             <Card key={campaign.id} className="overflow-hidden hover:shadow-lg transition-shadow group p-0">
               <div className="relative">
-                {campaign.image ? (
-                  <img src={campaign.image} alt={campaign.title} className="w-full h-50 object-cover" />
+                {campaign.images && campaign.images.length > 0 ? (
+                  <img src={campaign.images[0]} alt={campaign.title} className="w-full h-50 object-cover" />
                 ) : (
                   <div className="h-50 bg-gradient-to-br from-teal-100 to-emerald-100 flex items-center justify-center">
                     <Heart className="h-14 w-14 text-teal-300 group-hover:scale-110 transition-transform" />

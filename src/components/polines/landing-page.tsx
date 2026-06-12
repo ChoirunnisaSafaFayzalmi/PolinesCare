@@ -42,7 +42,7 @@ export function LandingPage() {
     fetch('/api/campaigns?status=active')
       .then(r => r.json())
       .then(d => setCampaigns(d.campaigns || []))
-      .catch(() => {})
+      .catch(() => { })
 
     fetch('/api/stats')
       .then(r => r.json())
@@ -55,17 +55,17 @@ export function LandingPage() {
         typeBreakdown: d.donations?.byType || [],
         recentDonations: d.recentDonations || [],
       }))
-      .catch(() => {})
+      .catch(() => { })
 
     fetch('/api/proposals')
       .then(r => r.json())
       .then(d => setProposals(d.proposals || []))
-      .catch(() => {})
+      .catch(() => { })
 
     fetch('/api/recommendations?mode=public')
       .then(r => r.json())
       .then(d => setPublicRecommendations(d.recommendations || d.trending || []))
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   // ---- Computed ----
@@ -100,7 +100,7 @@ export function LandingPage() {
         const d = await donRes.json()
         setCampaignDonations(d.donations || [])
       }
-    } catch {}
+    } catch { }
   }, [])
 
   /**
@@ -139,7 +139,7 @@ export function LandingPage() {
           .then(r => r.json())
           .then(d => setProposals(d.proposals || []))
       }
-    } catch {}
+    } catch { }
   }, [session, router])
 
   return (
@@ -246,9 +246,9 @@ export function LandingPage() {
             {filteredLandingCampaigns.map(campaign => (
               <Card key={campaign.id} className="overflow-hidden hover:shadow-lg transition-shadow group p-0">
                 <div className="relative">
-                  {campaign.images ? (
+                  {campaign.images && campaign.images.length > 0 ? (
                     <img
-                      src={campaign.images}
+                      src={campaign.images[0]}
                       alt={campaign.title}
                       className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
                     />

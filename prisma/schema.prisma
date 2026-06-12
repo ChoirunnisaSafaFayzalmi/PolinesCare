@@ -38,6 +38,7 @@ model Campaign {
   startDate       DateTime
   endDate         DateTime
   images    String?  // JSON array URL, contoh: '["url1","url2"]'
+  paymentMethods  String?
   isPublic  Boolean  @default(true)
   location        String?  // lokasi campaign
   status          String   @default("active") // active, closed, completed

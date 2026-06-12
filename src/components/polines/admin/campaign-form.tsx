@@ -27,6 +27,7 @@ interface CampaignFormViewProps {
     paymentMethods: PaymentMethod[]
     uniqueCode: string
     images?: string[]
+    location?: string
   }
   setCampaignForm: (form: any) => void
   editingCampaign: Campaign | null
@@ -59,13 +60,11 @@ function Toggle({ checked, onChange, label, description }: {
       <button
         type="button"
         onClick={onChange}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer flex-shrink-0 ${
-          checked ? 'bg-teal-500' : 'bg-gray-300'
-        }`}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer flex-shrink-0 ${checked ? 'bg-teal-500' : 'bg-gray-300'
+          }`}
       >
-        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${
-          checked ? 'translate-x-6' : 'translate-x-1'
-        }`} />
+        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${checked ? 'translate-x-6' : 'translate-x-1'
+          }`} />
       </button>
     </div>
   )
@@ -305,6 +304,19 @@ export function CampaignFormView({
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Lokasi
+                  <span className="text-gray-400 font-normal ml-1">(opsional)</span>
+                </Label>
+                <Input
+                  value={campaignForm.location ?? ''}
+                  onChange={(e) => setCampaignForm({ ...campaignForm, location: e.target.value })}
+                  placeholder="Contoh: Semarang, Jawa Tengah"
+                  className={inputCls}
+                />
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">Kategori</Label>
@@ -457,20 +469,18 @@ export function CampaignFormView({
                       onClick={() => handleToggleVisible(method.key)}
                       className="flex items-center gap-2 pt-1 group"
                     >
-                      <span className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${
-                        method.isVisible
+                      <span className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${method.isVisible
                           ? 'bg-teal-600 border-teal-600'
                           : 'border-gray-300 bg-white'
-                      }`}>
+                        }`}>
                         {method.isVisible && (
                           <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
                         )}
                       </span>
-                      <span className={`text-xs transition-colors ${
-                        method.isVisible ? 'text-teal-600 font-medium' : 'text-gray-400'
-                      }`}>
+                      <span className={`text-xs transition-colors ${method.isVisible ? 'text-teal-600 font-medium' : 'text-gray-400'
+                        }`}>
                         Tampilkan ke donatur
                       </span>
                     </button>

@@ -21,7 +21,7 @@ export interface Campaign {
   collectedAmount: number
   startDate: string
   endDate: string
-  images?: string        // JSON array string: '["url1","url2"]'
+  images: string[] | null       // JSON array string: '["url1","url2"]'
   location?: string
   dropOffLocation?: string  // alamat tujuan pengiriman barang donasi
   status: string
@@ -31,7 +31,7 @@ export interface Campaign {
   createdBy: string
   creator?: { name: string }
   _count?: { donations: number }
-  paymentMethods?: PaymentMethod[]
+  paymentMethods: PaymentMethod[]
 }
 
 export interface Donation {

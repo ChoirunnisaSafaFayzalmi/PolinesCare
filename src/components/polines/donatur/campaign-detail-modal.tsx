@@ -21,8 +21,7 @@ interface CampaignDetailModalProps {
 const DUMMY: Campaign = {
   id: 'dummy-1',
   title: 'Bantu Korban Banjir Semarang',
-  description:
-    'Banjir besar melanda kota Semarang pada awal tahun ini. Banyak warga yang kehilangan tempat tinggal dan harta benda mereka. Mari kita bersama-sama membantu meringankan beban mereka dengan donasi terbaik kita.',
+  description: 'Banjir besar melanda kota Semarang...',
   category: 'Bencana',
   targetAmount: 50_000_000,
   collectedAmount: 32_550_000,
@@ -34,17 +33,21 @@ const DUMMY: Campaign = {
   createdBy: 'admin',
   creator: { name: 'BEM Polines' },
   _count: { donations: 87 },
+  // ↓ tambah ini
+  images: [],
+  isPublic: true,
+  paymentMethods: [],
 }
 
 // ── Komponen Carousel terpisah agar useState tidak melanggar Rules of Hooks ──
 interface CampaignCarouselProps {
-  image?: string
+  images?: string[]   // ← array, bukan single string
   title: string
 }
 
-function CampaignCarousel({ image, title }: CampaignCarouselProps) {
+function CampaignCarousel({ images = [], title }: CampaignCarouselProps) {
   // Nanti bisa diganti dengan images[] dari backend
-  const images = image ? [image] : []
+  // const images = image ? [image] : []
   const [activeIdx, setActiveIdx] = React.useState(0)
 
   if (images.length === 0) {
@@ -154,7 +157,7 @@ export function CampaignDetailModal({
         </DialogHeader>
 
         {/* ── Gambar Campaign (Carousel) ── */}
-        <CampaignCarousel image={(campaign as any).image} title={campaign.title} />
+        <CampaignCarousel images={Array.isArray(campaign.images) ? campaign.images : []} title={campaign.title} />
 
         <div className="space-y-4 mt-2">
 

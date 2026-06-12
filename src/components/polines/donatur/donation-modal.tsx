@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { ArrowLeft, ArrowRight, Send, DollarSign, Gift, Banknote, QrCode, CreditCard, Copy, CheckCheck, Plus, Trash2, Upload, X, ImageIcon } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Send, DollarSign, Gift, Banknote, QrCode, CreditCard, Copy, CheckCheck, Plus, Trash2, Upload, X } from 'lucide-react'
 import type { Campaign } from '../types'
 import { formatRupiah, formatUniqueCode, calculateTransferAmount } from '../types'
 import { QRCodeSVG } from './qr-code'
@@ -30,22 +30,61 @@ interface DonationModalProps {
 
 interface BarangItem { name: string; qty: string }
 
-// ── Data dummy rekening bank ──
-const BANK_ACCOUNTS: Record<string, { norek: string; atas: string } | null> = {
-  bri: { norek: '1234-5678-9012-3456', atas: 'Yayasan Polines Care' },
-  bca: { norek: '8765-4321-0987-6543', atas: 'Yayasan Polines Care' },
-  mandiri: { norek: '1100-2200-3300-4400', atas: 'Yayasan Polines Care' },
-  bni: null,
-  bsi: { norek: '7788-9900-1122-3344', atas: 'Yayasan Polines Care' },
-  cimb: null,
-  dana: { norek: '0812-3456-7890', atas: 'Polines Care' },
-  gopay: null,
-  ovo: null,
-}
+// ── Komponen Info Rekening (dari database) ──
+function InfoRekening({
+  paymentMethods
+}: {
+  paymentMethods: { key: string; label: string; accountNumber: string; isVisible: boolean }[]
+}) {
+  const [copiedKey, setCopiedKey] = useState<string | null>(null)
 
-const BANK_LABELS: Record<string, string> = {
-  bri: 'BRI', bca: 'BCA', mandiri: 'Mandiri', bni: 'BNI', bsi: 'BSI',
-  cimb: 'CIMB Niaga', dana: 'DANA', gopay: 'GoPay', ovo: 'OVO',
+  const visibleMethods = paymentMethods.filter(m => m.isVisible)
+
+  if (visibleMethods.length === 0) {
+    return (
+      <div className="rounded-lg border bg-gray-50 p-4">
+        <p className="text-sm text-gray-500">Belum ada metode pembayaran tersedia.</p>
+      </div>
+    )
+  }
+
+  const handleCopy = (key: string, text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedKey(key)
+      setTimeout(() => setCopiedKey(null), 2000)
+    })
+  }
+
+  return (
+    <div className="rounded-lg border bg-gray-50 p-4 space-y-3">
+      <p className="text-sm font-semibold">Info Rekening Tujuan</p>
+      <div className="space-y-2">
+        {visibleMethods.map(method => (
+          <div key={method.key} className="flex items-center justify-between bg-white border rounded-lg px-3 py-2">
+            <div>
+              <p className="text-xs text-muted-foreground">{method.label}</p>
+              <p className="font-mono font-semibold text-sm tracking-wider">
+                {method.accountNumber || '-'}
+              </p>
+            </div>
+            {method.accountNumber && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="shrink-0 ml-2"
+                onClick={() => handleCopy(method.key, method.accountNumber)}
+              >
+                {copiedKey === method.key
+                  ? <CheckCheck className="h-3.5 w-3.5 text-teal-600" />
+                  : <Copy className="h-3.5 w-3.5" />}
+              </Button>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 // ── Komponen Upload Foto ──
@@ -98,75 +137,7 @@ function UploadFoto({ label, value, onChange }: { label: string; value: string; 
   )
 }
 
-// ── Komponen Info Rekening ──
-function InfoRekening({ selectedBank, setSelectedBank }: { selectedBank: string; setSelectedBank: (v: string) => void }) {
-  const [copiedNorek, setCopiedNorek] = useState(false)
-  const account = selectedBank ? BANK_ACCOUNTS[selectedBank] : undefined
-
-  const handleCopy = () => {
-    if (account?.norek) {
-      navigator.clipboard.writeText(account.norek).then(() => {
-        setCopiedNorek(true)
-        setTimeout(() => setCopiedNorek(false), 2000)
-      })
-    }
-  }
-
-  return (
-    <div className="rounded-lg border bg-gray-50 p-4 space-y-3">
-      <p className="text-sm font-semibold">Info Rekening Tujuan</p>
-
-      {/* Pilih Bank */}
-      <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">Pilih Bank</Label>
-        <Select value={selectedBank} onValueChange={setSelectedBank}>
-          <SelectTrigger className="bg-white">
-            <SelectValue placeholder="Pilih bank tujuan" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(BANK_LABELS).map(([key, label]) => (
-              <SelectItem key={key} value={key}>{label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Info Rekening */}
-      {selectedBank && (
-        account ? (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between bg-white border rounded-lg px-3 py-2">
-              <div>
-                <p className="text-xs text-muted-foreground">{BANK_LABELS[selectedBank]}</p>
-                <p className="font-mono font-semibold text-sm tracking-wider">{account.norek}</p>
-                <p className="text-xs text-muted-foreground">a.n. {account.atas}</p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="shrink-0 ml-2"
-                onClick={handleCopy}
-              >
-                {copiedNorek ? <CheckCheck className="h-3.5 w-3.5 text-teal-600" /> : <Copy className="h-3.5 w-3.5" />}
-              </Button>
-            </div>
-            {copiedNorek && (
-              <p className="text-xs text-teal-600 text-center">✓ Nomor rekening tersalin!</p>
-            )}
-          </div>
-        ) : (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5">
-            <p className="text-sm text-amber-700">
-              😔 Maaf, bank tidak tersedia. Silahkan pilih bank lain.
-            </p>
-          </div>
-        )
-      )}
-    </div>
-  )
-}
-
+// ── Komponen Utama ──
 export function DonationModal({
   open, onClose, donationStep, setDonationStep,
   donationForm, setDonationForm, campaigns, submitting,
@@ -178,13 +149,11 @@ export function DonationModal({
   const [barangItems, setBarangItems] = useState<BarangItem[]>([{ name: '', qty: '' }])
   const [alamatPengirim, setAlamatPengirim] = useState('')
   const [nohpPengirim, setNohpPengirim] = useState('')
-  const [selectedBank, setSelectedBank] = useState('')
 
   const handleClose = () => {
     setBarangItems([{ name: '', qty: '' }])
     setAlamatPengirim('')
     setNohpPengirim('')
-    setSelectedBank('')
     onClose()
   }
 
@@ -240,15 +209,21 @@ export function DonationModal({
             <div className="space-y-2">
               <Label>Tipe Donasi</Label>
               <div className="grid grid-cols-2 gap-2">
-                <Button type="button" variant={donationForm.type === 'uang' ? 'default' : 'outline'} className={donationForm.type === 'uang' ? 'bg-teal-600 hover:bg-teal-700' : ''} onClick={() => setDonationForm({ ...donationForm, type: 'uang' })}>
+                <Button type="button" variant={donationForm.type === 'uang' ? 'default' : 'outline'}
+                  className={donationForm.type === 'uang' ? 'bg-teal-600 hover:bg-teal-700' : ''}
+                  onClick={() => setDonationForm({ ...donationForm, type: 'uang' })}>
                   <DollarSign className="h-4 w-4 mr-1" /> Uang
                 </Button>
-                <Button type="button" variant={donationForm.type === 'barang' ? 'default' : 'outline'} className={donationForm.type === 'barang' ? 'bg-teal-600 hover:bg-teal-700' : ''} onClick={() => setDonationForm({ ...donationForm, type: 'barang' })}>
+                <Button type="button" variant={donationForm.type === 'barang' ? 'default' : 'outline'}
+                  className={donationForm.type === 'barang' ? 'bg-teal-600 hover:bg-teal-700' : ''}
+                  onClick={() => setDonationForm({ ...donationForm, type: 'barang' })}>
                   <Gift className="h-4 w-4 mr-1" /> Barang
                 </Button>
               </div>
             </div>
-            <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white" disabled={!donationForm.campaignId} onClick={() => setDonationStep(2)}>
+            <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+              disabled={!donationForm.campaignId}
+              onClick={() => setDonationStep(2)}>
               Selanjutnya <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
@@ -262,10 +237,13 @@ export function DonationModal({
               {/* Nominal */}
               <div className="space-y-2">
                 <Label>Nominal Donasi (Rp)</Label>
-                <Input type="number" placeholder="Masukkan nominal" value={donationForm.amount} onChange={(e) => setDonationForm({ ...donationForm, amount: e.target.value })} />
+                <Input type="number" placeholder="Masukkan nominal"
+                  value={donationForm.amount}
+                  onChange={(e) => setDonationForm({ ...donationForm, amount: e.target.value })} />
                 <div className="flex gap-2 flex-wrap">
                   {[50000, 100000, 200000, 500000, 1000000].map(a => (
-                    <Button key={a} variant="outline" size="sm" className="text-xs" onClick={() => setDonationForm({ ...donationForm, amount: String(a) })}>
+                    <Button key={a} variant="outline" size="sm" className="text-xs"
+                      onClick={() => setDonationForm({ ...donationForm, amount: String(a) })}>
                       {formatRupiah(a)}
                     </Button>
                   ))}
@@ -281,17 +259,22 @@ export function DonationModal({
                     { val: 'qris', icon: <QrCode className="h-4 w-4 mr-1" />, label: 'QRIS' },
                     { val: 'tunai', icon: <CreditCard className="h-4 w-4 mr-1" />, label: 'Tunai' },
                   ].map(({ val, icon, label }) => (
-                    <Button key={val} type="button" variant={donationForm.paymentMethod === val ? 'default' : 'outline'} className={`text-xs ${donationForm.paymentMethod === val ? 'bg-teal-600 hover:bg-teal-700' : ''}`} onClick={() => setDonationForm({ ...donationForm, paymentMethod: val })}>
+                    <Button key={val} type="button"
+                      variant={donationForm.paymentMethod === val ? 'default' : 'outline'}
+                      className={`text-xs ${donationForm.paymentMethod === val ? 'bg-teal-600 hover:bg-teal-700' : ''}`}
+                      onClick={() => setDonationForm({ ...donationForm, paymentMethod: val })}>
                       {icon} {label}
                     </Button>
                   ))}
                 </div>
               </div>
 
-              {/* Info Rekening — hanya saat transfer */}
+              {/* Info Rekening dari database — hanya saat transfer */}
               {donationForm.paymentMethod === 'transfer' && (
                 <>
-                  <InfoRekening selectedBank={selectedBank} setSelectedBank={setSelectedBank} />
+                  <InfoRekening
+                    paymentMethods={selectedCampaign?.paymentMethods ?? []}
+                  />
 
                   {/* Kode Unik */}
                   {donationForm.amount && (
@@ -299,13 +282,21 @@ export function DonationModal({
                       <Badge className="bg-violet-600 text-white text-xs font-bold">Kode Unik Transfer</Badge>
                       <p className="text-sm text-violet-800">Transfer tepat nominal berikut agar mudah diverifikasi admin:</p>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <Badge variant="outline" className="border-violet-300 text-violet-700 font-mono text-xs">{formatRupiah(Number(donationForm.amount) || 0)}</Badge>
+                        <Badge variant="outline" className="border-violet-300 text-violet-700 font-mono text-xs">
+                          {formatRupiah(Number(donationForm.amount) || 0)}
+                        </Badge>
                         <span className="text-violet-500 font-bold">+</span>
-                        <Badge variant="outline" className="border-violet-300 text-violet-700 font-mono text-xs">Kode: {formatUniqueCode(uniqueCode)}</Badge>
+                        <Badge variant="outline" className="border-violet-300 text-violet-700 font-mono text-xs">
+                          Kode: {formatUniqueCode(uniqueCode)}
+                        </Badge>
                         <span className="text-violet-500 font-bold">=</span>
-                        <Badge className="bg-violet-600 text-white font-mono text-sm font-bold">{formatRupiah(calculateTransferAmount(Number(donationForm.amount) || 0, uniqueCode))}</Badge>
+                        <Badge className="bg-violet-600 text-white font-mono text-sm font-bold">
+                          {formatRupiah(calculateTransferAmount(Number(donationForm.amount) || 0, uniqueCode))}
+                        </Badge>
                       </div>
-                      <Button type="button" variant="outline" size="sm" className="w-full border-violet-300 text-violet-700 hover:bg-violet-100 text-xs" onClick={handleCopyUniqueCode}>
+                      <Button type="button" variant="outline" size="sm"
+                        className="w-full border-violet-300 text-violet-700 hover:bg-violet-100 text-xs"
+                        onClick={handleCopyUniqueCode}>
                         {copied ? <CheckCheck className="h-3.5 w-3.5 mr-1" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
                         {copied ? 'Tersalin!' : 'Salin Kode Unik & Total Transfer'}
                       </Button>
@@ -348,7 +339,9 @@ export function DonationModal({
               <Button variant="outline" className="flex-1" onClick={() => setDonationStep(1)}>
                 <ArrowLeft className="h-4 w-4 mr-1" /> Kembali
               </Button>
-              <Button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white" disabled={submitting || !donationForm.amount} onClick={submitDonation}>
+              <Button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
+                disabled={submitting || !donationForm.amount}
+                onClick={submitDonation}>
                 {submitting ? 'Mengirim...' : 'Kirim Donasi'} <Send className="h-4 w-4 ml-1" />
               </Button>
             </div>
@@ -371,10 +364,14 @@ export function DonationModal({
                 <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
                   {barangItems.map((item, i) => (
                     <div key={i} className="flex gap-2 items-center">
-                      <Input placeholder="Masukkan jenis barang" value={item.name} onChange={(e) => updateBarangItem(i, 'name', e.target.value)} className="flex-1" />
-                      <Input placeholder="jumlah" value={item.qty} onChange={(e) => updateBarangItem(i, 'qty', e.target.value)} className="w-24" />
+                      <Input placeholder="Masukkan jenis barang" value={item.name}
+                        onChange={(e) => updateBarangItem(i, 'name', e.target.value)} className="flex-1" />
+                      <Input placeholder="jumlah" value={item.qty}
+                        onChange={(e) => updateBarangItem(i, 'qty', e.target.value)} className="w-24" />
                       {barangItems.length > 1 && (
-                        <Button type="button" variant="ghost" size="sm" className="h-9 w-9 p-0 text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => removeBarangItem(i)}>
+                        <Button type="button" variant="ghost" size="sm"
+                          className="h-9 w-9 p-0 text-red-400 hover:text-red-600 hover:bg-red-50"
+                          onClick={() => removeBarangItem(i)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       )}
@@ -388,11 +385,13 @@ export function DonationModal({
                 <Label className="text-base font-bold">Info Pengiriman</Label>
                 <div className="grid grid-cols-[80px_1fr] items-center gap-2">
                   <Label className="text-sm text-muted-foreground">Alamat</Label>
-                  <Input placeholder="Alamat pengirim" value={alamatPengirim} onChange={(e) => setAlamatPengirim(e.target.value)} />
+                  <Input placeholder="Alamat pengirim" value={alamatPengirim}
+                    onChange={(e) => setAlamatPengirim(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-[80px_1fr] items-center gap-2">
                   <Label className="text-sm text-muted-foreground">No HP</Label>
-                  <Input placeholder="Nomor HP pengirim" value={nohpPengirim} onChange={(e) => setNohpPengirim(e.target.value)} />
+                  <Input placeholder="Nomor HP pengirim" value={nohpPengirim}
+                    onChange={(e) => setNohpPengirim(e.target.value)} />
                 </div>
               </div>
 
@@ -418,9 +417,13 @@ export function DonationModal({
               {/* Info Tujuan */}
               <Card className="p-4 bg-gray-50 space-y-1">
                 <p className="font-bold text-sm">Kirim ke</p>
-                <p className="text-sm text-muted-foreground">{(selectedCampaign as any)?.address ?? 'Jl. Tembalang Baru no 32'}</p>
+                <p className="text-sm text-muted-foreground">
+                  {(selectedCampaign as any)?.address ?? 'Jl. Tembalang Baru no 32'}
+                </p>
                 <p className="font-bold text-sm mt-2">*Apabila sudah dikirim harap konfirmasi</p>
-                <p className="text-sm text-muted-foreground">{(selectedCampaign as any)?.contactPhone ?? '08123123123'}</p>
+                <p className="text-sm text-muted-foreground">
+                  {(selectedCampaign as any)?.contactPhone ?? '08123123123'}
+                </p>
               </Card>
 
             </div>
@@ -434,14 +437,14 @@ export function DonationModal({
                 className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
                 disabled={submitting || barangItems.every(i => !i.name)}
                 onClick={() => {
-  const totalQty = barangItems.reduce((sum, item) => sum + (Number(item.qty) || 0), 0)
-  setDonationForm({ 
-    ...donationForm, 
-    amount: String(totalQty || 1),  // fallback 1 kalau qty kosong semua
-    paymentMethod: 'tunai' 
-  })
-  submitDonation()
-}}
+                  const totalQty = barangItems.reduce((sum, item) => sum + (Number(item.qty) || 0), 0)
+                  setDonationForm({
+                    ...donationForm,
+                    amount: String(totalQty || 1),
+                    paymentMethod: 'tunai'
+                  })
+                  submitDonation()
+                }}
               >
                 {submitting ? 'Mengirim...' : 'Kirim Donasi'} <Send className="h-4 w-4 ml-1" />
               </Button>
