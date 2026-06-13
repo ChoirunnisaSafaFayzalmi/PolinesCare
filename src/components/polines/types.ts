@@ -64,19 +64,27 @@ export interface Proposal {
   targetAmount?: number
   proposedBy: string
   votesCount: number
-  status: string            // 'pending' | 'approved' | 'rejected'
+  status: string
   createdAt: string
   rejectionReason?: string
+  proposer?: {
+    id?: string
+    name?: string | null
+    email?: string | null
+    phone?: string | null
+    address?: string | null
+    avatar?: string | null
+  } | null
   // Data pengaju
-  proposer?: { name: string; email?: string; phone?: string; address?: string }
-  proposerEmail?: string
-  proposerPhone?: string
-  proposerAddress?: string
+  proposerName?: string | null
+  proposerEmail?: string | null
+  proposerPhone?: string | null
+  proposerAddress?: string | null
   // Detail campaign yang diajukan
   startDate?: string
   endDate?: string
   campaignLocation?: string
-  photoUrl?: string
+  photoUrls?: string | string[] | null
   officialDocUrl?: string
   // Penilaian (0–100)
   kejelasanTujuan?: number
@@ -182,5 +190,93 @@ export const getStatusColor = (status: string): string => {
     case 'closed':    return 'bg-gray-100 text-gray-700'
     case 'completed': return 'bg-blue-100 text-blue-700'
     default:          return 'bg-gray-100 text-gray-700'
+  }
+}
+
+// ── Proposal Score ─────────────────────────────────────────
+export interface ProposalScoreBreakdown {
+  dataPengaju: number
+  kejelasanJudul: number
+  kualitasDeskripsi: number
+  kewajaranTarget: number
+  kelengkapanLokasi: number
+  fotoBukti: number
+  suratResmi: number
+  total: number
+  isEligible: boolean
+}
+
+export function calculateProposalScore(proposal: {
+  proposerEmail?: string | null
+  proposerPhone?: string | null
+  proposerAddress?: string | null
+  proposer?: { name?: string | null } | null
+  title?: string | null
+  description?: string | null
+  targetAmount?: number | null
+  startDate?: string | null
+  endDate?: string | null
+  campaignLocation?: string | null
+  photoUrls?: string | string[] | null
+  officialDocUrl?: string | null
+}): ProposalScoreBreakdown {
+
+  // 1. Kelengkapan Data Pengaju (15)
+  const filled = [
+    proposal.proposer?.name,
+    proposal.proposerEmail,
+    proposal.proposerPhone,
+    proposal.proposerAddress,
+  ].filter(Boolean).length
+  const dataPengaju = filled === 4 ? 15 : filled === 3 ? 8 : 0
+
+  // 2. Kejelasan Judul (10)
+  const judul = (proposal.title || '').trim()
+  const kejelasanJudul = judul.length >= 20 ? 10 : judul.length >= 10 ? 5 : 0
+
+  // 3. Kualitas Deskripsi (20)
+  const desc = (proposal.description || '').trim()
+  const kualitasDeskripsi = desc.length >= 300 ? 20
+    : desc.length >= 200 ? 15
+    : desc.length >= 100 ? 8
+    : 0
+
+  // 4. Kewajaran Target vs Durasi (20)
+  const target = Number(proposal.targetAmount || 0)
+  let kewajaranTarget = 0
+  if (target > 0 && proposal.startDate && proposal.endDate) {
+    const durasi = Math.round(
+      (new Date(proposal.endDate).getTime() - new Date(proposal.startDate).getTime())
+      / (1000 * 60 * 60 * 24)
+    )
+    const durasiOk = durasi >= 7 && durasi <= 90
+    if (durasiOk && target <= 100_000_000)      kewajaranTarget = 20
+    else if (durasiOk && target <= 500_000_000) kewajaranTarget = 12
+    else                                         kewajaranTarget = 5
+  }
+
+  // 5. Kelengkapan Lokasi (10)
+  const lokasi = (proposal.campaignLocation || '').trim()
+  const kelengkapanLokasi = lokasi.length >= 10 ? 10 : lokasi.length > 0 ? 5 : 0
+
+  // 6. Foto Bukti (10)
+  const photos = proposal.photoUrls
+    ? (Array.isArray(proposal.photoUrls)
+        ? proposal.photoUrls
+        : (() => { try { return JSON.parse(proposal.photoUrls as string) } catch { return [] } })())
+    : []
+  const fotoBukti = photos.length > 0 ? 10 : 0
+
+  // 7. Surat Resmi (15) — hard requirement
+  const suratResmi = proposal.officialDocUrl ? 15 : 0
+
+  const total = dataPengaju + kejelasanJudul + kualitasDeskripsi
+    + kewajaranTarget + kelengkapanLokasi + fotoBukti + suratResmi
+
+  return {
+    dataPengaju, kejelasanJudul, kualitasDeskripsi,
+    kewajaranTarget, kelengkapanLokasi, fotoBukti, suratResmi,
+    total,
+    isEligible: total >= 70 && suratResmi > 0,
   }
 }

@@ -115,6 +115,7 @@ model Proposal {
   proposedBy       String
 
   // Data pengaju
+  proposerName     String?
   proposerEmail    String?   // email pengaju
   proposerPhone    String?   // no telp pengaju
   proposerAddress  String?   // alamat pengaju
@@ -126,7 +127,7 @@ model Proposal {
 
   // Dokumen pendukung
   officialDocUrl   String?   // surat resmi TTD kepala (wajib)
-  photoUrl         String?   // foto keadaan (opsional)
+  photoUrls         String?   // foto keadaan (opsional)
 
   // Status & voting
   votesCount       Int       @default(0)

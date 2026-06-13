@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
         endDate: true,
         campaignLocation: true,
         officialDocUrl: true,
-        photoUrl: true,
+        photoUrls: true,
         createdAt: true,
         updatedAt: true,
       },

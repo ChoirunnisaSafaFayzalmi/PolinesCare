@@ -26,16 +26,16 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         proposer: {
-          select: { id: true, name: true, avatar: true },
+          select: { id: true, name: true, avatar: true, email: true, phone: true, address: true },
         },
         _count: {
           select: { votes: true },
         },
       },
       orderBy: [
-        { votesCount: "desc" },
-        { createdAt: "desc" },
-      ],
+  { createdAt: "desc" },
+  { votesCount: "desc" },
+]
     });
 
     return NextResponse.json({ proposals });
@@ -55,7 +55,13 @@ export async function POST(request: NextRequest) {
 
     const userId = (session.user as { id: string }).id;
     const body = await request.json();
-    const { title, description, category, targetAmount } = body;
+    const {
+  title, description, category, targetAmount,
+  proposerName,    // ← tambah ini
+  proposerEmail, proposerPhone, proposerAddress,
+  campaignLocation, startDate, endDate,
+  officialDocUrl, photoUrls,
+} = body;
 
     if (!title || !description) {
       return NextResponse.json(
@@ -65,14 +71,23 @@ export async function POST(request: NextRequest) {
     }
 
     const proposal = await db.proposal.create({
-      data: {
-        title,
-        description,
-        category: category || "Sosial",
-        targetAmount: targetAmount ? Number(targetAmount) : null,
-        proposedBy: userId,
-      },
-    });
+  data: {
+    title,
+    description,
+    category: category || "Sosial",
+    targetAmount: targetAmount ? Number(targetAmount) : null,
+    proposedBy: userId,
+    proposerName: proposerName || null,   // ← tambah ini
+    proposerEmail: proposerEmail || null,
+    proposerPhone: proposerPhone || null,
+    proposerAddress: proposerAddress || null,
+    campaignLocation: campaignLocation || null,
+    startDate: startDate ? new Date(startDate) : null,
+    endDate: endDate ? new Date(endDate) : null,
+    officialDocUrl: officialDocUrl || null,
+    photoUrls: photoUrls ? JSON.stringify(photoUrls) : null,
+  },
+});
 
     return NextResponse.json({ proposal }, { status: 201 });
   } catch (error: unknown) {

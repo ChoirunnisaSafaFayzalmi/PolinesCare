@@ -46,7 +46,7 @@ export async function POST(
       startDate,
       endDate,
       officialDocUrl,
-      photoUrl,
+      photoUrls,
     } = body;
 
     if (!title || !description || !officialDocUrl) {
@@ -71,7 +71,7 @@ export async function POST(
         startDate: startDate ? new Date(startDate) : oldProposal.startDate,
         endDate: endDate ? new Date(endDate) : oldProposal.endDate,
         officialDocUrl,
-        photoUrl: photoUrl || null,
+        photoUrls: photoUrls ? JSON.stringify(photoUrls) : oldProposal.photoUrls ?? null,
         status: "pending",
         resubmittedFrom: id, // referensi ke proposal lama
       },

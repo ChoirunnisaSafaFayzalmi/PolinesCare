@@ -278,7 +278,6 @@ function AjuanList({ proposals, onProposalDetail }: { proposals: Proposal[]; onP
                   <TableHead className="text-white font-semibold hidden md:table-cell">Diajukan Oleh</TableHead>
                   <TableHead className="text-white font-semibold hidden md:table-cell">Kategori</TableHead>
                   <TableHead className="text-white font-semibold">Status</TableHead>
-                  <TableHead className="text-white font-semibold hidden md:table-cell">Suara</TableHead>
                   <TableHead className="text-white font-semibold text-right">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
@@ -294,12 +293,7 @@ function AjuanList({ proposals, onProposalDetail }: { proposals: Proposal[]; onP
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(p.status)}>{p.status}</Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell text-sm text-gray-700">
-                      <span className="flex items-center gap-1">
-                        <ThumbsUp className="h-3.5 w-3.5" /> {p.votesCount}
-                      </span>
-                    </TableCell>
+                    </TableCell> 
                     <TableCell className="text-right">
                       <button
                         onClick={() => onProposalDetail(p)}

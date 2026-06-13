@@ -322,13 +322,19 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   // ============================================================
   // PROPOSAL HANDLERS (Admin)
   // ============================================================
-  const updateProposalStatus = async (id: string, status: 'approved' | 'rejected') => {
-    try {
-      const res = await fetch(`/api/proposals/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) })
-      if (res.ok) { toast.success(`Proposal berhasil ${status === 'approved' ? 'disetujui' : 'ditolak'}`); fetchProposals(); fetchNotifications() }
-      else toast.error('Gagal memperbarui proposal')
-    } catch { toast.error('Terjadi kesalahan') }
-  }
+  const updateProposalStatus = async (id: string, status: 'approved' | 'rejected', meta?: { rejectionReason?: string }) => {
+  try {
+    const res = await fetch(`/api/proposals/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, rejectionReason: meta?.rejectionReason }),
+    })
+    if (res.ok) {
+      toast.success(`Proposal berhasil ${status === 'approved' ? 'disetujui dan campaign aktif' : 'ditolak'}`)
+      fetchProposals(); fetchAllCampaigns(); fetchCampaigns(); fetchNotifications()
+    } else toast.error('Gagal memperbarui proposal')
+  } catch { toast.error('Terjadi kesalahan') }
+}
 
   const updateProposalCriteria = async (id: string, criteria: Record<string, number>) => {
     try {

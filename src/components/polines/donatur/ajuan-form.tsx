@@ -22,7 +22,7 @@ interface AjuanForm {
   nama: string; email: string; telp: string; alamatPengaju: string
   judul: string; deskripsi: string; kategori: string; targetDana: string
   tanggalBuka: string; tanggalTutup: string; alamatCampaign: string
-  fotoBukti: string; suratPernyataan: string; suratPernyataanName: string
+  fotoBukti: string[]; suratPernyataan: string; suratPernyataanName: string
   pernyataan: boolean[]
 }
 
@@ -33,7 +33,7 @@ const INITIAL_FORM: AjuanForm = {
   nama: '', email: '', telp: '', alamatPengaju: '',
   judul: '', deskripsi: '', kategori: '', targetDana: '',
   tanggalBuka: '', tanggalTutup: '', alamatCampaign: '',
-  fotoBukti: '', suratPernyataan: '', suratPernyataanName: '',
+  fotoBukti: [], suratPernyataan: '', suratPernyataanName: '',
   pernyataan: [false, false, false, false],
 }
 
@@ -79,38 +79,91 @@ function StepIndicator({ step }: { step: number }) {
 // ============================================================
 // UPLOAD FOTO BUKTI
 // ============================================================
-function UploadFoto({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+// Komponen UploadFoto baru — support multiple
+function UploadFoto({ values, onChange }: { 
+  values: string[]
+  onChange: (v: string[]) => void 
+}) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+
+  const handleFiles = async (files: FileList) => {
+    setUploading(true)
+    try {
+      const uploaded: string[] = []
+      for (const file of Array.from(files)) {
+        const formData = new FormData()
+        formData.append('file', file)
+        const res = await fetch('/api/upload', { method: 'POST', body: formData })
+        if (!res.ok) throw new Error(`Gagal upload ${file.name}`)
+        const data = await res.json()
+        uploaded.push(data.url)
+      }
+      onChange([...values, ...uploaded])
+    } catch {
+      alert('Gagal mengupload foto. Coba lagi.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleRemove = (index: number) => {
+    onChange(values.filter((_, i) => i !== index))
+  }
+
   return (
     <div className="space-y-2">
       <Label className="flex items-center gap-1.5">
         <Camera className="h-4 w-4 text-muted-foreground" /> Foto Keadaan / Bukti
-        <span className="text-xs text-muted-foreground">(opsional)</span>
+        <span className="text-xs text-muted-foreground">(opsional, bisa lebih dari 1)</span>
       </Label>
-      {!value ? (
-        <div
-          className="border-2 border-dashed border-gray-200 rounded-lg p-4 flex flex-col items-center gap-2 cursor-pointer hover:border-teal-400 hover:bg-teal-50/30 transition-colors"
-          onClick={() => inputRef.current?.click()}
-        >
-          <Upload className="h-6 w-6 text-gray-400" />
-          <p className="text-sm text-muted-foreground">Klik untuk upload foto</p>
-          <p className="text-xs text-muted-foreground">JPG, PNG — maks 5MB</p>
-        </div>
-      ) : (
-        <div className="relative rounded-lg overflow-hidden border">
-          <img src={value} alt="preview" className="w-full h-36 object-cover" />
+
+      {/* Preview grid */}
+      {values.length > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          {values.map((url, i) => (
+            <div key={i} className="relative aspect-square rounded-lg overflow-hidden border">
+              <img src={url} alt={`foto ${i + 1}`} className="w-full h-full object-cover" />
+              <button
+                type="button"
+                className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center"
+                onClick={() => handleRemove(i)}
+              >
+                <X className="h-3 w-3 text-white" />
+              </button>
+            </div>
+          ))}
+          {/* Tombol tambah foto */}
           <button
             type="button"
-            className="absolute top-2 right-2 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center"
-            onClick={() => onChange('')}
+            className={`aspect-square rounded-lg border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 transition-colors
+              ${uploading ? 'opacity-60 cursor-wait' : 'cursor-pointer hover:border-teal-400 hover:bg-teal-50/30'}`}
+            onClick={() => !uploading && inputRef.current?.click()}
           >
-            <X className="h-3.5 w-3.5 text-white" />
+            <Upload className="h-4 w-4 text-gray-400" />
+            <span className="text-xs text-gray-400">{uploading ? '...' : 'Tambah'}</span>
           </button>
         </div>
       )}
+
+      {/* Empty state */}
+      {values.length === 0 && (
+        <div
+          className={`border-2 border-dashed border-gray-200 rounded-lg p-4 flex flex-col items-center gap-2 transition-colors
+            ${uploading ? 'opacity-60 cursor-wait' : 'cursor-pointer hover:border-teal-400 hover:bg-teal-50/30'}`}
+          onClick={() => !uploading && inputRef.current?.click()}
+        >
+          <Upload className="h-6 w-6 text-gray-400" />
+          <p className="text-sm text-muted-foreground">
+            {uploading ? 'Mengupload...' : 'Klik untuk upload foto'}
+          </p>
+          <p className="text-xs text-muted-foreground">JPG, PNG — maks 5MB per foto</p>
+        </div>
+      )}
+
       <input
-        ref={inputRef} type="file" accept="image/*" className="hidden"
-        onChange={e => { const f = e.target.files?.[0]; if (f) onChange(URL.createObjectURL(f)) }}
+        ref={inputRef} type="file" accept="image/*" multiple className="hidden"
+        onChange={e => { if (e.target.files?.length) handleFiles(e.target.files) }}
       />
     </div>
   )
@@ -125,6 +178,24 @@ function UploadSurat({
   value: string; fileName: string; onChange: (url: string, name: string) => void
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+
+  const handleFile = async (file: File) => {
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      if (!res.ok) throw new Error('Gagal upload surat')
+      const data = await res.json()
+      onChange(data.url, file.name) // ✅ URL permanen dari server
+    } catch {
+      alert('Gagal mengupload surat. Coba lagi.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   return (
     <div className="space-y-2">
       <Label className="flex items-center gap-1.5">
@@ -136,14 +207,17 @@ function UploadSurat({
       </p>
       {!value ? (
         <div
-          className="border-2 border-dashed border-amber-200 bg-amber-50/30 rounded-lg p-5 flex flex-col items-center gap-2 cursor-pointer hover:border-amber-400 hover:bg-amber-50/60 transition-colors"
-          onClick={() => inputRef.current?.click()}
+          className={`border-2 border-dashed border-amber-200 bg-amber-50/30 rounded-lg p-5 flex flex-col items-center gap-2 transition-colors
+            ${uploading ? 'opacity-60 cursor-wait' : 'cursor-pointer hover:border-amber-400 hover:bg-amber-50/60'}`}
+          onClick={() => !uploading && inputRef.current?.click()}
         >
           <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
             <FileCheck className="h-5 w-5 text-amber-600" />
           </div>
-          <p className="text-sm font-medium text-amber-800">Upload Surat Pernyataan</p>
-          <p className="text-xs text-amber-600">PDF, JPG, PNG — maks 10MB</p>
+          <p className="text-sm font-medium text-amber-800">
+            {uploading ? 'Mengupload surat...' : 'Upload Surat Pernyataan'}
+          </p>
+          <p className="text-xs text-amber-600">PDF, JPG, PNG — maks 5MB</p>
         </div>
       ) : (
         <div className="flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
@@ -154,14 +228,15 @@ function UploadSurat({
             <p className="text-sm font-medium text-emerald-700 truncate">{fileName}</p>
             <p className="text-xs text-emerald-600">Berhasil diupload ✓</p>
           </div>
-          <button type="button" className="text-gray-400 hover:text-red-500" onClick={() => onChange('', '')}>
+          <button type="button" className="text-gray-400 hover:text-red-500"
+            onClick={() => onChange('', '')}>
             <X className="h-4 w-4" />
           </button>
         </div>
       )}
       <input
         ref={inputRef} type="file" accept=".pdf,image/*" className="hidden"
-        onChange={e => { const f = e.target.files?.[0]; if (f) onChange(URL.createObjectURL(f), f.name) }}
+        onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
       />
     </div>
   )
@@ -267,6 +342,7 @@ export function AjuanFormPage({ session, resubmitFromId, onBack, onSuccess }: Aj
     description: form.deskripsi,
     category: form.kategori,
     targetAmount: Number(form.targetDana),
+    proposerName: form.nama, 
     proposerEmail: form.email,
     proposerPhone: form.telp,
     proposerAddress: form.alamatPengaju,
@@ -274,7 +350,7 @@ export function AjuanFormPage({ session, resubmitFromId, onBack, onSuccess }: Aj
     startDate: form.tanggalBuka,
     endDate: form.tanggalTutup,
     officialDocUrl: form.suratPernyataan,
-    photoUrl: form.fotoBukti || null,
+    photoUrls: form.fotoBukti.length > 0 ? form.fotoBukti : null,
   })
 
   const handleSubmit = async () => {
@@ -471,7 +547,7 @@ export function AjuanFormPage({ session, resubmitFromId, onBack, onSuccess }: Aj
                 />
               </div>
 
-              <UploadFoto value={form.fotoBukti} onChange={v => set('fotoBukti', v)} />
+              <UploadFoto values={form.fotoBukti} onChange={v => set('fotoBukti', v)} />
               <UploadSurat
                 value={form.suratPernyataan}
                 fileName={form.suratPernyataanName}
