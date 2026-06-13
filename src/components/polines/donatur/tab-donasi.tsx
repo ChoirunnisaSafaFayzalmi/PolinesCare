@@ -28,11 +28,12 @@ export function TabDonasi({
 }: TabDonasiProps) {
 
   const filtered = campaigns.filter(c => {
-    const matchSearch = c.title.toLowerCase().includes(search.toLowerCase()) ||
-      c.description.toLowerCase().includes(search.toLowerCase())
-    const matchCategory = category === 'all' || c.category === category
-    return matchSearch && matchCategory
-  })
+  const matchSearch = c.title.toLowerCase().includes(search.toLowerCase()) ||
+    c.description.toLowerCase().includes(search.toLowerCase())
+  const matchCategory = category === 'all' || c.category === category
+  const isVisible = c.isPublic === true && c.status === 'active'
+  return matchSearch && matchCategory && isVisible
+})
 
   const renderProgress = (collected: number, target: number) => {
     const pct = target > 0 ? Math.min((collected / target) * 100, 100) : 0

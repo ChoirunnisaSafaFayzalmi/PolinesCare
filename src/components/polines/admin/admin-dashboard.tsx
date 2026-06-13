@@ -176,6 +176,11 @@ export function AdminDashboard(props: AdminDashboardProps) {
 }
 
   const handleSaveCampaign = (imageFiles?: File[]) => {
+  // Sync status berdasarkan isPublic sebelum submit
+  setCampaignForm((prev: typeof campaignForm) => ({
+    ...prev,
+    status: prev.isPublic ? 'active' : 'closed',
+  }))
   submitCampaign(imageFiles)
   setSubView(null)
   setEditingCampaign(null)

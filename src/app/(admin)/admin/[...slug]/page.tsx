@@ -269,6 +269,7 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
         endDate: new Date(campaignForm.endDate).toISOString(),
         isUrgent: campaignForm.isUrgent,
         isPublic: campaignForm.isPublic,
+        status: campaignForm.isPublic ? 'active' : 'closed', // ← tambah ini
         paymentMethods: campaignForm.paymentMethods,
         uniqueCode: Number(campaignForm.uniqueCode) || 0,
         images: allImages,

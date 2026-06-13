@@ -410,7 +410,11 @@ export function CampaignFormView({
               <div className="space-y-4 pt-1">
                 <Toggle
                   checked={campaignForm.isPublic}
-                  onChange={() => setCampaignForm({ ...campaignForm, isPublic: !campaignForm.isPublic })}
+                  onChange={() => setCampaignForm({
+                    ...campaignForm,
+                    isPublic: !campaignForm.isPublic,
+                    status: !campaignForm.isPublic ? 'active' : 'closed',
+                  })}
                   label="Publik"
                   description="Campaign tampil di beranda donatur"
                 />
@@ -470,8 +474,8 @@ export function CampaignFormView({
                       className="flex items-center gap-2 pt-1 group"
                     >
                       <span className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${method.isVisible
-                          ? 'bg-teal-600 border-teal-600'
-                          : 'border-gray-300 bg-white'
+                        ? 'bg-teal-600 border-teal-600'
+                        : 'border-gray-300 bg-white'
                         }`}>
                         {method.isVisible && (
                           <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
