@@ -7,6 +7,7 @@ import {
   Home as HomeIcon, LogOut, Menu, ChevronLeft,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { UserCircle } from 'lucide-react'
 
 export const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -14,6 +15,7 @@ export const menuItems = [
   { id: 'donasi', label: 'Donasi', icon: CreditCard },
   { id: 'laporan', label: 'Laporan', icon: FileText },
   { id: 'notifikasi', label: 'Notifikasi', icon: Bell },
+  // { id: 'profil', label: 'Profil Saya', icon: UserCircle },
 ]
 
 interface AdminSidebarProps {
@@ -34,9 +36,8 @@ export function AdminSidebar({
   const router = useRouter()
   return (
     <aside
-      className={`fixed top-0 left-0 h-full z-40 flex flex-col transition-all duration-300 ${
-        collapsed ? 'w-[72px]' : 'w-[220px]'
-      } bg-gradient-to-b from-teal-700 to-teal-800 text-white`}
+      className={`fixed top-0 left-0 h-full z-40 flex flex-col transition-all duration-300 ${collapsed ? 'w-[72px]' : 'w-[220px]'
+        } bg-gradient-to-b from-teal-700 to-teal-800 text-white`}
     >
       {/* Logo */}
       <div className="flex items-center justify-center py-2 border-b border-white/10 flex-shrink-0">
@@ -59,11 +60,10 @@ export function AdminSidebar({
               key={item.id}
               onClick={() => setAdminTab(item.id)}
               title={collapsed ? item.label : undefined}
-              className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
-                active
+              className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${active
                   ? 'bg-white/15 text-white shadow-sm'
                   : 'text-teal-100 hover:bg-white/10 hover:text-white'
-              }`}
+                }`}
             >
               <Icon className="h-5 w-5 flex-shrink-0" />
               {!collapsed && <span>{item.label}</span>}
@@ -102,7 +102,10 @@ export function AdminSidebar({
         </button>
 
         {/* Admin Profile */}
-        <div className={`flex items-center gap-3 px-3 py-2.5 ${collapsed ? 'justify-center' : ''}`}>
+        <div
+          className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer hover:bg-white/10 rounded-lg ${collapsed ? 'justify-center' : ''}`}
+          onClick={() => setAdminTab('profil')}
+        >
           <Avatar className="h-8 w-8 flex-shrink-0">
             <AvatarFallback className="bg-white/20 text-white text-sm font-bold">
               {session?.user?.name?.charAt(0).toUpperCase()}

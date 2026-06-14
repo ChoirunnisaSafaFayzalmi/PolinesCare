@@ -51,11 +51,24 @@ export async function PUT(request: NextRequest) {
 
     const userId = (session.user as { id: string }).id;
     const body = await request.json();
-    const { name, phone, avatar, address } = body;
+    const { name, phone, avatar, address, email } = body;
 
     if (!name || name.trim() === "") {
       return NextResponse.json({ error: "Nama tidak boleh kosong" }, { status: 400 });
     }
+
+    // Validasi email unik kalau diganti
+const existingUser = await db.user.findUnique({ where: { id: userId } })
+if (!existingUser) {
+  return NextResponse.json({ error: 'User tidak ditemukan' }, { status: 404 })
+}
+
+if (email && email !== existingUser.email) {
+  const emailTaken = await db.user.findUnique({ where: { email } })
+  if (emailTaken) {
+    return NextResponse.json({ error: 'Email sudah digunakan akun lain' }, { status: 400 })
+  }
+}
 
     const updatedUser = await db.user.update({
       where: { id: userId },
@@ -64,6 +77,7 @@ export async function PUT(request: NextRequest) {
         phone: phone || null,
         avatar: avatar || null,
         address: address || null,
+        email: email || undefined,
       },
       select: {
         id: true,

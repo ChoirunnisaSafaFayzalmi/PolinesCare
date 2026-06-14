@@ -12,6 +12,7 @@ model User {
   email      String   @unique
   name       String
   password   String
+  passwordResetTokens PasswordResetToken[]
   role       String   @default("donatur") // admin, donatur
   phone      String?
   avatar     String?
@@ -26,6 +27,16 @@ model User {
   preferences   UserPreference[]
   notifications Notification[]
   campaigns     Campaign[]
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Campaign {

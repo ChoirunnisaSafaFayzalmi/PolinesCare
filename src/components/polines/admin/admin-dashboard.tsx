@@ -14,6 +14,7 @@ import { NotifikasiTab } from './tab-notifikasi'
 import { ArrowLeft } from 'lucide-react'
 import type { Campaign, Donation, Proposal, AppNotification, PlatformStats, FundUsage, PaymentMethod } from '@/components/polines/types'
 import type { LaporanCampaign } from './tab-laporan'
+import { AdminProfileTab } from './admin-profile'
 
 // ── Types ──────────────────────────────────────────────────────
 type SubView = 'campaign-form' | 'donasi-detail' | 'laporan-detail' | 'ajuan-detail' | null
@@ -48,18 +49,18 @@ interface AdminDashboardProps {
   handleSignOut: () => void
   session: any
   campaignForm: {
-  title: string
-  description: string
-  category: string
-  targetAmount: string
-  startDate: string
-  endDate: string
-  isUrgent: boolean
-  isPublic: boolean
-  paymentMethods: PaymentMethod[]  // ← pakai type dari types.ts, bukan inline
-  uniqueCode: string
-  images?: string[]
-}
+    title: string
+    description: string
+    category: string
+    targetAmount: string
+    startDate: string
+    endDate: string
+    isUrgent: boolean
+    isPublic: boolean
+    paymentMethods: PaymentMethod[]  // ← pakai type dari types.ts, bukan inline
+    uniqueCode: string
+    images?: string[]
+  }
   setCampaignForm: (form: any) => void
   editingCampaign: Campaign | null
   setEditingCampaign: (c: Campaign | null) => void
@@ -73,7 +74,7 @@ interface AdminDashboardProps {
   adminCampaignSubTab?: string
   setAdminCampaignSubTab?: (v: string) => void
   onNavigateCampaignSubTab?: (subTab: string) => void
-  
+
 }
 
 // ── Component ──────────────────────────────────────────────────
@@ -135,56 +136,59 @@ export function AdminDashboard(props: AdminDashboardProps) {
   })()
 
   // ── Page title (when not in sub-view)
-  const pageTitle = menuItems.find(m => m.id === adminTab)?.label ?? 'Dashboard'
+  const extraLabels: Record<string, string> = {
+    profil: 'Profil Saya',
+  }
+  const pageTitle = menuItems.find(m => m.id === adminTab)?.label ?? extraLabels[adminTab] ?? 'Dashboard'
 
   // ── Handlers: Campaign
   const handleNewCampaign = () => {
     setEditingCampaign(null)
     setCampaignForm({
-  title: '', description: '', category: 'Sosial', targetAmount: '',
-  startDate: '', endDate: '', isUrgent: false, isPublic: true,
-  paymentMethods: [], uniqueCode: '',
-  images: [], location: '',
-})
+      title: '', description: '', category: 'Sosial', targetAmount: '',
+      startDate: '', endDate: '', isUrgent: false, isPublic: true,
+      paymentMethods: [], uniqueCode: '',
+      images: [], location: '',
+    })
     setSubView('campaign-form')
   }
 
   const handleEditCampaign = (c: Campaign) => {
-  setEditingCampaign(c)
-  setCampaignForm({
-    title: c.title,
-    description: c.description,
-    location: c.location ?? '',
-    category: c.category,
-    targetAmount: String(c.targetAmount),
-    startDate: c.startDate.split('T')[0],
-    endDate: c.endDate.split('T')[0],
-    isUrgent: c.isUrgent,
-    isPublic: c.isPublic ?? true,
-    paymentMethods: (c.paymentMethods ?? []).map(pm => ({
-      key: pm.key,
-      label: pm.label ?? '',
-      accountNumber: pm.accountNumber,
-      isVisible: pm.isVisible ?? true,
-    })),
-    uniqueCode: String(c.uniqueCode ?? 0),
-    images: Array.isArray(c.images) 
-  ? c.images 
-  : (c.images ? JSON.parse(c.images) : []),
-  })
-  setSubView('campaign-form')
-}
+    setEditingCampaign(c)
+    setCampaignForm({
+      title: c.title,
+      description: c.description,
+      location: c.location ?? '',
+      category: c.category,
+      targetAmount: String(c.targetAmount),
+      startDate: c.startDate.split('T')[0],
+      endDate: c.endDate.split('T')[0],
+      isUrgent: c.isUrgent,
+      isPublic: c.isPublic ?? true,
+      paymentMethods: (c.paymentMethods ?? []).map(pm => ({
+        key: pm.key,
+        label: pm.label ?? '',
+        accountNumber: pm.accountNumber,
+        isVisible: pm.isVisible ?? true,
+      })),
+      uniqueCode: String(c.uniqueCode ?? 0),
+      images: Array.isArray(c.images)
+        ? c.images
+        : (c.images ? JSON.parse(c.images) : []),
+    })
+    setSubView('campaign-form')
+  }
 
   const handleSaveCampaign = (imageFiles?: File[]) => {
-  // Sync status berdasarkan isPublic sebelum submit
-  setCampaignForm((prev: typeof campaignForm) => ({
-    ...prev,
-    status: prev.isPublic ? 'active' : 'closed',
-  }))
-  submitCampaign(imageFiles)
-  setSubView(null)
-  setEditingCampaign(null)
-}
+    // Sync status berdasarkan isPublic sebelum submit
+    setCampaignForm((prev: typeof campaignForm) => ({
+      ...prev,
+      status: prev.isPublic ? 'active' : 'closed',
+    }))
+    submitCampaign(imageFiles)
+    setSubView(null)
+    setEditingCampaign(null)
+  }
 
   // ── Handler: Laporan
   const handleAddFundUsage = (campaignId: string, description: string, amount: string) => {
@@ -320,6 +324,9 @@ export function AdminDashboard(props: AdminDashboardProps) {
             onMarkAllRead={markAllNotificationsRead}
           />
         )
+
+      case 'profil':          // ← tambah ini
+        return <AdminProfileTab />
 
       default:
         return null
