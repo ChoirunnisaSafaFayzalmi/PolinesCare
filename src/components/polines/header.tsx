@@ -81,7 +81,7 @@ export function Header() {
               <Button variant="ghost" size="sm" onClick={handleDashboardClick}>
                 <LayoutDashboard className="h-4 w-4 mr-1" /> Dashboard
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => router.push('/')}>
+              <Button variant="ghost" size="sm" onClick={() => router.push('/home')}>
                 <HomeIcon className="h-4 w-4 mr-1" /> Lihat Website
               </Button>
 
@@ -190,7 +190,7 @@ export function Header() {
                 <LayoutDashboard className="h-4 w-4 mr-2" /> Dashboard
               </Button>
               <Button variant="ghost" className="w-full justify-start"
-                onClick={() => { router.push('/'); setMobileMenuOpen(false) }}>
+                onClick={() => { router.push('/home'); setMobileMenuOpen(false) }}>
                 <HomeIcon className="h-4 w-4 mr-2" /> Lihat Website
               </Button>
               <Button variant="ghost" className="w-full justify-start text-red-600"

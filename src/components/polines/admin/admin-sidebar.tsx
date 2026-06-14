@@ -6,6 +6,7 @@ import {
   LayoutDashboard, Target, CreditCard, FileText, Bell,
   Home as HomeIcon, LogOut, Menu, ChevronLeft,
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -30,6 +31,7 @@ export function AdminSidebar({
   adminTab, setAdminTab, unreadCount, session,
   setView, handleSignOut, collapsed, setCollapsed,
 }: AdminSidebarProps) {
+  const router = useRouter()
   return (
     <aside
       className={`fixed top-0 left-0 h-full z-40 flex flex-col transition-all duration-300 ${
@@ -91,7 +93,7 @@ export function AdminSidebar({
         </button>
 
         <button
-          onClick={() => setView('landing')}
+          onClick={() => router.push('/home')}
           title={collapsed ? 'Lihat Website' : undefined}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-teal-100 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
         >
