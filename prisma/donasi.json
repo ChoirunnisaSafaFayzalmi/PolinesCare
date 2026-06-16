@@ -1,0 +1,6302 @@
+[
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 288928,
+    "Waktu": 45400,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 91638,
+    "Waktu": 45399,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 303383,
+    "Waktu": 45292,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 222650,
+    "Waktu": 45371,
+    "Lokasi": "NTT",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Rumah Zakat",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 301904,
+    "Waktu": 45368,
+    "Lokasi": "Bogor",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 450606,
+    "Waktu": 45317,
+    "Lokasi": "Bandung",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur BAZNAS Jateng",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 90855,
+    "Waktu": 45339,
+    "Lokasi": "Bogor",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 386979,
+    "Waktu": 45311,
+    "Lokasi": "Bandung",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 274491,
+    "Waktu": 45356,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Tokopedia",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 499135,
+    "Waktu": 45330,
+    "Lokasi": "Bandung",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Rumah Zakat",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 227759,
+    "Waktu": 45405,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 345984,
+    "Waktu": 45308,
+    "Lokasi": "Bogor",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Kitabisa Sumbar",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 489570,
+    "Waktu": 45408,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 367094,
+    "Waktu": 45334,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Komunitas Peduli NTT",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 137684,
+    "Waktu": 45343,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Kitabisa",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 297990,
+    "Waktu": 45405,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 372034,
+    "Waktu": 45362,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 257224,
+    "Waktu": 45365,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Rumah Zakat",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 455026,
+    "Waktu": 45339,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 409442,
+    "Waktu": 45296,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Kitabisa Sumbar",
+    "Campaign": "Zakat Fitrah",
+    "Kategori": "Keagamaan",
+    "Nominal": 483440,
+    "Waktu": 45387,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 117266,
+    "Waktu": 45296,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Tokopedia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 354883,
+    "Waktu": 45369,
+    "Lokasi": "Aceh",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 460811,
+    "Waktu": 45301,
+    "Lokasi": "Bandung",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 126407,
+    "Waktu": 45355,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Kitabisa",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 65576,
+    "Waktu": 45382,
+    "Lokasi": "Bandung",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 236087,
+    "Waktu": 45328,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Pengguna Tokopedia Care",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 111065,
+    "Waktu": 45375,
+    "Lokasi": "Papua",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 497656,
+    "Waktu": 45324,
+    "Lokasi": "NTT",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Tokopedia",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 126893,
+    "Waktu": 45403,
+    "Lokasi": "NTT",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Tokopedia",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 381869,
+    "Waktu": 45315,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Kitabisa Sumbar",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 53933,
+    "Waktu": 45295,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Zakat Fitrah",
+    "Kategori": "Keagamaan",
+    "Nominal": 449498,
+    "Waktu": 45394,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli NTT",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 355631,
+    "Waktu": 45338,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 162211,
+    "Waktu": 45403,
+    "Lokasi": "NTT",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur BAZNAS Jatim",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 428020,
+    "Waktu": 45384,
+    "Lokasi": "NTT",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur BAZNAS Jatim",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 358380,
+    "Waktu": 45313,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur BAZNAS Jateng",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 254220,
+    "Waktu": 45314,
+    "Lokasi": "Bandung",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur BAZNAS Jateng",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 343147,
+    "Waktu": 45396,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 315427,
+    "Waktu": 45373,
+    "Lokasi": "Semarang",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 104328,
+    "Waktu": 45352,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 339913,
+    "Waktu": 45348,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 70736,
+    "Waktu": 45342,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 88146,
+    "Waktu": 45354,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Rumah Zakat",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 265836,
+    "Waktu": 45344,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Kitabisa",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 229610,
+    "Waktu": 45397,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Pengguna Kitabisa",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 348780,
+    "Waktu": 45312,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 458910,
+    "Waktu": 45401,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Tokopedia",
+    "Campaign": "Sedekah Ramadan",
+    "Kategori": "Keagamaan",
+    "Nominal": 71167,
+    "Waktu": 45370,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Pengguna Tokopedia Care",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 362050,
+    "Waktu": 45313,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 177929,
+    "Waktu": 45307,
+    "Lokasi": "NTT",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Kitabisa",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 351952,
+    "Waktu": 45337,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 238762,
+    "Waktu": 45312,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Pengguna Tokopedia Care",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 352771,
+    "Waktu": 45362,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 396790,
+    "Waktu": 45298,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Rumah Zakat",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 252249,
+    "Waktu": 45326,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Tokopedia",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 230594,
+    "Waktu": 45346,
+    "Lokasi": "Semarang",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 383668,
+    "Waktu": 45337,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Rumah Zakat",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 284480,
+    "Waktu": 45305,
+    "Lokasi": "Bandung",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Pengguna Kitabisa",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 265634,
+    "Waktu": 45389,
+    "Lokasi": "Papua",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Kitabisa Sumbar",
+    "Campaign": "Sedekah Ramadan",
+    "Kategori": "Keagamaan",
+    "Nominal": 392997,
+    "Waktu": 45305,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Pengguna Kitabisa",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 466450,
+    "Waktu": 45363,
+    "Lokasi": "Bogor",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Komunitas Peduli NTT",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 250419,
+    "Waktu": 45343,
+    "Lokasi": "Aceh",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur BAZNAS Jatim",
+    "Campaign": "Sedekah Ramadan",
+    "Kategori": "Keagamaan",
+    "Nominal": 365371,
+    "Waktu": 45305,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 71419,
+    "Waktu": 45380,
+    "Lokasi": "NTT",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 262026,
+    "Waktu": 45335,
+    "Lokasi": "Bandung",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 191230,
+    "Waktu": 45295,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Tokopedia",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 213648,
+    "Waktu": 45310,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 251060,
+    "Waktu": 45339,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 291431,
+    "Waktu": 45392,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Wakaf Quran",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 442050,
+    "Waktu": 45383,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Tokopedia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 447451,
+    "Waktu": 45372,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Pengguna Kitabisa",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 159951,
+    "Waktu": 45360,
+    "Lokasi": "Aceh",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Tokopedia",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 373734,
+    "Waktu": 45311,
+    "Lokasi": "Aceh",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli NTT",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 419712,
+    "Waktu": 45333,
+    "Lokasi": "NTT",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 118129,
+    "Waktu": 45408,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Pengguna Tokopedia Care",
+    "Campaign": "Zakat Fitrah",
+    "Kategori": "Keagamaan",
+    "Nominal": 495203,
+    "Waktu": 45309,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Rumah Zakat",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 276119,
+    "Waktu": 45406,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli NTT",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 392973,
+    "Waktu": 45397,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Pengguna Tokopedia Care",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 372305,
+    "Waktu": 45365,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Pengguna Kitabisa",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 176952,
+    "Waktu": 45395,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Pengguna Kitabisa",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 63785,
+    "Waktu": 45323,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Pengguna Tokopedia Care",
+    "Campaign": "Zakat Fitrah",
+    "Kategori": "Keagamaan",
+    "Nominal": 255429,
+    "Waktu": 45368,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 422214,
+    "Waktu": 45393,
+    "Lokasi": "Bandung",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 470056,
+    "Waktu": 45378,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Tokopedia",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 239822,
+    "Waktu": 45392,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 57355,
+    "Waktu": 45302,
+    "Lokasi": "Papua",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Pengguna Tokopedia Care",
+    "Campaign": "Sedekah Ramadan",
+    "Kategori": "Keagamaan",
+    "Nominal": 285440,
+    "Waktu": 45343,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 314658,
+    "Waktu": 45376,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur BAZNAS Jateng",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 365349,
+    "Waktu": 45400,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 242620,
+    "Waktu": 45393,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Tokopedia",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 420767,
+    "Waktu": 45296,
+    "Lokasi": "Semarang",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Tokopedia",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 171276,
+    "Waktu": 45360,
+    "Lokasi": "Aceh",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 139847,
+    "Waktu": 45383,
+    "Lokasi": "Papua",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Tokopedia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 73056,
+    "Waktu": 45347,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 231894,
+    "Waktu": 45330,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 330851,
+    "Waktu": 45305,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 422599,
+    "Waktu": 45391,
+    "Lokasi": "Papua",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Zakat Fitrah",
+    "Kategori": "Keagamaan",
+    "Nominal": 68610,
+    "Waktu": 45411,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Kitabisa",
+    "Campaign": "Sedekah Ramadan",
+    "Kategori": "Keagamaan",
+    "Nominal": 492186,
+    "Waktu": 45307,
+    "Lokasi": "Bandung",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 487637,
+    "Waktu": 45433,
+    "Lokasi": "Papua",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 88537,
+    "Waktu": 45434,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 393211,
+    "Waktu": 45435,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 409291,
+    "Waktu": 45436,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 418409,
+    "Waktu": 45437,
+    "Lokasi": "Bandung",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 468972,
+    "Waktu": 45438,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 309710,
+    "Waktu": 45439,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 432342,
+    "Waktu": 45440,
+    "Lokasi": "NTT",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 171453,
+    "Waktu": 45441,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 61079,
+    "Waktu": 45442,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 92913,
+    "Waktu": 45443,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 325154,
+    "Waktu": 45444,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 182590,
+    "Waktu": 45445,
+    "Lokasi": "Aceh",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 335685,
+    "Waktu": 45446,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 383004,
+    "Waktu": 45447,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 345250,
+    "Waktu": 45448,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 371689,
+    "Waktu": 45449,
+    "Lokasi": "Papua",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 472746,
+    "Waktu": 45450,
+    "Lokasi": "NTT",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 206094,
+    "Waktu": 45451,
+    "Lokasi": "Bogor",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 96122,
+    "Waktu": 45452,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 149265,
+    "Waktu": 45453,
+    "Lokasi": "Aceh",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 59869,
+    "Waktu": 45454,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 377244,
+    "Waktu": 45455,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 399490,
+    "Waktu": 45456,
+    "Lokasi": "Papua",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 73131,
+    "Waktu": 45457,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 179042,
+    "Waktu": 45458,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 234663,
+    "Waktu": 45459,
+    "Lokasi": "Bandung",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 148937,
+    "Waktu": 45460,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 183024,
+    "Waktu": 45461,
+    "Lokasi": "Semarang",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 409399,
+    "Waktu": 45462,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 339175,
+    "Waktu": 45463,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 248295,
+    "Waktu": 45464,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 191372,
+    "Waktu": 45465,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 347406,
+    "Waktu": 45466,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 416024,
+    "Waktu": 45467,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 382229,
+    "Waktu": 45468,
+    "Lokasi": "Aceh",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 310243,
+    "Waktu": 45469,
+    "Lokasi": "Bandung",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 304667,
+    "Waktu": 45470,
+    "Lokasi": "Papua",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 170736,
+    "Waktu": 45471,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 369140,
+    "Waktu": 45472,
+    "Lokasi": "Semarang",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 288139,
+    "Waktu": 45473,
+    "Lokasi": "Bandung",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 326930,
+    "Waktu": 45474,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 186846,
+    "Waktu": 45475,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 101530,
+    "Waktu": 45476,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 261088,
+    "Waktu": 45477,
+    "Lokasi": "Bogor",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 476203,
+    "Waktu": 45478,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 225184,
+    "Waktu": 45479,
+    "Lokasi": "Aceh",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 113728,
+    "Waktu": 45480,
+    "Lokasi": "Papua",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 491765,
+    "Waktu": 45481,
+    "Lokasi": "Aceh",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 303480,
+    "Waktu": 45482,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 79841,
+    "Waktu": 45483,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 182365,
+    "Waktu": 45484,
+    "Lokasi": "Papua",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 208503,
+    "Waktu": 45485,
+    "Lokasi": "Semarang",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 136202,
+    "Waktu": 45486,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 150067,
+    "Waktu": 45487,
+    "Lokasi": "Aceh",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 371330,
+    "Waktu": 45488,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 277080,
+    "Waktu": 45489,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 345145,
+    "Waktu": 45490,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 191399,
+    "Waktu": 45491,
+    "Lokasi": "NTT",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 183781,
+    "Waktu": 45492,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 492340,
+    "Waktu": 45493,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 470859,
+    "Waktu": 45494,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 420187,
+    "Waktu": 45495,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 69989,
+    "Waktu": 45496,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 184456,
+    "Waktu": 45497,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 430116,
+    "Waktu": 45498,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 361594,
+    "Waktu": 45499,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 134421,
+    "Waktu": 45500,
+    "Lokasi": "Bandung",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 331026,
+    "Waktu": 45501,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 444478,
+    "Waktu": 45502,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 240131,
+    "Waktu": 45503,
+    "Lokasi": "Semarang",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 424501,
+    "Waktu": 45504,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 270091,
+    "Waktu": 45505,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 237866,
+    "Waktu": 45506,
+    "Lokasi": "Bogor",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 224437,
+    "Waktu": 45507,
+    "Lokasi": "NTT",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 62661,
+    "Waktu": 45508,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 350379,
+    "Waktu": 45509,
+    "Lokasi": "NTT",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 78464,
+    "Waktu": 45510,
+    "Lokasi": "Semarang",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 363435,
+    "Waktu": 45511,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 173061,
+    "Waktu": 45512,
+    "Lokasi": "Bogor",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 216186,
+    "Waktu": 45513,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 401472,
+    "Waktu": 45514,
+    "Lokasi": "NTT",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 81633,
+    "Waktu": 45515,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 59088,
+    "Waktu": 45516,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 346087,
+    "Waktu": 45517,
+    "Lokasi": "Bandung",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 298021,
+    "Waktu": 45518,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 296811,
+    "Waktu": 45519,
+    "Lokasi": "Papua",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 377884,
+    "Waktu": 45520,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 439165,
+    "Waktu": 45521,
+    "Lokasi": "NTT",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 415988,
+    "Waktu": 45522,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 453659,
+    "Waktu": 45523,
+    "Lokasi": "NTT",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 340811,
+    "Waktu": 45524,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 330645,
+    "Waktu": 45525,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://tokopedia.com/donasi"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 116028,
+    "Waktu": 45526,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 78142,
+    "Waktu": 45527,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 235278,
+    "Waktu": 45528,
+    "Lokasi": "Papua",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 450988,
+    "Waktu": 45529,
+    "Lokasi": "Semarang",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 141396,
+    "Waktu": 45530,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 378739,
+    "Waktu": 45531,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 473055,
+    "Waktu": 45532,
+    "Lokasi": "Bandung",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 209344,
+    "Waktu": 45658,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 333772,
+    "Waktu": 45659,
+    "Lokasi": "Papua",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 170291,
+    "Waktu": 45660,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 369561,
+    "Waktu": 45661,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 331480,
+    "Waktu": 45662,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 288224,
+    "Waktu": 45663,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 197599,
+    "Waktu": 45664,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 382311,
+    "Waktu": 45665,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 270697,
+    "Waktu": 45666,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 157390,
+    "Waktu": 45667,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 426158,
+    "Waktu": 45668,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 189188,
+    "Waktu": 45669,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 395859,
+    "Waktu": 45670,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 388006,
+    "Waktu": 45671,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 167387,
+    "Waktu": 45672,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 265409,
+    "Waktu": 45673,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 236477,
+    "Waktu": 45674,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 163702,
+    "Waktu": 45675,
+    "Lokasi": "Bandung",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 196066,
+    "Waktu": 45676,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 255126,
+    "Waktu": 45677,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 292208,
+    "Waktu": 45678,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 203557,
+    "Waktu": 45679,
+    "Lokasi": "Bandung",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 412525,
+    "Waktu": 45680,
+    "Lokasi": "Aceh",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 319225,
+    "Waktu": 45681,
+    "Lokasi": "NTT",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 367837,
+    "Waktu": 45682,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 182424,
+    "Waktu": 45683,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 184179,
+    "Waktu": 45684,
+    "Lokasi": "Bandung",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 281659,
+    "Waktu": 45685,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 248313,
+    "Waktu": 45686,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 333468,
+    "Waktu": 45687,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 343653,
+    "Waktu": 45688,
+    "Lokasi": "Papua",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 230389,
+    "Waktu": 45689,
+    "Lokasi": "Aceh",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 305411,
+    "Waktu": 45690,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 384457,
+    "Waktu": 45691,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 276424,
+    "Waktu": 45692,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 447920,
+    "Waktu": 45693,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 255313,
+    "Waktu": 45694,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 152495,
+    "Waktu": 45695,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 268787,
+    "Waktu": 45696,
+    "Lokasi": "Aceh",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 164665,
+    "Waktu": 45697,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 356540,
+    "Waktu": 45698,
+    "Lokasi": "Aceh",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 355087,
+    "Waktu": 45699,
+    "Lokasi": "NTT",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 423921,
+    "Waktu": 45700,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 171149,
+    "Waktu": 45701,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 239236,
+    "Waktu": 45702,
+    "Lokasi": "Bandung",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 160191,
+    "Waktu": 45703,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 341461,
+    "Waktu": 45704,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 213744,
+    "Waktu": 45705,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 189782,
+    "Waktu": 45706,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 242067,
+    "Waktu": 45707,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 445990,
+    "Waktu": 45708,
+    "Lokasi": "Bandung",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 252270,
+    "Waktu": 45709,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 232756,
+    "Waktu": 45710,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 444062,
+    "Waktu": 45711,
+    "Lokasi": "Bandung",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 236662,
+    "Waktu": 45712,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 237250,
+    "Waktu": 45713,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 444282,
+    "Waktu": 45714,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 183272,
+    "Waktu": 45715,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 334282,
+    "Waktu": 45716,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 462268,
+    "Waktu": 45717,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 407517,
+    "Waktu": 45718,
+    "Lokasi": "Papua",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 360316,
+    "Waktu": 45719,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 469403,
+    "Waktu": 45720,
+    "Lokasi": "Bandung",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 350179,
+    "Waktu": 45721,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 417293,
+    "Waktu": 45722,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 457466,
+    "Waktu": 45723,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 327309,
+    "Waktu": 45724,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 273633,
+    "Waktu": 45725,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 346015,
+    "Waktu": 45726,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 334716,
+    "Waktu": 45727,
+    "Lokasi": "NTT",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 476073,
+    "Waktu": 45728,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 406675,
+    "Waktu": 45729,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 417484,
+    "Waktu": 45730,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 538870,
+    "Waktu": 45731,
+    "Lokasi": "Aceh",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 297084,
+    "Waktu": 45732,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 284339,
+    "Waktu": 45733,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 266865,
+    "Waktu": 45734,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 409877,
+    "Waktu": 45735,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 428248,
+    "Waktu": 45736,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 254842,
+    "Waktu": 45737,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 322606,
+    "Waktu": 45738,
+    "Lokasi": "Papua",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 494642,
+    "Waktu": 45739,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 396018,
+    "Waktu": 45740,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 242444,
+    "Waktu": 45741,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 453604,
+    "Waktu": 45742,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 299645,
+    "Waktu": 45743,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 313940,
+    "Waktu": 45744,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 346175,
+    "Waktu": 45745,
+    "Lokasi": "Bandung",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 393500,
+    "Waktu": 45746,
+    "Lokasi": "Aceh",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 399634,
+    "Waktu": 45747,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 426864,
+    "Waktu": 45748,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 475387,
+    "Waktu": 45749,
+    "Lokasi": "Bandung",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 385926,
+    "Waktu": 45750,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 394966,
+    "Waktu": 45751,
+    "Lokasi": "Bogor",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 511042,
+    "Waktu": 45752,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 340608,
+    "Waktu": 45753,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 326826,
+    "Waktu": 45754,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 326362,
+    "Waktu": 45755,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 299839,
+    "Waktu": 45756,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 534273,
+    "Waktu": 45757,
+    "Lokasi": "Aceh",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 438001,
+    "Waktu": 45758,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 290259,
+    "Waktu": 45759,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 250001,
+    "Waktu": 45760,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 375879,
+    "Waktu": 45761,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 308659,
+    "Waktu": 45762,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 280895,
+    "Waktu": 45763,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 461750,
+    "Waktu": 45764,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 482317,
+    "Waktu": 45765,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 355967,
+    "Waktu": 45766,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 332733,
+    "Waktu": 45767,
+    "Lokasi": "Semarang",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 271462,
+    "Waktu": 45768,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 407382,
+    "Waktu": 45769,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 343660,
+    "Waktu": 45770,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 285384,
+    "Waktu": 45771,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 255714,
+    "Waktu": 45772,
+    "Lokasi": "Papua",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 270866,
+    "Waktu": 45773,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 290080,
+    "Waktu": 45774,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 506199,
+    "Waktu": 45775,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 491730,
+    "Waktu": 45776,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 248334,
+    "Waktu": 45777,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 368623,
+    "Waktu": 45778,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 176442,
+    "Waktu": 45779,
+    "Lokasi": "NTT",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 396933,
+    "Waktu": 45780,
+    "Lokasi": "Aceh",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 353913,
+    "Waktu": 45781,
+    "Lokasi": "Aceh",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 336748,
+    "Waktu": 45782,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 351229,
+    "Waktu": 45783,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 409113,
+    "Waktu": 45784,
+    "Lokasi": "Aceh",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 215379,
+    "Waktu": 45785,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 242188,
+    "Waktu": 45786,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 207608,
+    "Waktu": 45787,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 308285,
+    "Waktu": 45788,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 409222,
+    "Waktu": 45789,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 288481,
+    "Waktu": 45790,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 259325,
+    "Waktu": 45791,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 244103,
+    "Waktu": 45792,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 414352,
+    "Waktu": 45793,
+    "Lokasi": "NTT",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 259725,
+    "Waktu": 45794,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 151373,
+    "Waktu": 45795,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 176889,
+    "Waktu": 45796,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 385437,
+    "Waktu": 45797,
+    "Lokasi": "Semarang",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 380648,
+    "Waktu": 45798,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 342781,
+    "Waktu": 45799,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 378657,
+    "Waktu": 45800,
+    "Lokasi": "NTT",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 392381,
+    "Waktu": 45801,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 304335,
+    "Waktu": 45802,
+    "Lokasi": "NTT",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 200307,
+    "Waktu": 45803,
+    "Lokasi": "Bogor",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 308063,
+    "Waktu": 45804,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 169278,
+    "Waktu": 45805,
+    "Lokasi": "NTT",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 237386,
+    "Waktu": 45806,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 359530,
+    "Waktu": 45807,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 412783,
+    "Waktu": 45808,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 205738,
+    "Waktu": 45809,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 375345,
+    "Waktu": 45810,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 164478,
+    "Waktu": 45811,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 442769,
+    "Waktu": 45812,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 244199,
+    "Waktu": 45813,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 416835,
+    "Waktu": 45814,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 391225,
+    "Waktu": 45815,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 265959,
+    "Waktu": 45816,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 437141,
+    "Waktu": 45817,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 337839,
+    "Waktu": 45818,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 449257,
+    "Waktu": 45819,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 275162,
+    "Waktu": 45820,
+    "Lokasi": "Semarang",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 249403,
+    "Waktu": 45821,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 240621,
+    "Waktu": 45822,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 399080,
+    "Waktu": 45823,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 336460,
+    "Waktu": 45824,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 418584,
+    "Waktu": 45825,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 375105,
+    "Waktu": 45826,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 359811,
+    "Waktu": 45827,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 260179,
+    "Waktu": 45828,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 311578,
+    "Waktu": 45829,
+    "Lokasi": "Aceh",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 182076,
+    "Waktu": 45830,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 233651,
+    "Waktu": 45831,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 422423,
+    "Waktu": 45832,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 155518,
+    "Waktu": 45833,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 189062,
+    "Waktu": 45834,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 434886,
+    "Waktu": 45835,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 158273,
+    "Waktu": 45836,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 312921,
+    "Waktu": 45837,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 340278,
+    "Waktu": 45838,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 232934,
+    "Waktu": 45839,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 295602,
+    "Waktu": 45840,
+    "Lokasi": "Aceh",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 194441,
+    "Waktu": 45841,
+    "Lokasi": "Bandung",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 162248,
+    "Waktu": 45842,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 206630,
+    "Waktu": 45843,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 231904,
+    "Waktu": 45844,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 165796,
+    "Waktu": 45845,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 242287,
+    "Waktu": 45846,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 430110,
+    "Waktu": 45847,
+    "Lokasi": "NTT",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 351740,
+    "Waktu": 45848,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 171631,
+    "Waktu": 45849,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 198333,
+    "Waktu": 45850,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 198373,
+    "Waktu": 45851,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 165298,
+    "Waktu": 45852,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 428952,
+    "Waktu": 45853,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 364343,
+    "Waktu": 45854,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 290069,
+    "Waktu": 45855,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 433714,
+    "Waktu": 45856,
+    "Lokasi": "NTT",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 437999,
+    "Waktu": 45857,
+    "Lokasi": "Papua",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 201905,
+    "Waktu": 45809,
+    "Lokasi": "Bogor",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 318851,
+    "Waktu": 45810,
+    "Lokasi": "Papua",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 340824,
+    "Waktu": 45811,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 326994,
+    "Waktu": 45812,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 155067,
+    "Waktu": 45813,
+    "Lokasi": "Papua",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 426614,
+    "Waktu": 45814,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 199622,
+    "Waktu": 45815,
+    "Lokasi": "NTT",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 231958,
+    "Waktu": 45816,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 318263,
+    "Waktu": 45817,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 200017,
+    "Waktu": 45818,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 206256,
+    "Waktu": 45819,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 395268,
+    "Waktu": 45820,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 236982,
+    "Waktu": 45821,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 196867,
+    "Waktu": 45822,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 307699,
+    "Waktu": 45823,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 263597,
+    "Waktu": 45824,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 351738,
+    "Waktu": 45825,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 235696,
+    "Waktu": 45826,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 405862,
+    "Waktu": 45827,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 229270,
+    "Waktu": 45828,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 277174,
+    "Waktu": 45829,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 157058,
+    "Waktu": 45830,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 400404,
+    "Waktu": 45831,
+    "Lokasi": "Papua",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 307659,
+    "Waktu": 45832,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 162343,
+    "Waktu": 45833,
+    "Lokasi": "NTT",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 300116,
+    "Waktu": 45834,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 152265,
+    "Waktu": 45835,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 193243,
+    "Waktu": 45836,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 290866,
+    "Waktu": 45837,
+    "Lokasi": "Semarang",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 264846,
+    "Waktu": 45838,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 226666,
+    "Waktu": 45839,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 273542,
+    "Waktu": 45840,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 275144,
+    "Waktu": 45841,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 206128,
+    "Waktu": 45842,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 410302,
+    "Waktu": 45843,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 387824,
+    "Waktu": 45844,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 195031,
+    "Waktu": 45845,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 300457,
+    "Waktu": 45846,
+    "Lokasi": "Bogor",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 157605,
+    "Waktu": 45847,
+    "Lokasi": "Aceh",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 225178,
+    "Waktu": 45848,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 205590,
+    "Waktu": 45849,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 150883,
+    "Waktu": 45850,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 329885,
+    "Waktu": 45851,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 223220,
+    "Waktu": 45852,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 288955,
+    "Waktu": 45853,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 294863,
+    "Waktu": 45854,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 444344,
+    "Waktu": 45855,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 340342,
+    "Waktu": 45856,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 385122,
+    "Waktu": 45857,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 293865,
+    "Waktu": 45858,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 384087,
+    "Waktu": 45859,
+    "Lokasi": "Aceh",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 159430,
+    "Waktu": 45860,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 183946,
+    "Waktu": 45861,
+    "Lokasi": "Bandung",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 408945,
+    "Waktu": 45862,
+    "Lokasi": "Semarang",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 331905,
+    "Waktu": 45863,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 413648,
+    "Waktu": 45864,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 198103,
+    "Waktu": 45865,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 422367,
+    "Waktu": 45866,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 368117,
+    "Waktu": 45867,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 246511,
+    "Waktu": 45868,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 169939,
+    "Waktu": 45869,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 203362,
+    "Waktu": 45870,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 150153,
+    "Waktu": 45871,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 258045,
+    "Waktu": 45872,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 447662,
+    "Waktu": 45873,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 349756,
+    "Waktu": 45874,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 237486,
+    "Waktu": 45875,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 239190,
+    "Waktu": 45876,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 374859,
+    "Waktu": 45877,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 320212,
+    "Waktu": 45878,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 432531,
+    "Waktu": 45879,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 284850,
+    "Waktu": 45880,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 337595,
+    "Waktu": 45881,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 202369,
+    "Waktu": 45882,
+    "Lokasi": "Aceh",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 193622,
+    "Waktu": 45883,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 259157,
+    "Waktu": 45884,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 172204,
+    "Waktu": 45885,
+    "Lokasi": "NTT",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 183976,
+    "Waktu": 45886,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 285582,
+    "Waktu": 45887,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 283425,
+    "Waktu": 45888,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 192405,
+    "Waktu": 45889,
+    "Lokasi": "Bandung",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 282242,
+    "Waktu": 45890,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 394480,
+    "Waktu": 45891,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 234752,
+    "Waktu": 45892,
+    "Lokasi": "NTT",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 179927,
+    "Waktu": 45893,
+    "Lokasi": "Semarang",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 431568,
+    "Waktu": 45894,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 288601,
+    "Waktu": 45895,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 193030,
+    "Waktu": 45896,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 233730,
+    "Waktu": 45897,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 215611,
+    "Waktu": 45898,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 420853,
+    "Waktu": 45899,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 357072,
+    "Waktu": 45900,
+    "Lokasi": "Bogor",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 291967,
+    "Waktu": 45901,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 296401,
+    "Waktu": 45902,
+    "Lokasi": "NTT",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 386697,
+    "Waktu": 45903,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 349959,
+    "Waktu": 45904,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 180166,
+    "Waktu": 45905,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 402258,
+    "Waktu": 45906,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 183837,
+    "Waktu": 45907,
+    "Lokasi": "Bogor",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 222947,
+    "Waktu": 45908,
+    "Lokasi": "NTT",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 196147,
+    "Waktu": 45909,
+    "Lokasi": "NTT",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 167328,
+    "Waktu": 45910,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 351844,
+    "Waktu": 45911,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 439042,
+    "Waktu": 45912,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 174458,
+    "Waktu": 45913,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 387670,
+    "Waktu": 45914,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 168609,
+    "Waktu": 45915,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 387446,
+    "Waktu": 45916,
+    "Lokasi": "Bogor",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 276268,
+    "Waktu": 45917,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 254127,
+    "Waktu": 45918,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 245297,
+    "Waktu": 45919,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 367892,
+    "Waktu": 45920,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 381945,
+    "Waktu": 45921,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 416404,
+    "Waktu": 45922,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 381484,
+    "Waktu": 45923,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 321643,
+    "Waktu": 45924,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 159815,
+    "Waktu": 45925,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 329503,
+    "Waktu": 45926,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 425205,
+    "Waktu": 45927,
+    "Lokasi": "Aceh",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 403547,
+    "Waktu": 45928,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 291368,
+    "Waktu": 45929,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 281795,
+    "Waktu": 45930,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 168284,
+    "Waktu": 45931,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 279574,
+    "Waktu": 45932,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 186801,
+    "Waktu": 45933,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 366841,
+    "Waktu": 45934,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 166999,
+    "Waktu": 45935,
+    "Lokasi": "Papua",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 264460,
+    "Waktu": 45936,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 393296,
+    "Waktu": 45937,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 372850,
+    "Waktu": 45938,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 179880,
+    "Waktu": 45939,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 243936,
+    "Waktu": 45940,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 442060,
+    "Waktu": 45941,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 249993,
+    "Waktu": 45942,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 279296,
+    "Waktu": 45943,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 327260,
+    "Waktu": 45944,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 402853,
+    "Waktu": 45945,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 324704,
+    "Waktu": 45946,
+    "Lokasi": "Bandung",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 223771,
+    "Waktu": 45947,
+    "Lokasi": "Aceh",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 351150,
+    "Waktu": 45948,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 329623,
+    "Waktu": 45949,
+    "Lokasi": "NTT",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 362504,
+    "Waktu": 45950,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 317118,
+    "Waktu": 45951,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 448898,
+    "Waktu": 45952,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 397637,
+    "Waktu": 45953,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 251920,
+    "Waktu": 45954,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 274543,
+    "Waktu": 45955,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 275212,
+    "Waktu": 45956,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 341577,
+    "Waktu": 45957,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 238260,
+    "Waktu": 45958,
+    "Lokasi": "Bandung",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 197098,
+    "Waktu": 45959,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 282816,
+    "Waktu": 45960,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 365824,
+    "Waktu": 45961,
+    "Lokasi": "NTT",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 319414,
+    "Waktu": 45962,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 252739,
+    "Waktu": 45963,
+    "Lokasi": "Semarang",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 175970,
+    "Waktu": 45964,
+    "Lokasi": "Aceh",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 225535,
+    "Waktu": 45965,
+    "Lokasi": "NTT",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 200583,
+    "Waktu": 45966,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 203327,
+    "Waktu": 45967,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 250493,
+    "Waktu": 45968,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 351233,
+    "Waktu": 45969,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 289079,
+    "Waktu": 45970,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 368257,
+    "Waktu": 45971,
+    "Lokasi": "NTT",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 249222,
+    "Waktu": 45972,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 187863,
+    "Waktu": 45973,
+    "Lokasi": "Papua",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 337074,
+    "Waktu": 45974,
+    "Lokasi": "Bandung",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 425529,
+    "Waktu": 45975,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 293989,
+    "Waktu": 45976,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 154015,
+    "Waktu": 45977,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 197920,
+    "Waktu": 45978,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 357358,
+    "Waktu": 45979,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 404817,
+    "Waktu": 45980,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 179930,
+    "Waktu": 45981,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 370320,
+    "Waktu": 45982,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 374957,
+    "Waktu": 45983,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 191809,
+    "Waktu": 45984,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 210936,
+    "Waktu": 45985,
+    "Lokasi": "Papua",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 228482,
+    "Waktu": 45986,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 269954,
+    "Waktu": 45987,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 305704,
+    "Waktu": 45988,
+    "Lokasi": "Papua",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 260550,
+    "Waktu": 45989,
+    "Lokasi": "NTT",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 348169,
+    "Waktu": 45990,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 256141,
+    "Waktu": 45991,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 361561,
+    "Waktu": 45992,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 184781,
+    "Waktu": 45993,
+    "Lokasi": "Bandung",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 260930,
+    "Waktu": 45994,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 449225,
+    "Waktu": 45995,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 168509,
+    "Waktu": 45996,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 334099,
+    "Waktu": 45997,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 174877,
+    "Waktu": 45998,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 351457,
+    "Waktu": 45999,
+    "Lokasi": "Aceh",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 343375,
+    "Waktu": 46000,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 266083,
+    "Waktu": 46001,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 447901,
+    "Waktu": 46002,
+    "Lokasi": "Bandung",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 336849,
+    "Waktu": 46003,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 369830,
+    "Waktu": 46004,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 186937,
+    "Waktu": 46005,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 178697,
+    "Waktu": 46006,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 374683,
+    "Waktu": 46007,
+    "Lokasi": "Aceh",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 434169,
+    "Waktu": 46008,
+    "Lokasi": "NTT",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 348215,
+    "Waktu": 46009,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 226620,
+    "Waktu": 46010,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 438044,
+    "Waktu": 46011,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 246674,
+    "Waktu": 46012,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 411215,
+    "Waktu": 46013,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 171447,
+    "Waktu": 46014,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 167386,
+    "Waktu": 46015,
+    "Lokasi": "NTT",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 413352,
+    "Waktu": 46016,
+    "Lokasi": "Semarang",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 190467,
+    "Waktu": 46017,
+    "Lokasi": "NTT",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 425464,
+    "Waktu": 46018,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 283909,
+    "Waktu": 46019,
+    "Lokasi": "Bogor",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 415164,
+    "Waktu": 46020,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 236236,
+    "Waktu": 46021,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 427467,
+    "Waktu": 46022,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 438979,
+    "Waktu": 46023,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 383785,
+    "Waktu": 46024,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 186065,
+    "Waktu": 46025,
+    "Lokasi": "NTT",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 324140,
+    "Waktu": 46026,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 341667,
+    "Waktu": 46027,
+    "Lokasi": "NTT",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 336325,
+    "Waktu": 46028,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 390493,
+    "Waktu": 46029,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 216389,
+    "Waktu": 46030,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 314247,
+    "Waktu": 46031,
+    "Lokasi": "Bandung",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 376309,
+    "Waktu": 46032,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 184779,
+    "Waktu": 46033,
+    "Lokasi": "Bandung",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 419842,
+    "Waktu": 46034,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 441927,
+    "Waktu": 46035,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 433562,
+    "Waktu": 46036,
+    "Lokasi": "Aceh",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 168349,
+    "Waktu": 46037,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 201185,
+    "Waktu": 46038,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 339975,
+    "Waktu": 46039,
+    "Lokasi": "Papua",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 430651,
+    "Waktu": 46040,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 304038,
+    "Waktu": 46041,
+    "Lokasi": "Papua",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 401403,
+    "Waktu": 46042,
+    "Lokasi": "Semarang",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 353961,
+    "Waktu": 46043,
+    "Lokasi": "Bogor",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 432332,
+    "Waktu": 46044,
+    "Lokasi": "NTT",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 317852,
+    "Waktu": 46045,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 440971,
+    "Waktu": 46046,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 255408,
+    "Waktu": 46047,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 302303,
+    "Waktu": 46048,
+    "Lokasi": "Aceh",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 195582,
+    "Waktu": 46049,
+    "Lokasi": "Semarang",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 369176,
+    "Waktu": 46050,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 191560,
+    "Waktu": 46051,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 297130,
+    "Waktu": 46052,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 421316,
+    "Waktu": 46053,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Berbagi Sesama",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 312449,
+    "Waktu": 46054,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 195977,
+    "Waktu": 46055,
+    "Lokasi": "Aceh",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Rumah Zakat",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 327323,
+    "Waktu": 46056,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 389736,
+    "Waktu": 46057,
+    "Lokasi": "Bandung",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 391238,
+    "Waktu": 46058,
+    "Lokasi": "Papua",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 236678,
+    "Waktu": 46059,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 296144,
+    "Waktu": 46060,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 328165,
+    "Waktu": 46061,
+    "Lokasi": "Semarang",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 447344,
+    "Waktu": 46062,
+    "Lokasi": "Semarang",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur Dompet Dhuafa",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 181710,
+    "Waktu": 46063,
+    "Lokasi": "NTT",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 278060,
+    "Waktu": 46064,
+    "Lokasi": "Bandung",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 386558,
+    "Waktu": 46065,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 299418,
+    "Waktu": 46066,
+    "Lokasi": "Bogor",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Air Bersih",
+    "Kategori": "Sosial",
+    "Nominal": 312811,
+    "Waktu": 46067,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 309214,
+    "Waktu": 46068,
+    "Lokasi": "NTT",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Relawan Nusantara Bersatu",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 292582,
+    "Waktu": 46069,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 240480,
+    "Waktu": 46070,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 299963,
+    "Waktu": 46071,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 434869,
+    "Waktu": 46072,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 228903,
+    "Waktu": 46073,
+    "Lokasi": "NTT",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 165079,
+    "Waktu": 46074,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 292778,
+    "Waktu": 46075,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 179291,
+    "Waktu": 46076,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 199018,
+    "Waktu": 46077,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 307978,
+    "Waktu": 46078,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 235061,
+    "Waktu": 46079,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 429475,
+    "Waktu": 46080,
+    "Lokasi": "Papua",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 434141,
+    "Waktu": 46081,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Yayasan Cahaya Kebaikan",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 454380,
+    "Waktu": 46082,
+    "Lokasi": "Bandung",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 443655,
+    "Waktu": 46083,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 485997,
+    "Waktu": 46084,
+    "Lokasi": "Papua",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Indonesia",
+    "Campaign": "Zakat Maal",
+    "Kategori": "Keagamaan",
+    "Nominal": 263978,
+    "Waktu": 46085,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 474627,
+    "Waktu": 46086,
+    "Lokasi": "Bogor",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 362017,
+    "Waktu": 46087,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 279751,
+    "Waktu": 46088,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Longsor",
+    "Kategori": "Bencana",
+    "Nominal": 381071,
+    "Waktu": 46089,
+    "Lokasi": "NTT",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Gerakan Sedekah",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 283708,
+    "Waktu": 46090,
+    "Lokasi": "Papua",
+    "Sumber": "https://wakafquran.org"
+  },
+  {
+    "User": "Relawan Aksi Kemanusiaan",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 495637,
+    "Waktu": 46091,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Amal Indonesia",
+    "Campaign": "Santunan Yatim",
+    "Kategori": "Sosial",
+    "Nominal": 378213,
+    "Waktu": 46092,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 319389,
+    "Waktu": 46093,
+    "Lokasi": "Jakarta",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Lingkungan",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 439163,
+    "Waktu": 46094,
+    "Lokasi": "Semarang",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 329828,
+    "Waktu": 46095,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Filantropi Nusantara",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 249103,
+    "Waktu": 46096,
+    "Lokasi": "Surabaya",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Komunitas Peduli Aceh",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 212269,
+    "Waktu": 46097,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 380416,
+    "Waktu": 46098,
+    "Lokasi": "Aceh",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Komunitas Peduli Nusantara",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 434975,
+    "Waktu": 46099,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Wakaf Quran Indonesia",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 415555,
+    "Waktu": 46100,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://dompetdhuafa.org"
+  },
+  {
+    "User": "Donatur BAZNAS Nasional",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 474418,
+    "Waktu": 46101,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Gempa",
+    "Kategori": "Bencana",
+    "Nominal": 371189,
+    "Waktu": 46102,
+    "Lokasi": "Papua",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Relawan Peduli Bencana",
+    "Campaign": "Banjir",
+    "Kategori": "Bencana",
+    "Nominal": 274769,
+    "Waktu": 46103,
+    "Lokasi": "Aceh",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Kebakaran",
+    "Kategori": "Bencana",
+    "Nominal": 319068,
+    "Waktu": 46104,
+    "Lokasi": "Papua",
+    "Sumber": "https://kitabisa.com"
+  },
+  {
+    "User": "Donatur Kitabisa Indonesia",
+    "Campaign": "Bantuan Kesehatan",
+    "Kategori": "Sosial",
+    "Nominal": 484782,
+    "Waktu": 46105,
+    "Lokasi": "Bandung",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Donatur Sahabat Yatim",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 346518,
+    "Waktu": 46106,
+    "Lokasi": "Yogyakarta",
+    "Sumber": "https://rumahzakat.org"
+  },
+  {
+    "User": "Relawan Sosial Jogja",
+    "Campaign": "Wakaf Masjid",
+    "Kategori": "Keagamaan",
+    "Nominal": 259167,
+    "Waktu": 46107,
+    "Lokasi": "Papua",
+    "Sumber": "https://baznas.go.id"
+  },
+  {
+    "User": "Donatur Peduli Umat",
+    "Campaign": "Pendidikan Anak",
+    "Kategori": "Sosial",
+    "Nominal": 292887,
+    "Waktu": 46108,
+    "Lokasi": "Bekasi",
+    "Sumber": "https://dompetdhuafa.org"
+  }
+]

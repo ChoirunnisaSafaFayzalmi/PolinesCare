@@ -266,14 +266,28 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   // ============================================================
   // DONATION VERIFICATION (Admin)
   // ============================================================
+  // FIX: backend di /api/donations/[id]/route.ts hanya mengekspor handler PATCH,
+  // bukan PUT. Sebelumnya method di sini adalah 'PUT' sehingga request selalu
+  // gagal dengan 405 Method Not Allowed -> database tidak pernah ter-update,
+  // walau UI sempat terlihat berubah karena optimistic update di state lokal
+  // komponen AdminDashboard. Diubah menjadi 'PATCH' agar cocok dengan backend.
   const verifyDonation = async (id: string, status: 'approved' | 'rejected') => {
     try {
-      const res = await fetch(`/api/donations/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) })
+      const res = await fetch(`/api/donations/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      })
       if (res.ok) {
         toast.success(`Donasi berhasil ${status === 'approved' ? 'disetujui' : 'ditolak'}`)
         fetchDonations(); fetchCampaigns(); fetchAllCampaigns(); fetchStats(); fetchNotifications()
-      } else toast.error('Gagal memverifikasi donasi')
-    } catch { toast.error('Terjadi kesalahan') }
+      } else {
+        const data = await res.json().catch(() => ({}))
+        toast.error(data.error || 'Gagal memverifikasi donasi')
+      }
+    } catch {
+      toast.error('Terjadi kesalahan')
+    }
   }
 
   // ============================================================
