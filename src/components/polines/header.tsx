@@ -97,33 +97,40 @@ export function Header() {
                   )}
                 </Button>
                 {notifDropdownOpen && (
-                  <div className="absolute right-0 top-12 w-80 rounded-lg border bg-white shadow-lg z-50">
-                    <div className="p-3 border-b flex items-center justify-between">
-                      <span className="font-semibold text-sm">Notifikasi</span>
-                      {unreadCount > 0 && (
-                        <Button variant="ghost" size="sm" className="text-xs h-6"
-                          onClick={markAllNotificationsRead}>
-                          Tandai semua dibaca
-                        </Button>
-                      )}
-                    </div>
-                    <ScrollArea className="max-h-80">
-                      {notifications.length === 0 ? (
-                        <p className="p-4 text-sm text-muted-foreground text-center">Tidak ada notifikasi</p>
-                      ) : (
-                        notifications.slice(0, 5).map((n) => (
-                          <div key={n.id}
-                            className={`p-3 border-b cursor-pointer hover:bg-gray-50 transition-colors ${!n.isRead ? 'bg-teal-50/50' : ''}`}
-                            onClick={() => markNotificationRead(n.id)}>
-                            <p className="text-sm font-medium">{n.title}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{n.message}</p>
-                            <p className="text-xs text-muted-foreground mt-1">{formatDate(n.createdAt)}</p>
-                          </div>
-                        ))
-                      )}
-                    </ScrollArea>
-                  </div>
-                )}
+  <>
+    {/* Overlay transparan untuk menutup dropdown saat klik di luar */}
+    <div
+      className="fixed inset-0 z-[60]"
+      onClick={() => setNotifDropdownOpen(false)}
+    />
+    <div className="absolute right-0 top-12 w-80 rounded-lg border bg-white shadow-2xl z-[70]">
+      <div className="p-3 border-b flex items-center justify-between">
+        <span className="font-semibold text-sm">Notifikasi</span>
+        {unreadCount > 0 && (
+          <Button variant="ghost" size="sm" className="text-xs h-6"
+            onClick={markAllNotificationsRead}>
+            Tandai semua dibaca
+          </Button>
+        )}
+      </div>
+      <ScrollArea className="h-80">
+        {notifications.length === 0 ? (
+          <p className="p-4 text-sm text-muted-foreground text-center">Tidak ada notifikasi</p>
+        ) : (
+          notifications.slice(0, 5).map((n) => (
+            <div key={n.id}
+              className={`p-3 border-b cursor-pointer hover:bg-gray-50 transition-colors ${!n.isRead ? 'bg-teal-50/50' : ''}`}
+              onClick={() => markNotificationRead(n.id)}>
+              <p className="text-sm font-medium">{n.title}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{n.message}</p>
+              <p className="text-xs text-muted-foreground mt-1">{formatDate(n.createdAt)}</p>
+            </div>
+          ))
+        )}
+      </ScrollArea>
+    </div>
+  </>
+)}
               </div>
 
               {/* User Dropdown */}

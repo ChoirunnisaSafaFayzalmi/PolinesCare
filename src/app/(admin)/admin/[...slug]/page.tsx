@@ -311,7 +311,7 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   // ============================================================
   const verifyDonation = async (id: string, status: 'approved' | 'rejected') => {
     try {
-      const res = await fetch(`/api/donations/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) })
+      const res = await fetch(`/api/donations/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) })
       if (res.ok) {
         toast.success(`Donasi berhasil ${status === 'approved' ? 'disetujui' : 'ditolak'}`)
         fetchDonations(); fetchCampaigns(); fetchAllCampaigns(); fetchStats(); fetchNotifications()

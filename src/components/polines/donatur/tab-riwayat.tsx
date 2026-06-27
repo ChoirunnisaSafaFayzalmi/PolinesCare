@@ -56,7 +56,7 @@ export function TabRiwayat({ userDonations }: TabRiwayatProps) {
 
                     <TableCell className="font-semibold">
                       {d.type === 'barang' ? (
-                        <span className="text-orange-600">{d.amount} pcs</span>
+                        <span className="text-orange-600">{d.itemQuantity ?? d.amount} pcs</span>
                       ) : (
                         <span className="text-teal-600">{formatRupiah(d.amount)}</span>
                       )}

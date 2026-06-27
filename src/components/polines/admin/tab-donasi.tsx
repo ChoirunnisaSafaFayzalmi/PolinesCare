@@ -30,14 +30,14 @@ export function DonasiTab({ donations, allCampaigns, onSelectDonation }: DonasiT
     const matchSearch = search === '' ||
       d.donorName.toLowerCase().includes(search.toLowerCase()) ||
       d.campaign?.title?.toLowerCase().includes(search.toLowerCase())
-    const matchType   = typeFilter   === 'all' || d.type   === typeFilter
+    const matchType = typeFilter === 'all' || d.type === typeFilter
     const matchStatus = statusFilter === 'all' || d.status === statusFilter
-    const matchDate   = dateFilter   === ''    || d.createdAt?.startsWith(dateFilter)
+    const matchDate = dateFilter === '' || d.createdAt?.startsWith(dateFilter)
     return matchSearch && matchType && matchStatus && matchDate
   })
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
-  const paginated  = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
+  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
 
   return (
     <Card className="shadow-sm border-gray-100">
@@ -102,7 +102,7 @@ export function DonasiTab({ donations, allCampaigns, onSelectDonation }: DonasiT
               </TableHeader>
               <TableBody>
                 {paginated.map(d => {
-                  const camp  = allCampaigns.find(c => c.id === d.campaignId)
+                  const camp = allCampaigns.find(c => c.id === d.campaignId)
                   const match = camp && d.type === 'uang' && (d.amount % 1000) === camp.uniqueCode
                   return (
                     <TableRow key={d.id}>
@@ -134,9 +134,8 @@ export function DonasiTab({ donations, allCampaigns, onSelectDonation }: DonasiT
 
                       {/* Tipe */}
                       <TableCell className="hidden md:table-cell">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          d.type === 'uang' ? 'bg-orange-100 text-orange-700' : 'bg-amber-100 text-amber-700'
-                        }`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${d.type === 'uang' ? 'bg-orange-100 text-orange-700' : 'bg-amber-100 text-amber-700'
+                          }`}>
                           {d.type}
                         </span>
                       </TableCell>
@@ -144,11 +143,9 @@ export function DonasiTab({ donations, allCampaigns, onSelectDonation }: DonasiT
                       {/* Nominal / Barang */}
                       <TableCell className="hidden md:table-cell text-sm font-medium text-gray-700">
                         {d.type === 'uang'
-  ? formatRupiah(d.amount)
-  : <span className="text-gray-700 font-medium">
-      {d.itemName ? `${d.itemName} ` : ''}{d.itemQuantity ?? '-'} pcs
-    </span>
-}
+                          ? <span className="text-teal-600">{formatRupiah(d.amount)}</span>
+                          : <span className="text-orange-600">{d.amount} pcs</span>
+                        }
                       </TableCell>
 
                       {/* Metode — hanya untuk uang */}

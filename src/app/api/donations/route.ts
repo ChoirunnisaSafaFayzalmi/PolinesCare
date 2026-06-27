@@ -63,12 +63,21 @@ export async function POST(request: NextRequest) {
       paymentMethod,
       proofUrl,
       message,
+      itemName,
+      itemQuantity,
+      senderAddress,
     } = body;
 
-    // Auto-fill from session if not provided
-    const name = donorName || sessionUser.name || "Anonim";
-    const email = donorEmail || sessionUser.email || "";
-    const phone = donorPhone || "-";
+    // Ambil data lengkap user dari DB (session gak nyimpen phone)
+    const dbUser = await db.user.findUnique({
+      where: { id: userId },
+      select: { name: true, email: true, phone: true },
+    });
+
+    // Auto-fill from DB user if not provided
+    const name = donorName || dbUser?.name || sessionUser.name || "Anonim";
+    const email = donorEmail || dbUser?.email || sessionUser.email || "";
+    const phone = (donorPhone && donorPhone !== "-" ? donorPhone : null) || dbUser?.phone || "-";
 
     if (!campaignId || !amount) {
       return NextResponse.json(
@@ -104,8 +113,29 @@ export async function POST(request: NextRequest) {
         paymentMethod: paymentMethod || "transfer",
         proofUrl: proofUrl || null,
         message: message || null,
+        itemName: type === 'barang' ? (itemName || null) : null,
+        itemQuantity: type === 'barang' ? (Number(itemQuantity) || null) : null,
+        senderAddress: type === 'barang' ? (senderAddress || null) : null,
       },
     });
+
+    // ── Kirim notifikasi ke semua admin ──
+    const admins = await db.user.findMany({
+      where: { role: "admin" },
+      select: { id: true },
+    });
+
+    if (admins.length > 0) {
+      const donationTypeLabel = type === 'barang' ? 'barang' : 'uang';
+      await db.notification.createMany({
+        data: admins.map((admin) => ({
+          userId: admin.id,
+          title: "Donasi Baru Masuk",
+          message: `${name} mengirim donasi ${donationTypeLabel} untuk "${campaign.title}". Segera verifikasi.`,
+          type: "info",
+        })),
+      });
+    }
 
     return NextResponse.json({ donation }, { status: 201 });
   } catch (error: unknown) {

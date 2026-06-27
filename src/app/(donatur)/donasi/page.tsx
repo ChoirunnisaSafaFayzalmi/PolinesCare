@@ -31,9 +31,17 @@ export default function DonasiPage() {
   }, [status, session])
 
   useEffect(() => {
+  const fetchCampaigns = () => {
     fetch('/api/campaigns?status=active')
       .then(r => r.json()).then(d => setCampaigns(d.campaigns || []))
-  }, [])
+  }
+
+  fetchCampaigns() // fetch pertama saat mount
+
+  // Polling setiap 15 detik agar progress donasi (collectedAmount) selalu up-to-date
+  const interval = setInterval(fetchCampaigns, 15000)
+  return () => clearInterval(interval)
+}, [])
 
   const openDonationModal = (campaign?: Campaign) => {
     setSelectedCampaign(campaign || null)
@@ -42,28 +50,44 @@ export default function DonasiPage() {
     setDonationModalOpen(true)
   }
 
-  const submitDonation = async () => {
-    if (!session?.user) { toast.error('Silakan masuk terlebih dahulu'); return }
-    if (!donationForm.amount || Number(donationForm.amount) <= 0) { toast.error('Masukkan nominal yang valid'); return }
-    setSubmitting(true)
-    try {
-      const res = await fetch('/api/donations', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          campaignId: donationForm.campaignId, amount: Number(donationForm.amount),
-          donorName: session.user.name, donorEmail: session.user.email,
-          donorPhone: (session.user as any)?.phone || '-',
-          type: donationForm.type, paymentMethod: donationForm.paymentMethod,
-          message: donationForm.message, proofUrl: donationForm.proofUrl || undefined,
-        })
+  const submitDonation = async (overrides?: {
+  amount?: number
+  itemName?: string
+  itemQuantity?: number
+  senderAddress?: string
+}) => {
+  if (!session?.user) { toast.error('Silakan masuk terlebih dahulu'); return }
+
+  const finalAmount = overrides?.amount ?? Number(donationForm.amount)
+  if (!finalAmount || finalAmount <= 0) { toast.error('Masukkan nominal yang valid'); return }
+
+  setSubmitting(true)
+  try {
+    const res = await fetch('/api/donations', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        campaignId: donationForm.campaignId,
+        amount: finalAmount,
+        donorName: session.user.name,
+        donorEmail: session.user.email,
+        //donorPhone: (session.user as any)?.phone || '',
+        type: donationForm.type,
+        paymentMethod: overrides ? 'tunai' : donationForm.paymentMethod,
+        message: donationForm.message,
+        proofUrl: donationForm.proofUrl || undefined,
+        // field barang
+        itemName: overrides?.itemName ?? null,
+        itemQuantity: overrides?.itemQuantity ?? null,
+        senderAddress: overrides?.senderAddress ?? null,
       })
-      if (res.ok) {
-        setDonationStep(3); toast.success('Donasi berhasil dikirim!')
-        fetch('/api/campaigns?status=active').then(r => r.json()).then(d => setCampaigns(d.campaigns || []))
-      } else { const d = await res.json(); toast.error(d.error || 'Gagal') }
-    } catch { toast.error('Terjadi kesalahan') }
-    finally { setSubmitting(false) }
-  }
+    })
+    if (res.ok) {
+      setDonationStep(3); toast.success('Donasi berhasil dikirim!')
+      fetch('/api/campaigns?status=active').then(r => r.json()).then(d => setCampaigns(d.campaigns || []))
+    } else { const d = await res.json(); toast.error(d.error || 'Gagal') }
+  } catch { toast.error('Terjadi kesalahan') }
+  finally { setSubmitting(false) }
+}
 
   const fetchCampaignDetail = useCallback(async (id: string) => {
     const [campRes, donRes] = await Promise.all([

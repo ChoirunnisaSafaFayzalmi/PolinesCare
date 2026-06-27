@@ -61,7 +61,13 @@ export async function PATCH(
     const userRole = (session.user as { role?: string }).role;
     const body = await request.json();
 
-    const donation = await db.donation.findUnique({ where: { id } });
+    const donation = await db.donation.findUnique({
+      where: { id },
+      include: {
+        campaign: { select: { title: true } },
+      },
+    });
+
     if (!donation) {
       return NextResponse.json({ error: "Donasi tidak ditemukan" }, { status: 404 });
     }
@@ -74,11 +80,10 @@ export async function PATCH(
         return NextResponse.json({ error: "Status tidak valid" }, { status: 400 });
       }
 
-      const updated = await db.donation.update({
+      const updatedDonation = await db.donation.update({
         where: { id },
         data: {
           status,
-          rejectionReason: status === "rejected" ? (rejectionReason || null) : null,
         },
       });
 
@@ -97,7 +102,31 @@ export async function PATCH(
         });
       }
 
-      return NextResponse.json({ donation: updated });
+      // ── Kirim notifikasi ke donatur jika status berubah ──
+      if (status !== donation.status && (status === "approved" || status === "rejected")) {
+        const campaignTitle = donation.campaign?.title || "campaign";
+
+        const notifTitle =
+          status === "approved" ? "Donasi Disetujui" : "Donasi Ditolak";
+
+        const notifMessage =
+          status === "approved"
+            ? `Donasi Anda untuk "${campaignTitle}" telah disetujui. Terima kasih atas kebaikan Anda!`
+            : `Donasi Anda untuk "${campaignTitle}" ditolak.${
+                rejectionReason ? ` Alasan: ${rejectionReason}` : ""
+              }`;
+
+        await db.notification.create({
+          data: {
+            userId: donation.userId,
+            title: notifTitle,
+            message: notifMessage,
+            type: status === "approved" ? "success" : "warning",
+          },
+        });
+      }
+
+      return NextResponse.json({ donation: updatedDonation });
     }
 
     // Donatur: hanya bisa update proofUrl & message selama masih pending
@@ -113,7 +142,7 @@ export async function PATCH(
     }
 
     const { proofUrl, message } = body;
-    const updated = await db.donation.update({
+    const updatedDonation = await db.donation.update({
       where: { id },
       data: {
         proofUrl: proofUrl || donation.proofUrl,
@@ -121,7 +150,7 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json({ donation: updated });
+    return NextResponse.json({ donation: updatedDonation });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Terjadi kesalahan";
     return NextResponse.json({ error: message }, { status: 500 });

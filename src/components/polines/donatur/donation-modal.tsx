@@ -24,7 +24,12 @@ interface DonationModalProps {
   setDonationForm: (form: any) => void
   campaigns: Campaign[]
   submitting: boolean
-  submitDonation: () => void
+  submitDonation: (overrides?: {
+    amount?: number
+    itemName?: string
+    itemQuantity?: number
+    senderAddress?: string
+  }) => void
   session: any
 }
 
@@ -90,19 +95,53 @@ function InfoRekening({
 // ── Komponen Upload Foto ──
 function UploadFoto({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   const inputRef = useRef<HTMLInputElement>(null)
-  const [preview, setPreview] = useState<string | null>(null)
+  const [preview, setPreview] = useState<string | null>(value || null)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const url = URL.createObjectURL(file)
-    setPreview(url)
-    onChange(url)
+
+    setError(null)
+
+    // Preview instan lokal (sementara, bukan yang disimpan ke DB)
+    const localPreview = URL.createObjectURL(file)
+    setPreview(localPreview)
+    setUploading(true)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Gagal upload foto')
+      }
+
+      onChange(data.url)
+      setPreview(data.url)
+    } catch (err: any) {
+      setError(err.message || 'Gagal upload foto, coba lagi')
+      setPreview(null)
+      onChange('')
+      if (inputRef.current) inputRef.current.value = ''
+    } finally {
+      setUploading(false)
+      URL.revokeObjectURL(localPreview)
+    }
   }
 
   const handleRemove = () => {
     setPreview(null)
     onChange('')
+    setError(null)
     if (inputRef.current) inputRef.current.value = ''
   }
 
@@ -123,16 +162,24 @@ function UploadFoto({ label, value, onChange }: { label: string; value: string; 
       ) : (
         <div className="relative rounded-lg overflow-hidden border">
           <img src={preview} alt="preview" className="w-full h-36 object-cover" />
-          <button
-            type="button"
-            className="absolute top-2 right-2 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center hover:bg-black/80"
-            onClick={handleRemove}
-          >
-            <X className="h-3.5 w-3.5 text-white" />
-          </button>
+          {uploading && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <p className="text-white text-sm font-medium">Mengupload...</p>
+            </div>
+          )}
+          {!uploading && (
+            <button
+              type="button"
+              className="absolute top-2 right-2 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center hover:bg-black/80"
+              onClick={handleRemove}
+            >
+              <X className="h-3.5 w-3.5 text-white" />
+            </button>
+          )}
         </div>
       )}
-      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+      {error && <p className="text-xs text-red-500">{error}</p>}
+      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} disabled={uploading} />
     </div>
   )
 }
@@ -341,7 +388,7 @@ export function DonationModal({
               </Button>
               <Button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
                 disabled={submitting || !donationForm.amount}
-                onClick={submitDonation}>
+                onClick={() => submitDonation()}>
                 {submitting ? 'Mengirim...' : 'Kirim Donasi'} <Send className="h-4 w-4 ml-1" />
               </Button>
             </div>
@@ -437,13 +484,18 @@ export function DonationModal({
                 className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
                 disabled={submitting || barangItems.every(i => !i.name)}
                 onClick={() => {
-                  const totalQty = barangItems.reduce((sum, item) => sum + (Number(item.qty) || 0), 0)
-                  setDonationForm({
-                    ...donationForm,
-                    amount: String(totalQty || 1),
-                    paymentMethod: 'tunai'
+                  const validItems = barangItems.filter(i => i.name.trim())
+                  const totalQty = validItems.reduce((sum, item) => sum + (Number(item.qty) || 0), 0)
+                  const itemNameCombined = validItems
+                    .map(i => `${i.name}${i.qty ? ` (${i.qty})` : ''}`)
+                    .join(', ')
+
+                  submitDonation({
+                    amount: totalQty || 1,
+                    itemName: itemNameCombined,
+                    itemQuantity: totalQty || 1,
+                    senderAddress: alamatPengirim,
                   })
-                  submitDonation()
                 }}
               >
                 {submitting ? 'Mengirim...' : 'Kirim Donasi'} <Send className="h-4 w-4 ml-1" />
