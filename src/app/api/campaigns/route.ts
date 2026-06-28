@@ -59,6 +59,7 @@ export async function POST(request: NextRequest) {
       title, description, category, targetAmount,
       startDate, endDate, isUrgent, isPublic,
       paymentMethods, uniqueCode, images, location,
+      dropOffLocation,
     } = body;
 
     if (!title || !description || !category || !targetAmount || !startDate || !endDate)
@@ -70,6 +71,7 @@ export async function POST(request: NextRequest) {
         description,
         category,
         location: location || null,
+        dropOffLocation: dropOffLocation || null,
         targetAmount: Number(targetAmount),
         startDate: new Date(startDate),
         endDate: new Date(endDate),

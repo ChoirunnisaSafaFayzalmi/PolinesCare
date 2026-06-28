@@ -94,18 +94,18 @@ export async function PUT(
     collectedAmount: 0,
     startDate: existingProposal.startDate ?? new Date(),
     endDate: existingProposal.endDate ?? new Date(),
-    status: 'active',
-    isPublic: true,
+    status: 'awaiting_completion',   // ⬅ ubah dari 'active'
+    isPublic: false,                 // ⬅ ubah dari true
     isUrgent: false,
     location: existingProposal.campaignLocation ?? '',
-    images: existingProposal.photoUrls
-  ? existingProposal.photoUrls  // sudah JSON string, langsung pakai
-  : null,
+    images: existingProposal.photoUrls ?? null,
     paymentMethods: null,
-    uniqueCode: Math.floor(Math.random() * 900) + 100,
+    uniqueCode: 0,                   // ⬅ ubah dari random, biar admin isi manual
+    dropOffLocation: null,
     createdBy,
+    proposalId: existingProposal.id,
   },
-});
+})
     }
 
     // Notifikasi ke pengaju
@@ -115,8 +115,8 @@ export async function PUT(
           userId: existingProposal.proposedBy,
           title: status === 'approved' ? 'Proposal Disetujui 🎉' : 'Proposal Ditolak',
           message: status === 'approved'
-            ? `Proposal "${existingProposal.title}" disetujui! Campaign sudah aktif dan dapat menerima donasi.`
-            : `Proposal "${existingProposal.title}" ditolak. Alasan: ${rejectionReason || '-'}. Anda dapat mengajukan ulang setelah memperbaiki proposal.`,
+  ? `Proposal "${existingProposal.title}" disetujui! Admin akan melengkapi data pembayaran sebelum campaign tayang ke publik.`
+  : `Proposal "${existingProposal.title}" ditolak. Alasan: ${rejectionReason || '-'}. Anda dapat mengajukan ulang setelah memperbaiki proposal.`,
           type: status === 'approved' ? 'success' : 'warning',
         },
       });

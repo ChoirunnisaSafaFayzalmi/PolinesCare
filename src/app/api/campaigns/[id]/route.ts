@@ -61,7 +61,7 @@ export async function PUT(
     const {
       title, description, category, targetAmount,
       startDate, endDate, isUrgent, isPublic,
-      paymentMethods, uniqueCode, images, status, location,
+      paymentMethods, uniqueCode, images, status, location, dropOffLocation,
     } = body;
 
     const existing = await db.campaign.findUnique({ where: { id } });
@@ -74,6 +74,7 @@ export async function PUT(
         ...(title && { title }),
         ...(description && { description }),
         location: location ?? null,
+        dropOffLocation: dropOffLocation ?? null,
         ...(category && { category }),
         ...(targetAmount !== undefined && { targetAmount: Number(targetAmount) }),
         ...(startDate && { startDate: new Date(startDate) }),

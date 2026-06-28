@@ -125,6 +125,7 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
     paymentMethods: [] as { key: string; label: string; accountNumber: string; isVisible: boolean }[],
     uniqueCode: '',
     images: [] as string[], location: '',
+    dropOffLocation: '',
   })
 
   // ---- Fund Usage Form State ----
@@ -274,6 +275,7 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
         paymentMethods: campaignForm.paymentMethods,
         uniqueCode: Number(campaignForm.uniqueCode) || 0,
         images: allImages,
+        dropOffLocation: campaignForm.dropOffLocation ?? '',
       }
 
       const url = editingCampaign ? `/api/campaigns/${editingCampaign.id}` : '/api/campaigns'

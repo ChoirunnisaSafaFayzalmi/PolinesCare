@@ -465,12 +465,9 @@ export function DonationModal({
               <Card className="p-4 bg-gray-50 space-y-1">
                 <p className="font-bold text-sm">Kirim ke</p>
                 <p className="text-sm text-muted-foreground">
-                  {(selectedCampaign as any)?.address ?? 'Jl. Tembalang Baru no 32'}
+                  {selectedCampaign?.dropOffLocation || 'Alamat belum tersedia, hubungi admin untuk info pengiriman.'}
                 </p>
                 <p className="font-bold text-sm mt-2">*Apabila sudah dikirim harap konfirmasi</p>
-                <p className="text-sm text-muted-foreground">
-                  {(selectedCampaign as any)?.contactPhone ?? '08123123123'}
-                </p>
               </Card>
 
             </div>

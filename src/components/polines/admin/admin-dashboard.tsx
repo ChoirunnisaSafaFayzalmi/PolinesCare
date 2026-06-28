@@ -69,6 +69,8 @@ interface AdminDashboardProps {
     paymentMethods: PaymentMethod[]  // ← pakai type dari types.ts, bukan inline
     uniqueCode: string
     images?: string[]
+    dropOffLocation?: string   // ⬅ tambah
+    mode?: 'create' | 'complete-from-proposal'
   }
   setCampaignForm: (form: any) => void
   editingCampaign: Campaign | null
@@ -157,6 +159,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
       startDate: '', endDate: '', isUrgent: false, isPublic: true,
       paymentMethods: [], uniqueCode: '',
       images: [], location: '',
+      dropOffLocation: '',
     })
     setSubView('campaign-form')
   }
@@ -167,6 +170,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
       title: c.title,
       description: c.description,
       location: c.location ?? '',
+      dropOffLocation: c.dropOffLocation ?? '',
       category: c.category,
       targetAmount: String(c.targetAmount),
       startDate: c.startDate.split('T')[0],
@@ -183,6 +187,27 @@ export function AdminDashboard(props: AdminDashboardProps) {
       images: Array.isArray(c.images)
         ? c.images
         : (c.images ? JSON.parse(c.images) : []),
+    })
+    setSubView('campaign-form')
+  }
+
+  const handleCompleteFromProposal = (c: Campaign) => {
+    setEditingCampaign(c)
+    setCampaignForm({
+      title: c.title,
+      description: c.description,
+      location: c.location ?? '',
+      category: c.category,
+      targetAmount: String(c.targetAmount),
+      startDate: c.startDate.split('T')[0],
+      endDate: c.endDate.split('T')[0],
+      isUrgent: c.isUrgent,
+      isPublic: true,
+      paymentMethods: [],
+      uniqueCode: '',
+      dropOffLocation: c.dropOffLocation ?? '',
+      images: Array.isArray(c.images) ? c.images : (c.images ? JSON.parse(c.images) : []),
+      mode: 'complete-from-proposal',
     })
     setSubView('campaign-form')
   }
@@ -248,6 +273,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
           onSave={handleSaveCampaign}
           onBack={handleBack}
           session={session}
+          mode={campaignForm.mode ?? 'create'}
         />
       )
     }
@@ -313,6 +339,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
             onNavigateCampaignSubTab={onNavigateCampaignSubTab}
             onNewCampaign={handleNewCampaign}
             onEditCampaign={handleEditCampaign}
+            onCompleteFromProposal={handleCompleteFromProposal}
             onDeleteCampaign={deleteCampaign}
             onProposalDetail={(p) => {
               setSelectedProposal(p)

@@ -63,6 +63,8 @@ model Campaign {
   donations  Donation[]
   fundUsages FundUsage[]
   creator    User        @relation(fields: [createdBy], references: [id])
+  proposalId String?   @unique
+  proposal   Proposal? @relation(fields: [proposalId], references: [id])
 }
 
 model Donation {
@@ -151,6 +153,7 @@ model Proposal {
 
   proposer User   @relation(fields: [proposedBy], references: [id])
   votes    Vote[]
+  campaign Campaign?
 
   // Skor kelayakan proposal (masing-masing 0-100, rata-rata min 70 untuk lolos)
   kejelasanTujuan   Int @default(0) // Kejelasan tujuan dan dampak

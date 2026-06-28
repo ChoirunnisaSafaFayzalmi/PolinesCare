@@ -29,6 +29,7 @@ interface CampaignTabProps {
   onNavigateCampaignSubTab?: (subTab: string) => void
   onNewCampaign: () => void
   onEditCampaign: (c: Campaign) => void
+  onCompleteFromProposal: (c: Campaign) => void
   onDeleteCampaign: (id: string) => void
   onProposalDetail: (p: Proposal) => void
 }
@@ -39,7 +40,7 @@ export function CampaignTab({
   adminCampaignStatus, setAdminCampaignStatus,
   adminCampaignSubTab, setAdminCampaignSubTab,
   onNavigateCampaignSubTab,
-  onNewCampaign, onEditCampaign, onDeleteCampaign, onProposalDetail,
+  onNewCampaign, onEditCampaign, onCompleteFromProposal, onDeleteCampaign, onProposalDetail,
 }: CampaignTabProps) {
   const [search, setSearch] = useState('')
   const [ajuanStatus, setAjuanStatus] = useState('all')
@@ -48,9 +49,9 @@ export function CampaignTab({
   const filteredCampaigns = search === ''
     ? filteredAdminCampaigns
     : filteredAdminCampaigns.filter(c =>
-        c.title.toLowerCase().includes(search.toLowerCase()) ||
-        c.category.toLowerCase().includes(search.toLowerCase())
-      )
+      c.title.toLowerCase().includes(search.toLowerCase()) ||
+      c.category.toLowerCase().includes(search.toLowerCase())
+    )
 
   const filteredProposals = proposals.filter(p => {
     const matchSearch = search === '' ||
@@ -77,11 +78,10 @@ export function CampaignTab({
               setAjuanCategory('all')
               onNavigateCampaignSubTab?.(tab.id)
             }}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${
-              adminCampaignSubTab === tab.id
-                ? 'bg-white text-teal-700 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${adminCampaignSubTab === tab.id
+              ? 'bg-white text-teal-700 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+              }`}
           >
             {tab.id === 'ajuan' && <Vote className="h-4 w-4 inline mr-1.5 -mt-0.5" />}
             {tab.label}
@@ -116,6 +116,7 @@ export function CampaignTab({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Semua Status</SelectItem>
+                <SelectItem value="awaiting_completion">Menunggu Kelengkapan</SelectItem>   {/* ⬅ tambah */}
                 <SelectItem value="active">Aktif</SelectItem>
                 <SelectItem value="completed">Selesai</SelectItem>
                 <SelectItem value="closed">Ditutup</SelectItem>
@@ -169,6 +170,7 @@ export function CampaignTab({
           allCampaigns={allCampaigns}
           filteredAdminCampaigns={filteredCampaigns}
           onEditCampaign={onEditCampaign}
+          onCompleteFromProposal={onCompleteFromProposal}
           onDeleteCampaign={onDeleteCampaign}
         />
       ) : (
@@ -180,11 +182,12 @@ export function CampaignTab({
 
 // ── Campaign List ──────────────────────────────────────────────
 function CampaignList({
-  allCampaigns, filteredAdminCampaigns, onEditCampaign, onDeleteCampaign,
+  allCampaigns, filteredAdminCampaigns, onEditCampaign, onCompleteFromProposal, onDeleteCampaign,
 }: {
   allCampaigns: Campaign[]
   filteredAdminCampaigns: Campaign[]
   onEditCampaign: (c: Campaign) => void
+  onCompleteFromProposal: (c: Campaign) => void
   onDeleteCampaign: (id: string) => void
 }) {
   return (
@@ -229,7 +232,13 @@ function CampaignList({
                       <Badge variant="outline" className={getCategoryColor(c.category)}>{c.category}</Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(c.status)}>{c.status}</Badge>
+                      {c.status === 'awaiting_completion' ? (
+                        <Badge className="bg-amber-100 text-amber-700 border-amber-200">
+                          Menunggu Kelengkapan
+                        </Badge>
+                      ) : (
+                        <Badge className={getStatusColor(c.status)}>{c.status}</Badge>
+                      )}
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-sm">
                       {formatRupiah(c.collectedAmount)} / {formatRupiah(c.targetAmount)}
@@ -237,9 +246,19 @@ function CampaignList({
                     <TableCell className="hidden md:table-cell">{c._count?.donations ?? 0}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEditCampaign(c)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                        {c.status === 'awaiting_completion' ? (
+                          <Button
+                            size="sm"
+                            className="bg-amber-500 hover:bg-amber-600 text-white rounded-lg h-8"
+                            onClick={() => onCompleteFromProposal(c)}
+                          >
+                            <ThumbsUp className="h-3.5 w-3.5 mr-1" /> Lengkapi
+                          </Button>
+                        ) : (
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEditCampaign(c)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        )}
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600" onClick={() => onDeleteCampaign(c.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -293,7 +312,7 @@ function AjuanList({ proposals, onProposalDetail }: { proposals: Proposal[]; onP
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(p.status)}>{p.status}</Badge>
-                    </TableCell> 
+                    </TableCell>
                     <TableCell className="text-right">
                       <button
                         onClick={() => onProposalDetail(p)}

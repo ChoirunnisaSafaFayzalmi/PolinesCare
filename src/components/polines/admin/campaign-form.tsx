@@ -28,6 +28,7 @@ interface CampaignFormViewProps {
     uniqueCode: string
     images?: string[]
     location?: string
+    dropOffLocation?: string
   }
   setCampaignForm: (form: any) => void
   editingCampaign: Campaign | null
@@ -42,6 +43,7 @@ interface CampaignFormViewProps {
       address?: string | null
     }
   } | null
+  mode?: 'create' | 'complete-from-proposal'
 }
 
 // Reusable toggle component
@@ -152,10 +154,11 @@ function AddPaymentModal({
 }
 
 export function CampaignFormView({
-  campaignForm, setCampaignForm, editingCampaign, submitting, onSave, onBack, session,
+  campaignForm, setCampaignForm, editingCampaign, submitting, onSave, onBack, session, mode = 'create',
 }: CampaignFormViewProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [showAddModal, setShowAddModal] = useState(false)
+  const isLocked = mode === 'complete-from-proposal'
 
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<{ url: string; isExisting: boolean }[]>(
@@ -234,7 +237,7 @@ export function CampaignFormView({
       <Card className="shadow-sm border-gray-100">
         <CardHeader className="flex flex-row items-center justify-between">
           <h2 className="text-lg font-bold text-gray-800">
-            {editingCampaign ? 'Edit Campaign' : 'Campaign Baru'}
+            {isLocked ? 'Lengkapi & Publikasikan Campaign' : editingCampaign ? 'Edit Campaign' : 'Campaign Baru'}
           </h2>
           <div className="flex gap-2">
             <Button variant="outline" className="rounded-lg" onClick={onBack}>
@@ -245,10 +248,17 @@ export function CampaignFormView({
               onClick={() => onSave(imageFiles.length > 0 ? imageFiles : undefined)}
               disabled={submitting}
             >
-              {submitting ? 'Menyimpan...' : 'Simpan'}
+              {submitting ? 'Menyimpan...' : isLocked ? 'Publikasikan' : 'Simpan'}
             </Button>
           </div>
         </CardHeader>
+
+        {isLocked && (
+          <div className="mx-6 mb-2 bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm text-blue-700">
+            Data ini berasal dari proposal yang sudah disetujui dan tidak dapat diubah di sini.
+            Lengkapi metode pembayaran{campaignForm.dropOffLocation !== undefined ? ' dan alamat donasi barang' : ''} di bawah untuk mempublikasikan campaign ke publik.
+          </div>
+        )}
 
         <CardContent className="space-y-8">
 
@@ -290,6 +300,7 @@ export function CampaignFormView({
                   onChange={(e) => setCampaignForm({ ...campaignForm, title: e.target.value })}
                   placeholder="Ketik di sini"
                   className={inputCls}
+                  disabled={isLocked}
                 />
               </div>
 
@@ -301,6 +312,7 @@ export function CampaignFormView({
                   placeholder="Ketik di sini"
                   rows={5}
                   className={inputCls}
+                  disabled={isLocked}
                 />
               </div>
 
@@ -314,13 +326,14 @@ export function CampaignFormView({
                   onChange={(e) => setCampaignForm({ ...campaignForm, location: e.target.value })}
                   placeholder="Contoh: Semarang, Jawa Tengah"
                   className={inputCls}
+                  disabled={isLocked}
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">Kategori</Label>
-                  <Select value={campaignForm.category} onValueChange={(v) => setCampaignForm({ ...campaignForm, category: v })}>
+                  <Select value={campaignForm.category} onValueChange={(v) => setCampaignForm({ ...campaignForm, category: v })} disabled={isLocked}>
                     <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
@@ -335,6 +348,7 @@ export function CampaignFormView({
                     onChange={(e) => setCampaignForm({ ...campaignForm, targetAmount: e.target.value })}
                     placeholder="Ketik di sini"
                     className={inputCls}
+                    disabled={isLocked}
                   />
                 </div>
               </div>
@@ -347,6 +361,7 @@ export function CampaignFormView({
                     value={campaignForm.startDate}
                     onChange={(e) => setCampaignForm({ ...campaignForm, startDate: e.target.value })}
                     className={inputCls}
+                    disabled={isLocked}
                   />
                 </div>
                 <div className="space-y-2">
@@ -356,6 +371,7 @@ export function CampaignFormView({
                     value={campaignForm.endDate}
                     onChange={(e) => setCampaignForm({ ...campaignForm, endDate: e.target.value })}
                     className={inputCls}
+                    disabled={isLocked}
                   />
                 </div>
               </div>
@@ -372,26 +388,30 @@ export function CampaignFormView({
                     {imagePreviews.map((img, i) => (
                       <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 group">
                         <img src={img.url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <button type="button" onClick={() => handleRemoveImage(i)}
-                            className="w-7 h-7 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors">
-                            <X className="h-3.5 w-3.5 text-white" />
-                          </button>
-                        </div>
+                        {!isLocked && (
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <button type="button" onClick={() => handleRemoveImage(i)}
+                              className="w-7 h-7 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors">
+                              <X className="h-3.5 w-3.5 text-white" />
+                            </button>
+                          </div>
+                        )}
                         {img.isExisting && (
                           <span className="absolute bottom-1 left-1 bg-black/50 text-white text-[10px] px-1.5 py-0.5 rounded">Tersimpan</span>
                         )}
                       </div>
                     ))}
-                    <button type="button" onClick={() => fileInputRef.current?.click()}
-                      className="aspect-square rounded-xl border-2 border-dashed border-gray-200 hover:border-teal-400 hover:bg-teal-50/50 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer group">
-                      <ImagePlus className="h-5 w-5 text-gray-300 group-hover:text-teal-500" />
-                      <span className="text-[11px] text-gray-400 group-hover:text-teal-500">Tambah</span>
-                    </button>
+                    {!isLocked && (
+                      <button type="button" onClick={() => fileInputRef.current?.click()}
+                        className="aspect-square rounded-xl border-2 border-dashed border-gray-200 hover:border-teal-400 hover:bg-teal-50/50 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer group">
+                        <ImagePlus className="h-5 w-5 text-gray-300 group-hover:text-teal-500" />
+                        <span className="text-[11px] text-gray-400 group-hover:text-teal-500">Tambah</span>
+                      </button>
+                    )}
                   </div>
                 )}
 
-                {imagePreviews.length === 0 && (
+                {imagePreviews.length === 0 && !isLocked && (
                   <button type="button" onClick={() => fileInputRef.current?.click()}
                     className="w-full h-32 rounded-xl border-2 border-dashed border-gray-200 hover:border-teal-400 hover:bg-teal-50/50 transition-all flex flex-col items-center justify-center gap-2 cursor-pointer group">
                     <div className="w-10 h-10 rounded-full bg-gray-100 group-hover:bg-teal-100 flex items-center justify-center transition-colors">
@@ -430,7 +450,10 @@ export function CampaignFormView({
 
           {/* Section 3: Pembayaran */}
           <section>
-            <SectionTitle>Pembayaran</SectionTitle>
+            <SectionTitle>
+              Pembayaran
+              {isLocked && <span className="text-red-500 font-normal text-sm ml-2">— wajib diisi sebelum publikasi</span>}
+            </SectionTitle>
             <div className="space-y-4">
 
               {/* Payment methods list — all manual */}
@@ -504,6 +527,21 @@ export function CampaignFormView({
                     Tambah metode pembayaran
                   </span>
                 </button>
+              </div>
+
+              {/* Alamat Donasi Barang */}
+              <div className="space-y-2 pt-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Alamat Tujuan Donasi Barang
+                  <span className="text-gray-400 font-normal ml-1">(opsional, isi jika campaign menerima donasi barang)</span>
+                </Label>
+                <Textarea
+                  value={campaignForm.dropOffLocation ?? ''}
+                  onChange={(e) => setCampaignForm({ ...campaignForm, dropOffLocation: e.target.value })}
+                  placeholder="Contoh: Sekretariat Polines Care, Jl. Prof. Sudarto No.9, Tembalang, Semarang"
+                  rows={2}
+                  className={inputCls}
+                />
               </div>
 
               {/* Kode Unik */}

@@ -266,6 +266,16 @@ export function AjuanDetailView({ proposal: initialProposal, onSaveCriteria, onU
           )}
 
           {/* Actions */}
+          {proposal.status === 'approved' && (
+            <div className="p-4 rounded-xl border-2 border-amber-200 bg-amber-50">
+              <p className="text-sm font-semibold text-amber-800">
+                ✅ Proposal disetujui
+              </p>
+              <p className="text-xs text-amber-700 mt-1">
+                Campaign sudah dibuat tapi belum tayang ke publik. Buka tab <strong>Campaign</strong> dan klik tombol <strong>"Lengkapi"</strong> untuk menambahkan metode pembayaran dan alamat donasi barang sebelum dipublikasikan.
+              </p>
+            </div>
+          )}
           {proposal.status === 'pending' && (
             <div className="flex flex-wrap gap-3 pt-2">
               <Button
@@ -274,7 +284,7 @@ export function AjuanDetailView({ proposal: initialProposal, onSaveCriteria, onU
                 title={!score.suratResmi ? 'Surat pernyataan wajib ada' : !score.isEligible ? 'Skor minimum 70 diperlukan' : ''}
                 onClick={handleApprove}
               >
-                <ThumbsUp className="h-4 w-4 mr-1" /> Setujui & Publikasikan
+                <ThumbsUp className="h-4 w-4 mr-1" /> Setujui
               </Button>
               <Button
                 className="bg-red-600 hover:bg-red-700 text-white rounded-lg"
