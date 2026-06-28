@@ -7,9 +7,10 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Search, Eye, Printer } from 'lucide-react'
+import { Search, Eye, Printer, Loader2 } from 'lucide-react'
 import type { Campaign, FundUsage } from '@/components/polines/types'
 import { formatRupiah } from '@/components/polines/types'
+import { downloadLaporanPdf } from './download-laporan-pdf'
 
 export type LaporanCampaign = Campaign & {
   totalUsed: number
@@ -20,12 +21,13 @@ export type LaporanCampaign = Campaign & {
 interface LaporanTabProps {
   allCampaigns: Campaign[]
   fundUsages: FundUsage[]
-  onViewDetail: (c: LaporanCampaign, mode: 'view' | 'print') => void
+  onViewDetail: (c: LaporanCampaign) => void
 }
 
 export function LaporanTab({ allCampaigns, fundUsages, onViewDetail }: LaporanTabProps) {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [printingId, setPrintingId] = useState<string | null>(null)
 
   const laporanData: LaporanCampaign[] = allCampaigns.map(c => {
     const usages = (fundUsages || []).filter(f => f.campaignId === c.id)
@@ -43,6 +45,19 @@ export function LaporanTab({ allCampaigns, fundUsages, onViewDetail }: LaporanTa
     const matchStatus = statusFilter === 'all' || c.laporanStatus === statusFilter
     return matchSearch && matchStatus
   })
+
+  const handlePrint = async (c: LaporanCampaign) => {
+    setPrintingId(c.id)
+    try {
+      await downloadLaporanPdf({
+        campaignTitle: c.title,
+        collectedAmount: c.collectedAmount,
+        fundUsages: (fundUsages || []).filter(f => f.campaignId === c.id),
+      })
+    } finally {
+      setPrintingId(null)
+    }
+  }
 
   return (
     <Card className="shadow-sm border-gray-100">
@@ -101,12 +116,20 @@ export function LaporanTab({ allCampaigns, fundUsages, onViewDetail }: LaporanTa
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-teal-600 hover:text-teal-700"
-                          onClick={() => onViewDetail(c, 'view')} title="Lihat & Edit">
+                          onClick={() => onViewDetail(c)} title="Lihat & Edit">
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-teal-600 hover:text-teal-700"
-                          onClick={() => onViewDetail(c, 'print')} title="Print Laporan">
-                          <Printer className="h-4 w-4" />
+                        <Button
+                          variant="ghost" size="icon" className="h-8 w-8 text-teal-600 hover:text-teal-700"
+                          onClick={() => handlePrint(c)}
+                          disabled={printingId === c.id}
+                          title="Download Laporan PDF"
+                        >
+                          {printingId === c.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Printer className="h-4 w-4" />
+                          )}
                         </Button>
                       </div>
                     </TableCell>

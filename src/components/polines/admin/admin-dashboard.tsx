@@ -19,6 +19,13 @@ import { AdminProfileTab } from './admin-profile'
 // ── Types ──────────────────────────────────────────────────────
 type SubView = 'campaign-form' | 'donasi-detail' | 'laporan-detail' | 'ajuan-detail' | null
 
+interface FundUsageSubmitPayload {
+  date: string
+  description: string
+  amount: string
+  proofFile: File | null
+}
+
 interface AdminDashboardProps {
   adminTab: string
   setAdminTab: (tab: string) => void
@@ -44,7 +51,9 @@ interface AdminDashboardProps {
   markNotificationRead: (id: string) => void
   markAllNotificationsRead: () => void
   setFundUsageForm: (form: any) => void
-  submitFundUsage: () => void
+  submitFundUsage: (payload?: FundUsageSubmitPayload & { campaignId: string }) => void | Promise<void>
+  editFundUsage: (fundUsageId: string, payload: FundUsageSubmitPayload) => void | Promise<void>
+  deleteFundUsage: (fundUsageId: string) => void | Promise<void>
   setView: (v: string) => void
   handleSignOut: () => void
   session: any
@@ -68,7 +77,7 @@ interface AdminDashboardProps {
   submitCampaign: (imageFiles?: File[]) => void
   submitting: boolean
   donations: Donation[]
-  fundUsageForm: { campaignId: string; description: string; amount: string }
+  fundUsageForm: { campaignId: string; date: string; description: string; amount: string; proofFile: File | null }
   updateProposalCriteria: (id: string, criteria: Record<string, number>) => void
   initialCampaignSubTab?: string
   adminCampaignSubTab?: string
@@ -88,7 +97,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
     adminCampaignStatus, setAdminCampaignStatus,
     deleteCampaign, verifyDonation, updateProposalStatus,
     markNotificationRead, markAllNotificationsRead,
-    setFundUsageForm, submitFundUsage,
+    setFundUsageForm, submitFundUsage, editFundUsage, deleteFundUsage,
     setView, handleSignOut, session,
     campaignForm, setCampaignForm,
     editingCampaign, setEditingCampaign,
@@ -106,7 +115,6 @@ export function AdminDashboard(props: AdminDashboardProps) {
   const [subView, setSubView] = useState<SubView>(null)
   const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null)
   const [selectedLaporanCampaign, setSelectedLaporanCampaign] = useState<LaporanCampaign | null>(null)
-  const [selectedLaporanMode, setSelectedLaporanMode] = useState<'view' | 'print'>('view')
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null)
 
   // Campaign sub-tab: prefer parent-controlled, fallback to local
@@ -191,9 +199,32 @@ export function AdminDashboard(props: AdminDashboardProps) {
   }
 
   // ── Handler: Laporan
-  const handleAddFundUsage = (campaignId: string, description: string, amount: string) => {
-    setFundUsageForm({ campaignId, description, amount })
-    submitFundUsage()
+  // PENTING: payload dikirim LANGSUNG ke submitFundUsage(fullPayload), bukan
+  // via setFundUsageForm(...) lalu submitFundUsage() tanpa argumen.
+  // setFundUsageForm bersifat asinkron (state update React tidak langsung
+  // berlaku), jadi memanggil submitFundUsage() di baris berikutnya akan
+  // membaca state LAMA (kosong) — itulah sebab data tidak pernah tersimpan
+  // walau form sudah terisi di UI.
+  const handleAddFundUsage = (campaignId: string, payload: FundUsageSubmitPayload) => {
+    const fullPayload = {
+      campaignId,
+      date: payload.date,
+      description: payload.description,
+      amount: payload.amount,
+      proofFile: payload.proofFile,
+    }
+    // Tetap sinkronkan state form (opsional, untuk konsistensi tampilan/debug)
+    setFundUsageForm(fullPayload)
+    // Tapi submit pakai data langsung, tidak menunggu state ter-update
+    return submitFundUsage(fullPayload)
+  }
+
+  const handleEditFundUsage = (fundUsageId: string, payload: FundUsageSubmitPayload) => {
+    return editFundUsage(fundUsageId, payload)
+  }
+
+  const handleDeleteFundUsage = (fundUsageId: string) => {
+    return deleteFundUsage(fundUsageId)
   }
 
   // ── Back handler
@@ -235,8 +266,9 @@ export function AdminDashboard(props: AdminDashboardProps) {
         <LaporanDetailView
           campaign={selectedLaporanCampaign}
           fundUsages={fundUsages.filter(f => f.campaignId === selectedLaporanCampaign.id)}
-          initialMode={selectedLaporanMode}
           onAddFundUsage={handleAddFundUsage}
+          onEditFundUsage={handleEditFundUsage}
+          onDeleteFundUsage={handleDeleteFundUsage}
         />
       )
     }
@@ -306,9 +338,8 @@ export function AdminDashboard(props: AdminDashboardProps) {
           <LaporanTab
             allCampaigns={allCampaigns}
             fundUsages={fundUsages}
-            onViewDetail={(c, mode) => {
+            onViewDetail={(c) => {
               setSelectedLaporanCampaign(c)
-              setSelectedLaporanMode(mode)
               setReportCampaignId(c.id)
               setSubView('laporan-detail')
             }}
