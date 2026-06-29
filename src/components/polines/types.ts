@@ -111,9 +111,10 @@ export interface FundUsage {
 
 export interface PlatformStats {
   totalCampaigns: number; totalDonations: number; totalAmount: number; totalDonors: number;
-  categoryBreakdown: { category: string; total: number; count: number }[]
+  categoryBreakdown: { category: string; uangTotal: number; barangQty: number; count: number }[]
   typeBreakdown: { type: string; total: number; count: number }[]
   recentDonations: Donation[]
+  selectedMonth?: string
 }
 
 // ============================================================

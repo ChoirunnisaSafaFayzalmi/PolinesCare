@@ -85,7 +85,8 @@ interface AdminDashboardProps {
   adminCampaignSubTab?: string
   setAdminCampaignSubTab?: (v: string) => void
   onNavigateCampaignSubTab?: (subTab: string) => void
-
+  statsMonth: string
+  onChangeStatsMonth: (month: string) => void
 }
 
 // ── Component ──────────────────────────────────────────────────
@@ -108,6 +109,8 @@ export function AdminDashboard(props: AdminDashboardProps) {
     adminCampaignSubTab: parentSubTab,
     setAdminCampaignSubTab: parentSetSubTab,
     onNavigateCampaignSubTab,
+    statsMonth,
+    onChangeStatsMonth,
   } = props
 
   // ── Layout state
@@ -317,6 +320,8 @@ export function AdminDashboard(props: AdminDashboardProps) {
             stats={stats}
             allCampaigns={allCampaigns}
             onNavigateCampaign={() => setAdminTab('campaign')}
+            selectedMonth={statsMonth}
+            onChangeMonth={onChangeStatsMonth}
           />
         )
 

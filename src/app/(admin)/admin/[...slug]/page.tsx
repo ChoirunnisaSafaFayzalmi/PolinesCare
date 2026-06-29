@@ -158,27 +158,37 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
     } catch { /* silent */ }
   }, [])
 
-  const fetchStats = useCallback(async () => {
+  const getCurrentMonthValue = () => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  }
+  const [statsMonth, setStatsMonth] = useState<string>(getCurrentMonthValue())
+
+  const fetchStats = useCallback(async (month?: string) => {
     try {
-      const res = await fetch('/api/stats')
+      const targetMonth = month ?? statsMonth
+      const res = await fetch(`/api/stats?month=${targetMonth}`)
       if (res.ok) {
         const data = await res.json()
+        // /api/stats sekarang FLAT, langsung pakai field-nya tanpa transform
         setStats({
-          totalCampaigns: data.campaigns?.total ?? 0,
-          totalDonations: data.donations?.total ?? 0,
-          totalAmount: data.donations?.totalAmount ?? 0,
-          totalDonors: data.users?.total ?? 0,
-          categoryBreakdown: (data.campaigns?.byCategory || []).map((c: { category: string; _count: number; total: number }) => ({
-            category: c.category, count: c._count, total: c.total || 0
-          })),
-          typeBreakdown: (data.donations?.byType || []).map((t: { type: string; _count: number; total: number }) => ({
-            type: t.type, count: t._count, total: t.total || 0
-          })),
-          recentDonations: data.recentDonations || [],
+          totalCampaigns: data.totalCampaigns ?? 0,
+          totalDonations: data.totalDonations ?? 0,
+          totalAmount: data.totalAmount ?? 0,
+          totalDonors: data.totalDonors ?? 0,
+          categoryBreakdown: data.categoryBreakdown ?? [],
+          typeBreakdown: data.typeBreakdown ?? [],
+          recentDonations: data.recentDonations ?? [],
         })
       }
     } catch { /* silent */ }
-  }, [])
+  }, [statsMonth])
+
+  // ── 3. Handler saat user pilih bulan baru dari dropdown ──
+  const handleChangeStatsMonth = (month: string) => {
+    setStatsMonth(month)
+    fetchStats(month)
+  }
 
   const fetchDonations = useCallback(async () => {
     try {
@@ -326,18 +336,18 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   // PROPOSAL HANDLERS (Admin)
   // ============================================================
   const updateProposalStatus = async (id: string, status: 'approved' | 'rejected', meta?: { rejectionReason?: string }) => {
-  try {
-    const res = await fetch(`/api/proposals/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status, rejectionReason: meta?.rejectionReason }),
-    })
-    if (res.ok) {
-      toast.success(`Proposal berhasil ${status === 'approved' ? 'disetujui dan campaign aktif' : 'ditolak'}`)
-      fetchProposals(); fetchAllCampaigns(); fetchCampaigns(); fetchNotifications()
-    } else toast.error('Gagal memperbarui proposal')
-  } catch { toast.error('Terjadi kesalahan') }
-}
+    try {
+      const res = await fetch(`/api/proposals/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, rejectionReason: meta?.rejectionReason }),
+      })
+      if (res.ok) {
+        toast.success(`Proposal berhasil ${status === 'approved' ? 'disetujui dan campaign aktif' : 'ditolak'}`)
+        fetchProposals(); fetchAllCampaigns(); fetchCampaigns(); fetchNotifications()
+      } else toast.error('Gagal memperbarui proposal')
+    } catch { toast.error('Terjadi kesalahan') }
+  }
 
   const updateProposalCriteria = async (id: string, criteria: Record<string, number>) => {
     try {
@@ -567,6 +577,8 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
         adminCampaignSubTab={adminCampaignSubTab}
         setAdminCampaignSubTab={setAdminCampaignSubTabState}
         onNavigateCampaignSubTab={navigateCampaignSubTab}
+        statsMonth={statsMonth}
+        onChangeStatsMonth={handleChangeStatsMonth}
       />
 
       {/* Modals */}

@@ -2,7 +2,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -14,14 +13,49 @@ import { formatRupiah } from '@/components/polines/types'
 
 const PIE_COLORS = ['#0d9488', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6', '#ec4899']
 
+const MONTH_OPTIONS = [
+  { value: '01', label: 'Januari' }, { value: '02', label: 'Februari' },
+  { value: '03', label: 'Maret' }, { value: '04', label: 'April' },
+  { value: '05', label: 'Mei' }, { value: '06', label: 'Juni' },
+  { value: '07', label: 'Juli' }, { value: '08', label: 'Agustus' },
+  { value: '09', label: 'September' }, { value: '10', label: 'Oktober' },
+  { value: '11', label: 'November' }, { value: '12', label: 'Desember' },
+]
+
 interface DashboardTabProps {
   stats: PlatformStats | null
   allCampaigns: Campaign[]
   onNavigateCampaign: () => void
+  selectedMonth: string // format "YYYY-MM"
+  onChangeMonth: (month: string) => void
 }
 
-export function DashboardTab({ stats, allCampaigns, onNavigateCampaign }: DashboardTabProps) {
-  const chartData = stats?.categoryBreakdown?.map(c => ({ ...c, total: c.total || 0 })) || []
+// Tooltip kustom: baris "Uang" diformat sebagai Rupiah, baris "Barang"
+// diformat sebagai jumlah pcs — supaya tidak lagi tampil "Barang: Rp 1"
+function CategoryTooltip({ active, payload, label }: any) {
+  if (!active || !payload || payload.length === 0) return null
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-md text-sm">
+      <p className="font-semibold mb-1">{label}</p>
+      {payload.map((p: any) => (
+        <p key={p.dataKey} style={{ color: p.color }}>
+          {p.dataKey === 'Uang'
+            ? `Uang : ${formatRupiah(p.value)}`
+            : `Barang : ${p.value} pcs`}
+        </p>
+      ))}
+    </div>
+  )
+}
+
+export function DashboardTab({ stats, allCampaigns, onNavigateCampaign, selectedMonth, onChangeMonth }: DashboardTabProps) {
+  // categoryBreakdown sekarang membawa uangTotal (rupiah) & barangQty (jumlah pcs)
+  const chartData = stats?.categoryBreakdown?.map((c) => ({
+    category: c.category,
+    Uang: c.uangTotal ?? 0,
+    Barang: c.barangQty ?? 0,
+  })) || []
+
   const pieData = stats?.typeBreakdown?.map(t => ({ ...t, count: t.count || 0 })) || []
 
   const topCampaigns = [...allCampaigns]
@@ -34,6 +68,10 @@ export function DashboardTab({ stats, allCampaigns, onNavigateCampaign }: Dashbo
     { label: 'Total Donatur', value: stats?.totalDonors ?? 0, icon: Users, color: 'from-cyan-700 to-cyan-600' },
     { label: 'Transaksi', value: stats?.totalDonations ?? 0, icon: CreditCard, color: 'from-teal-800 to-teal-700' },
   ]
+
+  // selectedMonth = "2026-06" -> ambil bagian bulan "06"
+  const currentMonthValue = selectedMonth.split('-')[1]
+  const currentYear = selectedMonth.split('-')[0]
 
   return (
     <div className="space-y-6">
@@ -61,7 +99,16 @@ export function DashboardTab({ stats, allCampaigns, onNavigateCampaign }: Dashbo
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-bold">Donasi per Kategori</CardTitle>
-              <Badge variant="outline" className="text-xs">6 Bulan</Badge>
+              {/* Dropdown pilih bulan, menggantikan badge statis "6 Bulan" */}
+              <select
+                value={currentMonthValue}
+                onChange={(e) => onChangeMonth(`${currentYear}-${e.target.value}`)}
+                className="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-teal-500"
+              >
+                {MONTH_OPTIONS.map((m) => (
+                  <option key={m.value} value={m.value}>{m.label}</option>
+                ))}
+              </select>
             </div>
           </CardHeader>
           <CardContent>
@@ -71,15 +118,14 @@ export function DashboardTab({ stats, allCampaigns, onNavigateCampaign }: Dashbo
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="category" tick={{ fontSize: 11 }} tickLine={false} axisLine={{ stroke: '#e5e7eb' }} />
                   <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => `${Math.round(v / 1000000)}jt`} tickLine={false} axisLine={{ stroke: '#e5e7eb' }} />
-                  <Tooltip
-                    formatter={(value: number) => formatRupiah(value)}
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
-                  />
-                  <Bar dataKey="total" fill="#0d9488" radius={[6, 6, 0, 0]} />
+                  <Tooltip content={<CategoryTooltip />} />
+                  <Legend />
+                  <Bar dataKey="Uang" fill="#0d9488" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="Barang" fill="#a7f3d0" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[280px] flex items-center justify-center text-muted-foreground">Belum ada data</div>
+              <div className="h-[280px] flex items-center justify-center text-muted-foreground">Belum ada data di bulan ini</div>
             )}
           </CardContent>
         </Card>

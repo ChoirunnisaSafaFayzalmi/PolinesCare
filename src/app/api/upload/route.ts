@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
+import { v2 as cloudinary } from "cloudinary";
 
-// POST /api/upload - Upload file(s)
+// Konfigurasi Cloudinary menggunakan environment variables
+// Pastikan CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+// sudah diisi di file .env.local
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// POST /api/upload - Upload file(s) ke Cloudinary
 // Supports single or multiple files
-// Form field name: "file" for single, "files" for multiple
+// Form field name: "file" untuk single, "files" untuk multiple
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
@@ -14,6 +22,12 @@ export async function POST(request: NextRequest) {
     }
 
     const formData = await request.formData();
+
+    // Optional: tentukan folder tujuan di Cloudinary lewat form field "folder"
+    // Contoh dari frontend: formData.append("folder", "donations")
+    // Kalau tidak dikirim, defaultnya masuk ke folder "polinescare/misc"
+    const folderInput = (formData.get("folder") as string | null) ?? "misc";
+    const targetFolder = `polinescare/${folderInput}`;
 
     // Support both single "file" and multiple "files"
     const singleFile = formData.get("file") as File | null;
@@ -45,26 +59,39 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create upload directory if not exists
-    const uploadDir = join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
-
     const uploadedUrls: string[] = [];
 
     for (const file of filesToProcess) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      // Generate unique filename
+      // Generate nama file unik (tetap dipertahankan biar tidak ada konflik nama)
       const timestamp = Date.now();
       const randomStr = Math.random().toString(36).substring(2, 8);
-      const ext = file.name.split(".").pop();
-      const filename = `${timestamp}-${randomStr}.${ext}`;
+      const publicId = `${timestamp}-${randomStr}`;
 
-      const filepath = join(uploadDir, filename);
-      await writeFile(filepath, buffer);
+      // Upload buffer ke Cloudinary
+      // resource_type: "auto" -> Cloudinary otomatis deteksi apakah ini image atau pdf/raw file
+      const uploadResult = await new Promise<{ secure_url: string }>((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream(
+            {
+              folder: targetFolder,
+              public_id: publicId,
+              resource_type: "auto",
+              // Otomatis compress gambar tanpa mengubah kualitas yang terlihat
+              quality: "auto",
+            },
+            (error, result) => {
+              if (error) return reject(error);
+              if (!result) return reject(new Error("Upload ke Cloudinary gagal, tidak ada hasil"));
+              resolve(result as { secure_url: string });
+            }
+          )
+          .end(buffer);
+      });
 
-      uploadedUrls.push(`/uploads/${filename}`);
+      uploadedUrls.push(uploadResult.secure_url);
     }
 
     // Return single URL or array depending on upload type
