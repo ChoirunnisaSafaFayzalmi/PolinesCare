@@ -174,10 +174,23 @@ export function CampaignFormView({
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
+  // ⬅ FIX: sebelumnya hanya meng-update state lokal (imagePreviews/imageFiles).
+  // Untuk gambar EXISTING (yang sudah tersimpan di database), kita juga harus
+  // menghapusnya dari campaignForm.images — karena submitCampaign() di page.tsx
+  // menghitung "existingImages" langsung dari campaignForm.images, BUKAN dari
+  // imagePreviews. Kalau tidak disinkronkan, gambar yang dihapus di UI akan
+  // selalu "kembali" saat submit, karena campaignForm.images masih berisi URL lama.
   const handleRemoveImage = (index: number) => {
     const removed = imagePreviews[index]
     setImagePreviews(prev => prev.filter((_, i) => i !== index))
-    if (!removed.isExisting) {
+
+    if (removed.isExisting) {
+      // Hapus URL ini dari campaignForm.images supaya tersinkron dengan tampilan
+      setCampaignForm({
+        ...campaignForm,
+        images: (campaignForm.images || []).filter(url => url !== removed.url),
+      })
+    } else {
       const newFileIndex = imagePreviews.slice(0, index).filter(p => !p.isExisting).length
       setImageFiles(prev => prev.filter((_, i) => i !== newFileIndex))
     }

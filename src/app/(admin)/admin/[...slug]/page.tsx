@@ -311,7 +311,6 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   }
 
   const deleteCampaign = async (id: string) => {
-    if (!confirm('Yakin ingin menghapus campaign ini?')) return
     try {
       const res = await fetch(`/api/campaigns/${id}`, { method: 'DELETE' })
       if (res.ok) { toast.success('Campaign berhasil dihapus'); fetchCampaigns(); fetchAllCampaigns(); fetchStats() }

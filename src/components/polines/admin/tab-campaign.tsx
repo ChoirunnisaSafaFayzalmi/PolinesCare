@@ -7,7 +7,17 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Vote, Plus, Edit, Trash2, AlertTriangle, ThumbsUp, Search } from 'lucide-react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Vote, Plus, Edit, Trash2, AlertTriangle, ThumbsUp, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Campaign, Proposal } from '@/components/polines/types'
 import { formatRupiah, getCategoryColor, getStatusColor, formatUniqueCode, CATEGORIES } from '@/components/polines/types'
 
@@ -15,6 +25,8 @@ const campaignSubTabs = [
   { id: 'campaigns', label: 'Campaign' },
   { id: 'ajuan', label: 'Ajuan' },
 ]
+
+const ITEMS_PER_PAGE = 10
 
 interface CampaignTabProps {
   allCampaigns: Campaign[]
@@ -180,6 +192,67 @@ export function CampaignTab({
   )
 }
 
+// ── Pagination (reusable, generic) ──────────────────────────────
+function PaginationBar({
+  page, totalPages, onPageChange,
+}: {
+  page: number
+  totalPages: number
+  onPageChange: (p: number) => void
+}) {
+  if (totalPages <= 1) return null
+  return (
+    <div className="flex items-center justify-center gap-1 mt-4">
+      <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-lg"
+        onClick={() => onPageChange(Math.max(1, page - 1))} disabled={page === 1}>
+        <ChevronLeft className="h-4 w-4" />
+      </Button>
+      {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+        <Button key={p} variant={p === page ? 'default' : 'outline'} size="sm"
+          className={`h-8 w-8 p-0 rounded-lg ${p === page ? 'bg-teal-600 hover:bg-teal-700 text-white' : ''}`}
+          onClick={() => onPageChange(p)}>
+          {p}
+        </Button>
+      ))}
+      <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-lg"
+        onClick={() => onPageChange(Math.min(totalPages, page + 1))} disabled={page === totalPages}>
+        <ChevronRight className="h-4 w-4" />
+      </Button>
+    </div>
+  )
+}
+
+// ── Delete Campaign Dialog ───────────────────────────────────────
+function DeleteCampaignDialog({
+  campaign, onClose, onConfirm,
+}: {
+  campaign: Campaign | null
+  onClose: () => void
+  onConfirm: (id: string) => void
+}) {
+  return (
+    <AlertDialog open={!!campaign} onOpenChange={(isOpen) => { if (!isOpen) onClose() }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Hapus campaign ini?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Campaign &quot;{campaign?.title}&quot; akan dihapus permanen beserta seluruh data donasi yang terkait. Tindakan ini tidak dapat dibatalkan.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Batal</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => { if (campaign) onConfirm(campaign.id) }}
+            className="bg-red-600 hover:bg-red-700 text-white"
+          >
+            Hapus
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
+
 // ── Campaign List ──────────────────────────────────────────────
 function CampaignList({
   allCampaigns, filteredAdminCampaigns, onEditCampaign, onCompleteFromProposal, onDeleteCampaign,
@@ -190,6 +263,20 @@ function CampaignList({
   onCompleteFromProposal: (c: Campaign) => void
   onDeleteCampaign: (id: string) => void
 }) {
+  const [page, setPage] = useState(1)
+  const [deleteTarget, setDeleteTarget] = useState<Campaign | null>(null)
+  const totalPages = Math.max(1, Math.ceil(filteredAdminCampaigns.length / ITEMS_PER_PAGE))
+  const currentPage = Math.min(page, totalPages)
+  const paginated = filteredAdminCampaigns.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  )
+
+  const handleConfirmDelete = (id: string) => {
+    onDeleteCampaign(id)
+    setDeleteTarget(null)
+  }
+
   return (
     <Card className="shadow-sm border-gray-100">
       <CardHeader className="pb-3">
@@ -201,82 +288,99 @@ function CampaignList({
         {filteredAdminCampaigns.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">Tidak ada campaign ditemukan</p>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-teal-600 hover:bg-teal-600">
-                  <TableHead className="text-white font-semibold">Judul</TableHead>
-                  <TableHead className="text-white font-semibold hidden md:table-cell">Kode</TableHead>
-                  <TableHead className="text-white font-semibold hidden md:table-cell">Kategori</TableHead>
-                  <TableHead className="text-white font-semibold">Status</TableHead>
-                  <TableHead className="text-white font-semibold hidden md:table-cell">Terkumpul</TableHead>
-                  <TableHead className="text-white font-semibold hidden md:table-cell">Donatur</TableHead>
-                  <TableHead className="text-white font-semibold text-right">Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAdminCampaigns.map(c => (
-                  <TableRow key={c.id}>
-                    <TableCell className="font-medium max-w-[200px]">
-                      <div className="flex items-center gap-2">
-                        {c.isUrgent && <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0" />}
-                        <span className="truncate">{c.title}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <Badge className="bg-violet-100 text-violet-700 border-violet-200">
-                        {formatUniqueCode(c.uniqueCode)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <Badge variant="outline" className={getCategoryColor(c.category)}>{c.category}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {c.status === 'awaiting_completion' ? (
-                        <Badge className="bg-amber-100 text-amber-700 border-amber-200">
-                          Menunggu Kelengkapan
-                        </Badge>
-                      ) : (
-                        <Badge className={getStatusColor(c.status)}>{c.status}</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell text-sm">
-                      {formatRupiah(c.collectedAmount)} / {formatRupiah(c.targetAmount)}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">{c._count?.donations ?? 0}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        {c.status === 'awaiting_completion' ? (
-                          <Button
-                            size="sm"
-                            className="bg-amber-500 hover:bg-amber-600 text-white rounded-lg h-8"
-                            onClick={() => onCompleteFromProposal(c)}
-                          >
-                            <ThumbsUp className="h-3.5 w-3.5 mr-1" /> Lengkapi
-                          </Button>
-                        ) : (
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEditCampaign(c)}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        )}
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600" onClick={() => onDeleteCampaign(c.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+          <>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-teal-600 hover:bg-teal-600">
+                    <TableHead className="text-white font-semibold">Judul</TableHead>
+                    <TableHead className="text-white font-semibold hidden md:table-cell">Kode</TableHead>
+                    <TableHead className="text-white font-semibold hidden md:table-cell">Kategori</TableHead>
+                    <TableHead className="text-white font-semibold">Status</TableHead>
+                    <TableHead className="text-white font-semibold hidden md:table-cell">Terkumpul</TableHead>
+                    <TableHead className="text-white font-semibold hidden md:table-cell">Donatur</TableHead>
+                    <TableHead className="text-white font-semibold text-right">Aksi</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {paginated.map(c => (
+                    <TableRow key={c.id}>
+                      <TableCell className="font-medium max-w-[200px]">
+                        <div className="flex items-center gap-2">
+                          {c.isUrgent && <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0" />}
+                          <span className="truncate">{c.title}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Badge className="bg-violet-100 text-violet-700 border-violet-200">
+                          {formatUniqueCode(c.uniqueCode)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Badge variant="outline" className={getCategoryColor(c.category)}>{c.category}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {c.status === 'awaiting_completion' ? (
+                          <Badge className="bg-amber-100 text-amber-700 border-amber-200">
+                            Menunggu Kelengkapan
+                          </Badge>
+                        ) : (
+                          <Badge className={getStatusColor(c.status)}>{c.status}</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-sm">
+                        {formatRupiah(c.collectedAmount)} / {formatRupiah(c.targetAmount)}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">{c._count?.donations ?? 0}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          {c.status === 'awaiting_completion' ? (
+                            <Button
+                              size="sm"
+                              className="bg-amber-500 hover:bg-amber-600 text-white rounded-lg h-8"
+                              onClick={() => onCompleteFromProposal(c)}
+                            >
+                              <ThumbsUp className="h-3.5 w-3.5 mr-1" /> Lengkapi
+                            </Button>
+                          ) : (
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEditCampaign(c)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600" onClick={() => setDeleteTarget(c)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <PaginationBar page={currentPage} totalPages={totalPages} onPageChange={setPage} />
+          </>
         )}
       </CardContent>
+
+      <DeleteCampaignDialog
+        campaign={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </Card>
   )
 }
 
 // ── Ajuan List ─────────────────────────────────────────────────
 function AjuanList({ proposals, onProposalDetail }: { proposals: Proposal[]; onProposalDetail: (p: Proposal) => void }) {
+  const [page, setPage] = useState(1)
+  const totalPages = Math.max(1, Math.ceil(proposals.length / ITEMS_PER_PAGE))
+  const currentPage = Math.min(page, totalPages)
+  const paginated = proposals.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  )
+
   return (
     <Card className="shadow-sm border-gray-100">
       <CardHeader className="pb-3">
@@ -289,43 +393,46 @@ function AjuanList({ proposals, onProposalDetail }: { proposals: Proposal[]; onP
         {proposals.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">Tidak ada proposal ditemukan</p>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-teal-600 hover:bg-teal-600">
-                  <TableHead className="text-white font-semibold">Nama Proposal</TableHead>
-                  <TableHead className="text-white font-semibold hidden md:table-cell">Diajukan Oleh</TableHead>
-                  <TableHead className="text-white font-semibold hidden md:table-cell">Kategori</TableHead>
-                  <TableHead className="text-white font-semibold">Status</TableHead>
-                  <TableHead className="text-white font-semibold text-right">Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {proposals.map(p => (
-                  <TableRow key={p.id}>
-                    <TableCell className="font-medium max-w-[200px] truncate">{p.title}</TableCell>
-                    <TableCell className="hidden md:table-cell text-sm text-gray-500">
-                      {p.proposer?.name ?? 'Anonim'}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <Badge variant="outline" className={getCategoryColor(p.category)}>{p.category}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(p.status)}>{p.status}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <button
-                        onClick={() => onProposalDetail(p)}
-                        className="text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors cursor-pointer"
-                      >
-                        Detail
-                      </button>
-                    </TableCell>
+          <>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-teal-600 hover:bg-teal-600">
+                    <TableHead className="text-white font-semibold">Nama Proposal</TableHead>
+                    <TableHead className="text-white font-semibold hidden md:table-cell">Diajukan Oleh</TableHead>
+                    <TableHead className="text-white font-semibold hidden md:table-cell">Kategori</TableHead>
+                    <TableHead className="text-white font-semibold">Status</TableHead>
+                    <TableHead className="text-white font-semibold text-right">Aksi</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {paginated.map(p => (
+                    <TableRow key={p.id}>
+                      <TableCell className="font-medium max-w-[200px] truncate">{p.title}</TableCell>
+                      <TableCell className="hidden md:table-cell text-sm text-gray-500">
+                        {p.proposer?.name ?? 'Anonim'}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Badge variant="outline" className={getCategoryColor(p.category)}>{p.category}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(p.status)}>{p.status}</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <button
+                          onClick={() => onProposalDetail(p)}
+                          className="text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors cursor-pointer"
+                        >
+                          Detail
+                        </button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <PaginationBar page={currentPage} totalPages={totalPages} onPageChange={setPage} />
+          </>
         )}
       </CardContent>
     </Card>

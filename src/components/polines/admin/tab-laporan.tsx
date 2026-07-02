@@ -7,10 +7,12 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Search, Eye, Printer, Loader2 } from 'lucide-react'
+import { Search, Eye, Printer, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Campaign, FundUsage } from '@/components/polines/types'
 import { formatRupiah } from '@/components/polines/types'
 import { downloadLaporanPdf } from './download-laporan-pdf'
+
+const ITEMS_PER_PAGE = 10
 
 export type LaporanCampaign = Campaign & {
   totalUsed: number
@@ -28,6 +30,7 @@ export function LaporanTab({ allCampaigns, fundUsages, onViewDetail }: LaporanTa
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [printingId, setPrintingId] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
 
   const laporanData: LaporanCampaign[] = allCampaigns.map(c => {
     const usages = (fundUsages || []).filter(f => f.campaignId === c.id)
@@ -45,6 +48,9 @@ export function LaporanTab({ allCampaigns, fundUsages, onViewDetail }: LaporanTa
     const matchStatus = statusFilter === 'all' || c.laporanStatus === statusFilter
     return matchSearch && matchStatus
   })
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
+  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
 
   const handlePrint = async (c: LaporanCampaign) => {
     setPrintingId(c.id)
@@ -68,12 +74,12 @@ export function LaporanTab({ allCampaigns, fundUsages, onViewDetail }: LaporanTa
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setPage(1) }}
               placeholder="Cari campaign..."
               className="pl-9 rounded-lg border-gray-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
             />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
             <SelectTrigger className="w-40 rounded-lg border-gray-200"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Semua Status</SelectItem>
@@ -99,7 +105,7 @@ export function LaporanTab({ allCampaigns, fundUsages, onViewDetail }: LaporanTa
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map(c => (
+                {paginated.map(c => (
                   <TableRow key={c.id}>
                     <TableCell className="font-medium max-w-[200px] truncate">{c.title}</TableCell>
                     <TableCell className="hidden md:table-cell text-sm text-gray-700">
@@ -137,6 +143,27 @@ export function LaporanTab({ allCampaigns, fundUsages, onViewDetail }: LaporanTa
                 ))}
               </TableBody>
             </Table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-1 mt-4">
+            <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-lg"
+              onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+              <Button key={p} variant={p === page ? 'default' : 'outline'} size="sm"
+                className={`h-8 w-8 p-0 rounded-lg ${p === page ? 'bg-teal-600 hover:bg-teal-700 text-white' : ''}`}
+                onClick={() => setPage(p)}>
+                {p}
+              </Button>
+            ))}
+            <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-lg"
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
         )}
       </CardContent>
