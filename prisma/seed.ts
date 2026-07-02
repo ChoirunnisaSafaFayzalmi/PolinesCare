@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import * as fs from "fs";
+import * as path from "path";
 
 const prisma = new PrismaClient();
 
@@ -7,11 +9,12 @@ async function main() {
   console.log("🌱 Seeding Polines Care database...\n");
 
   // ============================================================
-  // 1. USERS
+  // 1. USERS (Bawaan + Ekstrak dari JSON)
   // ============================================================
   const adminPassword = await bcrypt.hash("admin123", 10);
   const donaturPassword = await bcrypt.hash("donatur123", 10);
 
+  // Admin Utama
   const admin = await prisma.user.upsert({
     where: { email: "admin@polines.ac.id" },
     update: {},
@@ -25,400 +28,256 @@ async function main() {
     },
   });
 
+  // List Donatur bawaan template proyek
   const donatur1 = await prisma.user.upsert({
     where: { email: "budi@polines.ac.id" },
     update: {},
-    create: {
-      email: "budi@polines.ac.id",
-      name: "Budi Santoso",
-      password: donaturPassword,
-      role: "donatur",
-      phone: "082345678901",
-      isVerified: true,
-    },
+    create: { email: "budi@polines.ac.id", name: "Budi Santoso", password: donaturPassword, role: "donatur", phone: "082345678901", isVerified: true },
   });
 
   const donatur2 = await prisma.user.upsert({
     where: { email: "siti@polines.ac.id" },
     update: {},
-    create: {
-      email: "siti@polines.ac.id",
-      name: "Siti Aminah",
-      password: donaturPassword,
-      role: "donatur",
-      phone: "083456789012",
-      isVerified: true,
-    },
+    create: { email: "siti@polines.ac.id", name: "Siti Aminah", password: donaturPassword, role: "donatur", phone: "083456789012", isVerified: true },
   });
 
   const donatur3 = await prisma.user.upsert({
     where: { email: "ahmad@polines.ac.id" },
     update: {},
-    create: {
-      email: "ahmad@polines.ac.id",
-      name: "Ahmad Rizky",
-      password: donaturPassword,
-      role: "donatur",
-      phone: "084567890123",
-      isVerified: true,
-    },
+    create: { email: "ahmad@polines.ac.id", name: "Ahmad Rizky", password: donaturPassword, role: "donatur", phone: "084567890123", isVerified: true },
   });
 
   const donatur4 = await prisma.user.upsert({
     where: { email: "dewi@polines.ac.id" },
     update: {},
-    create: {
-      email: "dewi@polines.ac.id",
-      name: "Dewi Lestari",
-      password: donaturPassword,
-      role: "donatur",
-      phone: "085678901234",
-      isVerified: true,
-    },
+    create: { email: "dewi@polines.ac.id", name: "Dewi Lestari", password: donaturPassword, role: "donatur", phone: "085678901234", isVerified: true },
   });
 
   const donatur5 = await prisma.user.upsert({
     where: { email: "raka@polines.ac.id" },
     update: {},
-    create: {
-      email: "raka@polines.ac.id",
-      name: "Raka Pratama",
-      password: donaturPassword,
-      role: "donatur",
-      phone: "086789012345",
-      isVerified: true,
-    },
+    create: { email: "raka@polines.ac.id", name: "Raka Pratama", password: donaturPassword, role: "donatur", phone: "086789012345", isVerified: true },
   });
 
-  // Donatur Demo - untuk testing login
   const demoPassword = await bcrypt.hash("demo123", 10);
   const donaturDemo = await prisma.user.upsert({
     where: { email: "donatur@demo.com" },
     update: {},
-    create: {
-      email: "donatur@demo.com",
-      name: "Donatur Demo",
-      password: demoPassword,
-      role: "donatur",
-      isVerified: true,
-    },
+    create: { email: "donatur@demo.com", name: "Donatur Demo", password: demoPassword, role: "donatur", isVerified: true },
   });
 
-  console.log("✅ Users seeded (1 admin + 6 donatur)");
+  // --- MEMBACA DAN EKSTRAK DATA DARI 700 DATA EXCEL (donasi.json) ---
+  const dataPath = path.join(__dirname, "donasi.json");
+  if (!fs.existsSync(dataPath)) {
+    throw new Error("File donasi.json tidak ditemukan! Jalankan 'node convert.js' terlebih dahulu di dalam folder prisma.");
+  }
+  const rawData = fs.readFileSync(dataPath, "utf-8");
+  const dataset = JSON.parse(rawData);
+
+  console.log(`📦 Mendeteksi ${dataset.length} data riwayat transaksi dari donasi.json`);
+
+  // Registrasikan user-user unik dari Excel ke database agar terdaftar sebagai User valid
+  const jsonUserNames = Array.from(new Set(dataset.map((d: any) => d.User)));
+  const userMap: Record<string, any> = {};
+
+  // Masukkan user bawaan ke map agar tidak tertimpa
+  userMap["Budi Santoso"] = donatur1;
+  userMap["Siti Aminah"] = donatur2;
+  userMap["Ahmad Rizky"] = donatur3;
+  userMap["Dewi Lestari"] = donatur4;
+  userMap["Raka Pratama"] = donatur5;
+  userMap["Donatur Demo"] = donaturDemo;
+
+  for (const name of jsonUserNames) {
+    if (!userMap[name as string]) {
+      const emailObj = `${(name as string).toLowerCase().replace(/\s+/g, "")}@gmail.com`;
+      const user = await prisma.user.upsert({
+        where: { email: emailObj },
+        update: {},
+        create: {
+          email: emailObj,
+          name: name as string,
+          password: donaturPassword,
+          role: "donatur",
+          phone: "08123456789",
+          isVerified: true,
+        },
+      });
+      userMap[name as string] = user;
+    }
+  }
+  console.log(`✅ Akun default & ${jsonUserNames.length} user unik dari dataset berhasil dikonfigurasi.`);
 
   // ============================================================
-  // 2. CAMPAIGNS
+  // 2. CAMPAIGNS (Bawaan + Dinamis dari Excel)
   // ============================================================
   const now = new Date();
   const daysAgo = (d: number) => {
     const date = new Date(now);
     date.setDate(date.getDate() - d);
-    return date.toISOString();
+    return date;
   };
   const daysLater = (d: number) => {
     const date = new Date(now);
     date.setDate(date.getDate() + d);
-    return date.toISOString();
+    return date;
   };
 
-  const campaignsData = [
-    {
-      title: "Bantuan Bencana Alam Semarang",
-      description: "Penggalangan dana untuk membantu korban bencana alam di wilayah Semarang dan sekitarnya. Dana akan disalurkan untuk kebutuhan pokok, obat-obatan, dan perbaikan rumah warga yang terdampak.",
-      category: "Bencana",
-      targetAmount: 50000000,
-      collectedAmount: 32500000,
-      startDate: daysAgo(14),
-      endDate: daysLater(16),
-      status: "active",
-      isUrgent: true,
-      uniqueCode: 10,
-      createdBy: admin.id,
-    },
-    {
-      title: "Peduli Ramadhan 2025",
-      description: "Program berbagi takjil dan paket sembako untuk mahasiswa dan masyarakat sekitar kampus Polines selama bulan Ramadhan. Target kami adalah 500 paket sembako.",
-      category: "Ramadhan",
-      targetAmount: 30000000,
-      collectedAmount: 22000000,
-      startDate: daysAgo(7),
-      endDate: daysLater(23),
-      status: "active",
-      isUrgent: false,
-      uniqueCode: 25,
-      createdBy: admin.id,
-    },
-    {
-      title: "Beasiswa Mahasiswa Kurang Mampu",
-      description: "Program beasiswa untuk membantu mahasiswa Polines yang memiliki prestasi akademik baik namun terkendala biaya kuliah. Dana digunakan untuk membayar SPP satu semester.",
-      category: "Sosial",
-      targetAmount: 75000000,
-      collectedAmount: 45600000,
-      startDate: daysAgo(30),
-      endDate: daysLater(60),
-      status: "active",
-      isUrgent: false,
-      uniqueCode: 33,
-      createdBy: admin.id,
-    },
-    {
-      title: "Renovasi Mushola Kampus Polines",
-      description: "Renovasi dan penambahan fasilitas mushola di kampus Polines meliputi perbaikan atap, penambahan tempat wudhu, dan pengadaan mukena baru.",
-      category: "Keagamaan",
-      targetAmount: 40000000,
-      collectedAmount: 18750000,
-      startDate: daysAgo(10),
-      endDate: daysLater(20),
-      status: "active",
-      isUrgent: false,
-      uniqueCode: 41,
-      createdBy: admin.id,
-    },
-    {
-      title: "Donasi Buku untuk Perpustakaan Desa",
-      description: "Pengumpulan buku pelajaran dan referensi untuk perpustakaan desa di sekitar Polines. Program ini juga mencakup pembangunan rak buku dan meja baca.",
-      category: "Pendidikan",
-      targetAmount: 15000000,
-      collectedAmount: 11500000,
-      startDate: daysAgo(20),
-      endDate: daysLater(10),
-      status: "active",
-      isUrgent: false,
-      uniqueCode: 57,
-      createdBy: admin.id,
-    },
-    {
-      title: "Operasi Kucing Terlantar Kampus",
-      description: "Program sterilisasi dan perawatan kucing terlantar di lingkungan kampus Polines. Dana digunakan untuk biaya operasi, vaksinasi, dan makanan harian.",
-      category: "Sosial",
-      targetAmount: 10000000,
-      collectedAmount: 7500000,
-      startDate: daysAgo(5),
-      endDate: daysLater(25),
-      status: "active",
-      isUrgent: false,
-      uniqueCode: 68,
-      createdBy: admin.id,
-    },
-    {
-      title: "Bantuan Medis Mahasiswa Sakit",
-      description: "Bantuan biaya pengobatan untuk mahasiswa Polines yang sedang menjalani perawatan di rumah sakit. Dana akan digunakan untuk biaya operasi dan rawat inap.",
-      category: "Bencana",
-      targetAmount: 25000000,
-      collectedAmount: 8000000,
-      startDate: daysAgo(3),
-      endDate: daysLater(30),
-      status: "active",
-      isUrgent: true,
-      uniqueCode: 79,
-      createdBy: admin.id,
-    },
-    {
-      title: "Perlengkapan Lab Komputer Jurusan TI",
-      description: "Penggalangan dana untuk pengadaan 10 unit komputer baru untuk laboratorium komputer Jurusan Teknik Informatika Polines.",
-      category: "Pendidikan",
-      targetAmount: 100000000,
-      collectedAmount: 62000000,
-      startDate: daysAgo(45),
-      endDate: daysLater(15),
-      status: "active",
-      isUrgent: false,
-      uniqueCode: 83,
-      createdBy: admin.id,
-    },
-  ];
+  // Buat map penampung campaign
+  const campaignMap: Record<string, string> = {};
 
-  const campaigns: any[] = [];
-  for (const c of campaignsData) {
+  // Buat campaign dinamis dari data Excel
+  const jsonCampaignMapData = new Map();
+  dataset.forEach((item: any) => {
+    if (!jsonCampaignMapData.has(item.Campaign)) {
+      jsonCampaignMapData.set(item.Campaign, {
+        title: item.Campaign,
+        category: item.Kategori || "Sosial",
+        location: item.Lokasi || "Semarang",
+      });
+    }
+  });
+
+  // PERBAIKAN LOOPING CAMPAIGN: Memakai variabel tampung dinamis agar aman saat penambahan nilai nominal
+  for (const cam of Array.from(jsonCampaignMapData.values())) {
+    const idKey = `seed-${cam.title.toLowerCase().replace(/\s+/g, "-").slice(0, 20)}`;
     const campaign = await prisma.campaign.upsert({
-      where: { id: `seed-${c.title.toLowerCase().replace(/\s+/g, "-").slice(0, 20)}` },
+      where: { id: idKey },
       update: {},
-      create: { id: `seed-${c.title.toLowerCase().replace(/\s+/g, "-").slice(0, 20)}`, ...c },
+      create: {
+        id: idKey,
+        title: cam.title,
+        description: `Program galang dana sosial-keagamaan untuk ${cam.title} di lingkungan kampus Polines.`,
+        category: cam.category,
+        targetAmount: 60000000,
+        collectedAmount: 0,
+        startDate: daysAgo(30),
+        endDate: daysLater(90),
+        location: cam.location,
+        status: "active",
+        createdBy: admin.id,
+      },
     });
-    campaigns.push(campaign);
+    campaignMap[cam.title] = campaign.id;
   }
 
-  // One completed campaign
+  // Tambahkan pula campaign bawaan proyek jika belum ter-cover
+  const staticCampaignsData = [
+    { title: "Bantuan Bencana Alam Semarang", category: "Bencana", targetAmount: 50000000 },
+    { title: "Peduli Ramadhan 2025", category: "Ramadhan", targetAmount: 30000000 },
+    { title: "Beasiswa Mahasiswa Kurang Mampu", category: "Sosial", targetAmount: 75000000 },
+    { title: "Renovasi Mushola Kampus Polines", category: "Keagamaan", targetAmount: 40000000 },
+    { title: "Donasi Buku untuk Perpustakaan Desa", category: "Pendidikan", targetAmount: 15000000 },
+    { title: "Operasi Kucing Terlantar Kampus", category: "Sosial", targetAmount: 10000000 },
+    { title: "Bantuan Medis Mahasiswa Sakit", category: "Bencana", targetAmount: 25000000 },
+    { title: "Perlengkapan Lab Komputer Jurusan TI", category: "Pendidikan", targetAmount: 100000000 },
+  ];
+
+  for (const c of staticCampaignsData) {
+    const idKey = `seed-${c.title.toLowerCase().replace(/\s+/g, "-").slice(0, 20)}`;
+    if (!campaignMap[c.title]) {
+      const campaign = await prisma.campaign.upsert({
+        where: { id: idKey },
+        update: {},
+        create: {
+          id: idKey,
+          title: c.title,
+          description: `Deskripsi program untuk kegiatan ${c.title} Polines Care.`,
+          category: c.category,
+          targetAmount: c.targetAmount,
+          collectedAmount: 0,
+          startDate: daysAgo(14),
+          endDate: daysLater(30),
+          status: "active",
+          createdBy: admin.id,
+        },
+      });
+      campaignMap[c.title] = campaign.id;
+    }
+  }
+
+  // One completed campaign bawaan template
   const completedCampaign = await prisma.campaign.upsert({
     where: { id: "seed-completed-qurban-2024" },
     update: {},
     create: {
       id: "seed-completed-qurban-2024",
       title: "Qurban Polines 2024",
-      description: "Program qurban bersama kampus Polines tahun 2024. Alhamdulillah target tercapai dan 5 ekor kambing berhasil disembelih.",
+      description: "Program qurban bersama kampus Polines tahun 2024. Alhamdulillah target tercapai.",
       category: "Keagamaan",
       targetAmount: 20000000,
       collectedAmount: 20000000,
       startDate: daysAgo(90),
       endDate: daysAgo(30),
       status: "completed",
-      isUrgent: false,
-      uniqueCode: 96,
       createdBy: admin.id,
     },
   });
-  campaigns.push(completedCampaign);
+  campaignMap["Qurban Polines 2024"] = completedCampaign.id;
 
-  console.log(`✅ Campaigns seeded (${campaigns.length} campaigns)`);
+  console.log("✅ Platform Campaigns seeded.");
 
   // ============================================================
-  // 3. DONATIONS
+  // 3. SEEDING 700+ DONATIONS (DARI DATASET EXCEL KAMU)
   // ============================================================
-  const donationsData = [
-    // Campaign 0: Bencana Alam
-    { campaignIdx: 0, userIdx: 0, amount: 5000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Semoga membantu korban bencana" },
-    { campaignIdx: 0, userIdx: 1, amount: 3000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Bantuan untuk Semarang" },
-    { campaignIdx: 0, userIdx: 2, amount: 7500000, status: "approved", type: "uang", paymentMethod: "qris", message: "Semoga cepat pulih" },
-    { campaignIdx: 0, userIdx: 3, amount: 2000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "" },
-    { campaignIdx: 0, userIdx: 4, amount: 1000000, status: "pending", type: "uang", paymentMethod: "qris", message: "Infaq dari gaji pertama" },
-    { campaignIdx: 0, userIdx: 0, amount: 4000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Donasi kedua" },
-    { campaignIdx: 0, userIdx: 1, amount: 10000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Untuk saudara-saudara di Semarang" },
+  console.log("🚀 Memeriksa dan menyuntikkan riwayat transaksi dari Excel...");
+  let countDonation = 0;
 
-    // Campaign 1: Ramadhan
-    { campaignIdx: 1, userIdx: 0, amount: 2000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Berbagi keberkahan" },
-    { campaignIdx: 1, userIdx: 1, amount: 5000000, status: "approved", type: "uang", paymentMethod: "qris", message: "Semoga menjadi amal jariyah" },
-    { campaignIdx: 1, userIdx: 2, amount: 7000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Ramadhan Kareem" },
-    { campaignIdx: 1, userIdx: 4, amount: 3000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "" },
-    { campaignIdx: 1, userIdx: 3, amount: 5000000, status: "pending", type: "uang", paymentMethod: "qris", message: "Untuk takjil gratis" },
+  // PERBAIKAN LOOPING DONATION: Menambahkan pengecekan findUnique untuk mencegah error Unique Constraint
+  for (let i = 0; i < dataset.length; i++) {
+    const item = dataset[i];
+    const userObj = userMap[item.User];
+    const campaignId = campaignMap[item.Campaign];
 
-    // Campaign 2: Beasiswa
-    { campaignIdx: 2, userIdx: 0, amount: 10000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Untuk adik-adik mahasiswa" },
-    { campaignIdx: 2, userIdx: 2, amount: 5000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Pendidikan penting" },
-    { campaignIdx: 2, userIdx: 3, amount: 15000000, status: "approved", type: "uang", paymentMethod: "qris", message: "Semoga mereka bisa kuliah dengan tenang" },
-    { campaignIdx: 2, userIdx: 4, amount: 8000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Investasi masa depan" },
-    { campaignIdx: 2, userIdx: 1, amount: 7600000, status: "pending", type: "uang", paymentMethod: "transfer", message: "" },
+    if (userObj && campaignId) {
+      const donationId = `excel-don-${i}`;
 
-    // Campaign 3: Mushola
-    { campaignIdx: 3, userIdx: 1, amount: 5000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Untuk kenyamanan ibadah" },
-    { campaignIdx: 3, userIdx: 0, amount: 3750000, status: "approved", type: "uang", paymentMethod: "qris", message: "" },
-    { campaignIdx: 3, userIdx: 4, amount: 10000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Semoga menjadi ladang pahala" },
+      // Periksa apakah record donasi dengan ID ini sudah tersimpan
+      const existingDonation = await prisma.donation.findUnique({
+        where: { id: donationId },
+      });
 
-    // Campaign 4: Buku Perpustakaan
-    { campaignIdx: 4, userIdx: 2, amount: 5000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Buku adalah jendela dunia" },
-    { campaignIdx: 4, userIdx: 3, amount: 6500000, status: "approved", type: "uang", paymentMethod: "transfer", message: "" },
+      // Jika data belum ada, eksekusi pembuatan data baru dan naikkan agregasi collectedAmount
+      if (!existingDonation) {
+        await prisma.donation.create({
+          data: {
+            id: donationId,
+            campaignId: campaignId,
+            userId: userObj.id,
+            amount: Math.floor(Number(item.Nominal)),
+            donorName: userObj.name,
+            donorEmail: userObj.email,
+            donorPhone: userObj.phone || "08123456789",
+            type: "uang",
+            paymentMethod: "transfer",
+            status: "approved",
+            message: "Donasi riwayat lampau dari dataset.",
+            createdAt: new Date(item.Waktu),
+          },
+        });
 
-    // Campaign 5: Kucing Terlantar
-    { campaignIdx: 5, userIdx: 1, amount: 2000000, status: "approved", type: "uang", paymentMethod: "qris", message: "Cat lover! 🐱" },
-    { campaignIdx: 5, userIdx: 4, amount: 1500000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Untuk kucing-kucing kampus" },
-    { campaignIdx: 5, userIdx: 0, amount: 4000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "" },
-
-    // Campaign 6: Bantuan Medis
-    { campaignIdx: 6, userIdx: 0, amount: 3000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Semoga lekas sembuh" },
-    { campaignIdx: 6, userIdx: 1, amount: 5000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Get well soon teman!" },
-
-    // Campaign 7: Lab Komputer
-    { campaignIdx: 7, userIdx: 2, amount: 20000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Untuk adik-adik TI" },
-    { campaignIdx: 7, userIdx: 0, amount: 15000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "" },
-    { campaignIdx: 7, userIdx: 1, amount: 12000000, status: "approved", type: "uang", paymentMethod: "qris", message: "Investasi untuk pendidikan" },
-    { campaignIdx: 7, userIdx: 4, amount: 15000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "" },
-
-    // Completed campaign donations
-    { campaignIdx: 8, userIdx: 0, amount: 5000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "Qurban tahun ini" },
-    { campaignIdx: 8, userIdx: 1, amount: 5000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "" },
-    { campaignIdx: 8, userIdx: 2, amount: 5000000, status: "approved", type: "uang", paymentMethod: "qris", message: "" },
-    { campaignIdx: 8, userIdx: 3, amount: 5000000, status: "approved", type: "uang", paymentMethod: "transfer", message: "" },
-  ];
-
-  const users = [donatur1, donatur2, donatur3, donatur4, donatur5];
-
-  for (let i = 0; i < donationsData.length; i++) {
-    const d = donationsData[i];
-    const user = users[d.userIdx];
-    const campaign = campaigns[d.campaignIdx];
-    await prisma.donation.create({
-      data: {
-        id: `seed-don-${i}`,
-        campaignId: campaign.id,
-        userId: user.id,
-        amount: d.amount,
-        donorName: user.name,
-        donorEmail: user.email,
-        donorPhone: user.phone || "-",
-        type: d.type,
-        paymentMethod: d.paymentMethod,
-        status: d.status,
-        message: d.message,
-        createdAt: daysAgo(Math.floor(Math.random() * 20) + 1),
-      },
-    });
+        // Akumulasikan nilai collectedAmount di tabel Campaign
+        await prisma.campaign.update({
+          where: { id: campaignId },
+          data: {
+            collectedAmount: { increment: Math.floor(Number(item.Nominal)) },
+          },
+        });
+        countDonation++;
+      }
+    }
   }
-
-  console.log(`✅ Donations seeded (${donationsData.length} donations)`);
+  console.log(`✅ Selesai! Berhasil memproses pengisian ${countDonation} riwayat transaksi baru (transaksi yang sudah ada otomatis dilewati).`);
 
   // ============================================================
-  // 4. PROPOSALS
+  // 4. PROPOSALS (Tetap dipertahankan)
   // ============================================================
   const proposalsData = [
-    {
-      title: "Program Santunan Anak Yatim di Panti Asuhan",
-      description: "Mengusulkan program santunan rutin bulanan untuk anak-anak yatim di Panti Asuhan Al-Hikmah Semarang. Target 50 anak per bulan dengan santunan Rp 200.000/anak.",
-      category: "Sosial",
-      targetAmount: 12000000,
-      proposedBy: donatur1.id,
-      votesCount: 24,
-      status: "approved",
-      kejelasanTujuan: 90,
-      kelayakanAnggaran: 85,
-      urgensi: 70,
-      keterkaitanKampus: 80,
-      kontribusiSosial: 95,
-    },
-    {
-      title: "Pelatihan Coding Gratis untuk SMA",
-      description: "Mengusulkan program pelatihan dasar coding (HTML/CSS/JS) untuk siswa SMA di sekitar Polines. Biaya untuk pengadaan laptop pinjaman dan snack peserta.",
-      category: "Pendidikan",
-      targetAmount: 8000000,
-      proposedBy: donatur3.id,
-      votesCount: 18,
-      status: "approved",
-      kejelasanTujuan: 85,
-      kelayakanAnggaran: 80,
-      urgensi: 60,
-      keterkaitanKampus: 90,
-      kontribusiSosial: 75,
-    },
-    {
-      title: "Bank Sampah Kampus Polines",
-      description: "Mengusulkan pembuatan bank sampah di kampus Polines untuk mengurangi sampah dan mendanai kegiatan sosial dari hasil penjualan sampah.",
-      category: "Sosial",
-      targetAmount: 5000000,
-      proposedBy: donatur2.id,
-      votesCount: 31,
-      status: "approved",
-      kejelasanTujuan: 80,
-      kelayakanAnggaran: 90,
-      urgensi: 65,
-      keterkaitanKampus: 95,
-      kontribusiSosial: 85,
-    },
-    {
-      title: "Konseling Mental Health Mahasiswa",
-      description: "Mengusulkan layanan konseling gratis untuk mahasiswa Polines yang membutuhkan dukungan kesehatan mental. Dana untuk menyewa psikolog dan sewa ruang.",
-      category: "Sosial",
-      targetAmount: 15000000,
-      proposedBy: donatur4.id,
-      votesCount: 42,
-      status: "pending",
-      kejelasanTujuan: 88,
-      kelayakanAnggaran: 72,
-      urgensi: 85,
-      keterkaitanKampus: 90,
-      kontribusiSosial: 92,
-    },
-    {
-      title: "Taman Baca 24 Jam di Kampus",
-      description: "Mengusulkan pembuatan taman baca dengan akses 24 jam di kampus Polines, dilengkapi WiFi dan stop kontak untuk mendukung budaya literasi mahasiswa.",
-      category: "Pendidikan",
-      targetAmount: 20000000,
-      proposedBy: donatur5.id,
-      votesCount: 15,
-      status: "pending",
-      kejelasanTujuan: 75,
-      kelayakanAnggaran: 65,
-      urgensi: 55,
-      keterkaitanKampus: 88,
-      kontribusiSosial: 70,
-    },
+    { title: "Program Santunan Anak Yatim di Panti Asuhan", description: "Mengusulkan program santunan rutin bulanan...", category: "Sosial", targetAmount: 12000000, proposedBy: donatur1.id, votesCount: 24, status: "approved", kejelasanTujuan: 90, kelayakanAnggaran: 85, urgensi: 70, keterkaitanKampus: 80, kontribusiSosial: 95 },
+    { title: "Pelatihan Coding Gratis untuk SMA", description: "Mengusulkan program pelatihan dasar coding...", category: "Pendidikan", targetAmount: 8000000, proposedBy: donatur3.id, votesCount: 18, status: "approved", kejelasanTujuan: 85, kelayakanAnggaran: 80, urgensi: 60, keterkaitanKampus: 90, kontribusiSosial: 75 },
+    { title: "Bank Sampah Kampus Polines", description: "Mengusulkan pembuatan bank sampah...", category: "Sosial", targetAmount: 5000000, proposedBy: donatur2.id, votesCount: 31, status: "approved", kejelasanTujuan: 80, kelayakanAnggaran: 90, urgensi: 65, keterkaitanKampus: 95, kontribusiSosial: 85 },
+    { title: "Konseling Mental Health Mahasiswa", description: "Mengusulkan layanan konseling gratis...", category: "Sosial", targetAmount: 15000000, proposedBy: donatur4.id, votesCount: 42, status: "pending", kejelasanTujuan: 88, kelayakanAnggaran: 72, urgensi: 85, keterkaitanKampus: 90, kontribusiSosial: 92 },
+    { title: "Taman Baca 24 Jam di Kampus", description: "Mengusulkan pembuatan taman baca...", category: "Pendidikan", targetAmount: 20000000, proposedBy: donatur5.id, votesCount: 15, status: "pending", kejelasanTujuan: 75, kelayakanAnggaran: 65, urgensi: 55, keterkaitanKampus: 88, kontribusiSosial: 70 },
   ];
 
   for (const p of proposalsData) {
@@ -428,11 +287,10 @@ async function main() {
       create: { id: `seed-prop-${p.title.toLowerCase().replace(/\s+/g, "-").slice(0, 20)}`, ...p },
     });
   }
-
   console.log(`✅ Proposals seeded (${proposalsData.length} proposals)`);
 
   // ============================================================
-  // 5. USER PREFERENCES (for AI recommender)
+  // 5. USER PREFERENCES (Bawaan)
   // ============================================================
   const preferencesData = [
     { userId: donatur1.id, category: "Sosial", weight: 5 },
@@ -454,62 +312,38 @@ async function main() {
       create: pref,
     });
   }
-
-  console.log(`✅ User preferences seeded (${preferencesData.length} preferences)`);
+  console.log(`✅ User preferences seeded.`);
 
   // ============================================================
-  // 6. NOTIFICATIONS
+  // 6. NOTIFICATIONS & FUND USAGES & VOTES (Bawaan)
   // ============================================================
   const notificationsData = [
-    { userId: donatur1.id, title: "Donasi Disetujui", message: "Donasi Anda sebesar Rp 5.000.000 untuk 'Bantuan Bencana Alam Semarang' telah disetujui.", type: "success" },
-    { userId: donatur1.id, title: "Campaign Baru", message: "Campaign baru 'Bantuan Medis Mahasiswa Sakit' telah dibuka. Campaign ini mendesak!", type: "warning" },
-    { userId: donatur2.id, title: "Donasi Disetujui", message: "Donasi Anda sebesar Rp 5.000.000 untuk 'Peduli Ramadhan 2025' telah disetujui.", type: "success" },
-    { userId: donatur2.id, title: "Proposal Disetujui", message: "Proposal 'Program Santunan Anak Yatim' yang Anda ajukan telah disetujui.", type: "success" },
-    { userId: donatur3.id, title: "Rekomendasi Baru", message: "AI Recommender menemukan 3 campaign baru yang sesuai dengan minat Anda!", type: "info" },
-    { userId: admin.id, title: "Donasi Menunggu Verifikasi", message: "Ada 3 donasi baru yang menunggu verifikasi Anda.", type: "warning" },
-    { userId: admin.id, title: "Proposal Baru", message: "Ada 2 proposal baru yang menunggu persetujuan.", type: "info" },
+    { userId: donatur1.id, title: "Donasi Disetujui", message: "Donasi Anda sebesar Rp 5.000.000 telah disetujui.", type: "success" },
+    { userId: donatur1.id, title: "Campaign Baru", message: "Campaign baru 'Bantuan Medis Mahasiswa Sakit' telah dibuka.", type: "warning" },
+    { userId: admin.id, title: "Donasi Menunggu Verifikasi", message: "Ada donasi baru menunggu verifikasi Anda.", type: "warning" },
   ];
 
   for (let i = 0; i < notificationsData.length; i++) {
-    const n = notificationsData[i];
     await prisma.notification.upsert({
       where: { id: `seed-notif-${i}` },
       update: {},
-      create: {
-        id: `seed-notif-${i}`,
-        ...n,
-        isRead: false,
-      },
+      create: { id: `seed-notif-${i}`, ...notificationsData[i], isRead: false },
     });
   }
 
-  console.log(`✅ Notifications seeded (${notificationsData.length} notifications)`);
-
-  // ============================================================
-  // 7. FUND USAGES (for completed campaign)
-  // ============================================================
   const fundUsagesData = [
     { campaignId: completedCampaign.id, description: "Pembelian 5 ekor kambing qurban", amount: 15000000, createdBy: admin.id },
     { campaignId: completedCampaign.id, description: "Biaya potong dan distribusi daging", amount: 3000000, createdBy: admin.id },
-    { campaignId: completedCampaign.id, description: "Transportasi dan logistik", amount: 2000000, createdBy: admin.id },
   ];
 
   for (const f of fundUsagesData) {
     await prisma.fundUsage.create({
-      data: {
-        id: `seed-fund-${f.description.slice(0, 15).replace(/\s+/g, "-")}`,
-        ...f,
-      },
+      data: { id: `seed-fund-${f.description.slice(0, 15).replace(/\s+/g, "-")}`, ...f },
     });
   }
 
-  console.log(`✅ Fund usages seeded (${fundUsagesData.length} records)`);
-
-  // ============================================================
-  // 8. VOTES (for proposals)
-  // ============================================================
   const proposalIds = proposalsData.map(p => `seed-prop-${p.title.toLowerCase().replace(/\s+/g, "-").slice(0, 20)}`);
-  const voterUserIds = [donatur1.id, donatur2.id, donatur3.id, donatur4.id, donatur5.id];
+  const voterUserIds = [donatur1.id, donatur2.id, donatur3.id];
 
   for (const propId of proposalIds) {
     for (const uId of voterUserIds) {
@@ -521,17 +355,8 @@ async function main() {
     }
   }
 
-  console.log(`✅ Votes seeded`);
-
-  console.log("\n🎉 Seeding complete!");
-  console.log("\n📋 Login credentials:");
-  console.log("   Admin:   admin@polines.ac.id / admin123");
-  console.log("   Demo:    donatur@demo.com / demo123");
-  console.log("   Donatur: budi@polines.ac.id / donatur123");
-  console.log("   Donatur: siti@polines.ac.id / donatur123");
-  console.log("   Donatur: ahmad@polines.ac.id / donatur123");
-  console.log("   Donatur: dewi@polines.ac.id / donatur123");
-  console.log("   Donatur: raka@polines.ac.id / donatur123");
+  console.log("✅ Notifications, Fund Usages, and Votes seeded.");
+  console.log("\n🎉 GABUNGAN SEEDING SELESAI SEMPURNA!");
 }
 
 main()
