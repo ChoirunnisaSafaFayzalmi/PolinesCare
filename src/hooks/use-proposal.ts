@@ -42,7 +42,10 @@ export function useProposals() {
     }
   }, [])
 
-  useEffect(() => { fetchProposals() }, [fetchProposals])
+  useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount pattern, aman
+  fetchProposals()
+}, [fetchProposals])
 
   return { proposals, loading, error, refetch: fetchProposals }
 }

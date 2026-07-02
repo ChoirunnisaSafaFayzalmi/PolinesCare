@@ -6,10 +6,11 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
   Megaphone, Info, RefreshCw, AlertCircle,
-  ChevronRight, CheckCheck, XCircle, Clock,
+  ChevronRight, ChevronLeft, CheckCheck, XCircle, Clock,
 } from 'lucide-react'
 import { formatRupiah, formatDate } from '../types'
 import { AjuanFormPage } from './ajuan-form'
+import { DetailAjuanPage } from './ajuan-detail'
 
 // ============================================================
 // TYPES
@@ -29,6 +30,11 @@ export interface ProposalAPI {
   campaignLocation: string
   officialDocUrl: string
   photoUrl: string | null
+  photoUrls?: string[] | null
+  proposerName?: string
+  proposerEmail?: string
+  proposerPhone?: string
+  proposerAddress?: string
   createdAt: string
   updatedAt: string
 }
@@ -108,8 +114,9 @@ export function useProposals(session?: any) {
     }
   }, [session])
 
-  useEffect(() => { 
-    fetchProposals() 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount pattern, aman
+    fetchProposals()
   }, [fetchProposals])
 
   return { proposals, loading, error, refetch: fetchProposals }
@@ -154,96 +161,76 @@ function CardSkeleton() {
   )
 }
 
-// Detail view — ditampilkan inline di tab
-function DetailAjuan({
-  ajuan,
-  onBack,
-  onResubmit,
+// ============================================================
+// PAGINATION
+// ============================================================
+function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
 }: {
-  ajuan: RiwayatAjuan
-  onBack: () => void
-  onResubmit: (id: string) => void
+  currentPage: number
+  totalPages: number
+  onPageChange: (page: number) => void
 }) {
+  if (totalPages <= 1) return null
+
+  // Bikin daftar nomor halaman yang ditampilkan (maks 5 nomor, sisanya "...")
+  const getPageNumbers = () => {
+    const pages: (number | 'ellipsis')[] = []
+    const maxVisible = 5
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+      return pages
+    }
+
+    pages.push(1)
+    if (currentPage > 3) pages.push('ellipsis')
+
+    const start = Math.max(2, currentPage - 1)
+    const end = Math.min(totalPages - 1, currentPage + 1)
+    for (let i = start; i <= end; i++) pages.push(i)
+
+    if (currentPage < totalPages - 2) pages.push('ellipsis')
+    pages.push(totalPages)
+
+    return pages
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="flex items-center justify-center gap-1.5 pt-2">
       <Button
-        variant="ghost" size="sm"
-        className="p-0 h-auto text-muted-foreground hover:text-foreground"
-        onClick={onBack}
+        variant="outline" size="icon" className="h-8 w-8"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
       >
-        ← Kembali ke Riwayat
+        <ChevronLeft className="h-4 w-4" />
       </Button>
 
-      {ajuan.status === 'disetujui' && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-2">
-          <CheckCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-          <p className="text-sm text-emerald-700 font-medium">
-            Campaign Anda telah disetujui dan akan segera dipublikasikan.
-          </p>
-        </div>
-      )}
-      {ajuan.status === 'ditolak' && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg space-y-1">
-          <div className="flex items-center gap-2">
-            <XCircle className="h-4 w-4 text-red-600 shrink-0" />
-            <p className="text-sm text-red-700 font-medium">Ajuan ditolak</p>
-          </div>
-          {ajuan.catatan && (
-            <p className="text-xs text-red-600 pl-6">Catatan admin: {ajuan.catatan}</p>
-          )}
-        </div>
-      )}
-      {ajuan.status === 'menunggu' && (
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2">
-          <Clock className="h-4 w-4 text-amber-600 shrink-0" />
-          <p className="text-sm text-amber-700">Ajuan sedang dalam proses review admin (1–3 hari kerja).</p>
-        </div>
+      {getPageNumbers().map((p, i) =>
+        p === 'ellipsis' ? (
+          <span key={`ellipsis-${i}`} className="px-1.5 text-sm text-muted-foreground">…</span>
+        ) : (
+          <Button
+            key={p}
+            variant={p === currentPage ? 'default' : 'outline'}
+            size="icon"
+            className={`h-8 w-8 text-sm ${p === currentPage ? 'bg-teal-600 hover:bg-teal-700 text-white' : ''}`}
+            onClick={() => onPageChange(p)}
+          >
+            {p}
+          </Button>
+        )
       )}
 
-      <Card>
-        <CardContent className="p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="font-semibold">Informasi Ajuan</p>
-            <StatusBadge status={ajuan.status} />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-            <div className="space-y-0.5">
-              <p className="text-xs text-muted-foreground">Judul Campaign</p>
-              <p className="font-medium">{ajuan.judul}</p>
-            </div>
-            <div className="space-y-0.5">
-              <p className="text-xs text-muted-foreground">Kategori</p>
-              <p className="font-medium">{ajuan.kategori}</p>
-            </div>
-            <div className="space-y-0.5">
-              <p className="text-xs text-muted-foreground">Target Dana</p>
-              <p className="font-medium text-teal-600">{formatRupiah(ajuan.targetDana)}</p>
-            </div>
-            <div className="space-y-0.5">
-              <p className="text-xs text-muted-foreground">Tanggal Diajukan</p>
-              <p className="font-medium">{formatDate(ajuan.tanggalAjuan)}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {ajuan.status === 'ditolak' && (
-        <Card className="border-dashed border-red-200 bg-red-50/30">
-          <CardContent className="p-4 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-medium text-red-700">Ingin mengajukan ulang?</p>
-              <p className="text-xs text-red-600 mt-0.5">Perbaiki sesuai catatan admin lalu kirim kembali</p>
-            </div>
-            <Button
-              size="sm"
-              className="bg-teal-600 hover:bg-teal-700 text-white shrink-0"
-              onClick={() => onResubmit(ajuan.id)}
-            >
-              <Megaphone className="h-4 w-4 mr-1" /> Ajukan Ulang
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+      <Button
+        variant="outline" size="icon" className="h-8 w-8"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        <ChevronRight className="h-4 w-4" />
+      </Button>
     </div>
   )
 }
@@ -256,6 +243,9 @@ interface TabAjuanProps {
 }
 
 type View = 'list' | 'detail' | 'form'
+type StatusFilter = 'semua' | RiwayatAjuan['status']
+
+const ITEMS_PER_PAGE = 5
 
 export function TabAjuan({ session }: TabAjuanProps) {
   // Meneruskan session ke hook untuk antisipasi autentikasi token API
@@ -263,8 +253,12 @@ export function TabAjuan({ session }: TabAjuanProps) {
   const riwayat = proposals.map(mapProposalToRiwayat)
 
   const [view, setView] = useState<View>('list')
-  const [selected, setSelected] = useState<RiwayatAjuan | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [resubmitFromId, setResubmitFromId] = useState<string | null>(null)
+  const [filterStatus, setFilterStatus] = useState<StatusFilter>('semua')
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const selectedProposal = proposals.find(p => p.id === selectedId) ?? null
 
   const goToForm = (resubmitId?: string) => {
     setResubmitFromId(resubmitId ?? null)
@@ -272,10 +266,15 @@ export function TabAjuan({ session }: TabAjuanProps) {
   }
 
   const goToList = () => {
-    setSelected(null)
+    setSelectedId(null)
     setResubmitFromId(null)
     setView('list')
     refetch()
+  }
+
+  const changeFilter = (value: StatusFilter) => {
+    setFilterStatus(value)
+    setCurrentPage(1) // reset ke halaman 1 tiap ganti filter
   }
 
   // ── Form view ──
@@ -291,15 +290,37 @@ export function TabAjuan({ session }: TabAjuanProps) {
   }
 
   // ── Detail view ──
-  if (view === 'detail' && selected) {
+  if (view === 'detail' && selectedProposal) {
     return (
-      <DetailAjuan
-        ajuan={selected}
-        onBack={() => { setSelected(null); setView('list') }}
+      <DetailAjuanPage
+        proposal={selectedProposal}
+        onBack={() => { setSelectedId(null); setView('list') }}
         onResubmit={(id) => goToForm(id)}
       />
     )
   }
+
+  // ── Filter helper ──
+  const filterOptions: { value: StatusFilter; label: string }[] = [
+    { value: 'semua', label: 'Semua' },
+    { value: 'menunggu', label: 'Menunggu' },
+    { value: 'disetujui', label: 'Disetujui' },
+    { value: 'ditolak', label: 'Ditolak' },
+  ]
+
+  const countByStatus = (status: StatusFilter) =>
+    status === 'semua' ? riwayat.length : riwayat.filter(r => r.status === status).length
+
+  const filteredRiwayat =
+    filterStatus === 'semua' ? riwayat : riwayat.filter(r => r.status === filterStatus)
+
+  // ── Pagination ──
+  const totalPages = Math.max(1, Math.ceil(filteredRiwayat.length / ITEMS_PER_PAGE))
+  const safePage = Math.min(currentPage, totalPages)
+  const paginatedRiwayat = filteredRiwayat.slice(
+    (safePage - 1) * ITEMS_PER_PAGE,
+    safePage * ITEMS_PER_PAGE
+  )
 
   // ── List view ──
   return (
@@ -330,89 +351,7 @@ export function TabAjuan({ session }: TabAjuanProps) {
         </div>
       </div>
 
-      {/* Loading */}
-      {loading && (
-        <div className="space-y-3">
-          <CardSkeleton />
-          <CardSkeleton />
-        </div>
-      )}
-
-      {/* Error */}
-      {error && !loading && (
-        <Card className="border-red-200 bg-red-50/50">
-          <CardContent className="p-4 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-red-600">
-              <AlertCircle className="h-4 w-4 shrink-0" />
-              <p className="text-sm">{error}</p>
-            </div>
-            <Button size="sm" variant="outline" onClick={refetch} className="shrink-0">
-              Coba Lagi
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Empty */}
-      {!loading && !error && riwayat.length === 0 && (
-        <Card>
-          <CardContent className="p-12 text-center space-y-3">
-            <Megaphone className="h-10 w-10 text-muted-foreground mx-auto" />
-            <p className="font-medium">Belum ada ajuan</p>
-            <p className="text-sm text-muted-foreground">
-              Klik tombol "Ajukan Baru" untuk mengajukan campaign donasi
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* List */}
-      {!loading && !error && riwayat.length > 0 && (
-        <div className="space-y-3">
-          {riwayat.map(r => (
-            <Card
-              key={r.id}
-              className="hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => { setSelected(r); setView('detail') }}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold truncate">{r.judul}</p>
-                      <StatusBadge status={r.status} />
-                    </div>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
-                      <span>{r.kategori}</span>
-                      <span>•</span>
-                      <span>{formatRupiah(r.targetDana)}</span>
-                      <span>•</span>
-                      <span>Diajukan {formatDate(r.tanggalAjuan)}</span>
-                    </div>
-                    {r.status === 'ditolak' && r.catatan && (
-                      <div className="mt-2 p-2.5 bg-red-50 border border-red-100 rounded-lg">
-                        <p className="text-xs text-red-600">
-                          <span className="font-semibold">Catatan admin:</span> {r.catatan}
-                        </p>
-                      </div>
-                    )}
-                    {r.status === 'disetujui' && (
-                      <div className="mt-2 p-2.5 bg-emerald-50 border border-emerald-100 rounded-lg">
-                        <p className="text-xs text-emerald-600">
-                          ✅ Campaign Anda telah disetujui dan akan segera dipublikasikan.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      {/* Info cara kerja */}
+      {/* Info cara kerja — dipindah ke atas */}
       <Card className="bg-gray-50 border-dashed">
         <CardContent className="p-4">
           <p className="text-sm font-semibold mb-3 flex items-center gap-1.5">
@@ -437,6 +376,131 @@ export function TabAjuan({ session }: TabAjuanProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Loading */}
+      {loading && (
+        <div className="space-y-3">
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+      )}
+
+      {/* Error */}
+      {error && !loading && (
+        <Card className="border-red-200 bg-red-50/50">
+          <CardContent className="p-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-red-600">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <p className="text-sm">{error}</p>
+            </div>
+            <Button size="sm" variant="outline" onClick={refetch} className="shrink-0">
+              Coba Lagi
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Empty (belum ada ajuan sama sekali) */}
+      {!loading && !error && riwayat.length === 0 && (
+        <Card>
+          <CardContent className="p-12 text-center space-y-3">
+            <Megaphone className="h-10 w-10 text-muted-foreground mx-auto" />
+            <p className="font-medium">Belum ada ajuan</p>
+            <p className="text-sm text-muted-foreground">
+              Klik tombol "Ajukan Baru" untuk mengajukan campaign donasi
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Filter status */}
+      {!loading && !error && riwayat.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          {filterOptions.map(opt => (
+            <Button
+              key={opt.value}
+              size="sm"
+              variant={filterStatus === opt.value ? 'default' : 'outline'}
+              className={filterStatus === opt.value ? 'bg-teal-600 hover:bg-teal-700 text-white' : ''}
+              onClick={() => changeFilter(opt.value)}
+            >
+              {opt.label}
+              <span className="ml-1.5 text-xs opacity-75">({countByStatus(opt.value)})</span>
+            </Button>
+          ))}
+        </div>
+      )}
+
+      {/* List (sudah difilter & dipaginasi) */}
+      {!loading && !error && riwayat.length > 0 && paginatedRiwayat.length > 0 && (
+        <>
+          <div className="space-y-3">
+            {paginatedRiwayat.map(r => (
+              <Card
+                key={r.id}
+                className="hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => { setSelectedId(r.id); setView('detail') }}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold truncate">{r.judul}</p>
+                        <StatusBadge status={r.status} />
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
+                        <span>{r.kategori}</span>
+                        <span>•</span>
+                        <span>{formatRupiah(r.targetDana)}</span>
+                        <span>•</span>
+                        <span>Diajukan {formatDate(r.tanggalAjuan)}</span>
+                      </div>
+                      {r.status === 'ditolak' && r.catatan && (
+                        <div className="mt-2 p-2.5 bg-red-50 border border-red-100 rounded-lg">
+                          <p className="text-xs text-red-600">
+                            <span className="font-semibold">Catatan admin:</span> {r.catatan}
+                          </p>
+                        </div>
+                      )}
+                      {r.status === 'disetujui' && (
+                        <div className="mt-2 p-2.5 bg-emerald-50 border border-emerald-100 rounded-lg">
+                          <p className="text-xs text-emerald-600">
+                            ✅ Campaign Anda telah disetujui dan akan segera dipublikasikan.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Info jumlah + pagination */}
+          <div className="flex flex-col items-center gap-2 pt-1">
+            <p className="text-xs text-muted-foreground">
+              Menampilkan {(safePage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(safePage * ITEMS_PER_PAGE, filteredRiwayat.length)} dari {filteredRiwayat.length} ajuan
+            </p>
+            <Pagination
+              currentPage={safePage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        </>
+      )}
+
+      {/* Hasil filter kosong (ada data, tapi tidak ada yang cocok dengan filter) */}
+      {!loading && !error && riwayat.length > 0 && filteredRiwayat.length === 0 && (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              Tidak ada ajuan dengan status "{filterOptions.find(f => f.value === filterStatus)?.label}"
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
     </div>
   )
