@@ -68,6 +68,7 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   const [adminCampaignStatus, setAdminCampaignStatus] = useState('all')
   const [donationFilter, setDonationFilter] = useState('all')
   const [reportCampaignId, setReportCampaignId] = useState('')
+  const [statsMonth, setStatsMonth] = useState(() => new Date().toISOString().slice(0, 7)) // "YYYY-MM"
 
   // ============================================================
   // NAVIGATION: use pushState for instant URL changes (no remount)
@@ -84,6 +85,10 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
     const path = buildAdminPath(adminTab, subTab)
     window.history.pushState({ adminTab, adminCampaignSubTab: subTab }, '', path)
   }, [adminTab])
+
+  const onChangeStatsMonth = useCallback((month: string) => {
+    setStatsMonth(month)
+  }, [])
 
   // ============================================================
   // Handle browser back/forward (popstate)
@@ -145,22 +150,19 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
     } catch { /* silent */ }
   }, [])
 
-  const fetchStats = useCallback(async () => {
+  const fetchStats = useCallback(async (month?: string) => {
     try {
-      const res = await fetch('/api/stats')
+      const query = month ? `?month=${month}` : ''
+      const res = await fetch(`/api/stats${query}`)
       if (res.ok) {
         const data = await res.json()
         setStats({
-          totalCampaigns: data.campaigns?.total ?? 0,
-          totalDonations: data.donations?.total ?? 0,
-          totalAmount: data.donations?.totalAmount ?? 0,
-          totalDonors: data.users?.total ?? 0,
-          categoryBreakdown: (data.campaigns?.byCategory || []).map((c: { category: string; _count: number; total: number }) => ({
-            category: c.category, count: c._count, total: c.total || 0
-          })),
-          typeBreakdown: (data.donations?.byType || []).map((t: { type: string; _count: number; total: number }) => ({
-            type: t.type, count: t._count, total: t.total || 0
-          })),
+          totalCampaigns: data.totalCampaigns ?? 0,
+          totalDonations: data.totalDonations ?? 0,
+          totalAmount: data.totalAmount ?? 0,
+          totalDonors: data.totalDonors ?? 0,
+          categoryBreakdown: data.categoryBreakdown || [],
+          typeBreakdown: data.typeBreakdown || [],
           recentDonations: data.recentDonations || [],
         })
       }
@@ -198,8 +200,8 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
 
   // ---- Load initial data (always fetch fresh since no remounting) ----
   useEffect(() => {
-    fetchAllCampaigns(); fetchCampaigns(); fetchStats(); fetchProposals(); fetchDonations(); fetchNotifications()
-  }, []) // mount-only
+    fetchAllCampaigns(); fetchCampaigns(); fetchStats(statsMonth); fetchProposals(); fetchDonations(); fetchNotifications()
+  }, [])
 
   useEffect(() => {
     if (reportCampaignId) fetchFundUsages(reportCampaignId)
@@ -420,6 +422,8 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
         adminCampaignSubTab={adminCampaignSubTab}
         setAdminCampaignSubTab={setAdminCampaignSubTabState}
         onNavigateCampaignSubTab={navigateCampaignSubTab}
+        statsMonth={statsMonth}
+        onChangeStatsMonth={onChangeStatsMonth}
       />
 
       {/* Modals */}

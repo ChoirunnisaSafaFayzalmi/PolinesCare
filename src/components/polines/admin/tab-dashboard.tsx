@@ -70,8 +70,9 @@ export function DashboardTab({ stats, allCampaigns, onNavigateCampaign, selected
   ]
 
   // selectedMonth = "2026-06" -> ambil bagian bulan "06"
-  const currentMonthValue = selectedMonth.split('-')[1]
-  const currentYear = selectedMonth.split('-')[0]
+  const safeMonth = selectedMonth || new Date().toISOString().slice(0, 7) // default: bulan ini
+  const currentMonthValue = safeMonth.split('-')[1]
+  const currentYear = safeMonth.split('-')[0]
 
   return (
     <div className="space-y-6">
@@ -176,9 +177,8 @@ export function DashboardTab({ stats, allCampaigns, onNavigateCampaign, selected
               const pct = c.targetAmount > 0 ? Math.min((c.collectedAmount / c.targetAmount) * 100, 100) : 0
               return (
                 <div key={c.id} className="flex items-center gap-4">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
-                    i === 0 ? 'bg-amber-100 text-amber-700' : i === 1 ? 'bg-gray-100 text-gray-600' : i === 2 ? 'bg-orange-100 text-orange-700' : 'bg-gray-50 text-gray-400'
-                  }`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${i === 0 ? 'bg-amber-100 text-amber-700' : i === 1 ? 'bg-gray-100 text-gray-600' : i === 2 ? 'bg-orange-100 text-orange-700' : 'bg-gray-50 text-gray-400'
+                    }`}>
                     {i + 1}
                   </div>
                   <div className="flex-1 min-w-0">
