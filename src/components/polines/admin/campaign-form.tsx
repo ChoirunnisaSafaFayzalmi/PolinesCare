@@ -25,6 +25,7 @@ interface CampaignFormViewProps {
     title: string; description: string; category: string; targetAmount: string
     startDate: string; endDate: string; isUrgent: boolean; isPublic: boolean
     paymentMethods: PaymentMethod[]
+    qrisImageUrl?: string
     uniqueCode: string
     images?: string[]
     location?: string
@@ -38,7 +39,7 @@ interface CampaignFormViewProps {
   setCampaignForm: (form: any) => void
   editingCampaign: Campaign | null
   submitting: boolean
-  onSave: (imageFiles?: File[]) => void
+  onSave: (imageFiles?: File[], qrisFile?: File) => void
   onBack: () => void
   session: {
     user?: {
@@ -197,17 +198,17 @@ export function CampaignFormView({
   // - create/edit            → data admin yang login (adminProfile, fallback session)
   const creatorInfo = isLocked
     ? {
-        name: campaignForm.proposerName,
-        email: campaignForm.proposerEmail,
-        phone: campaignForm.proposerPhone,
-        address: campaignForm.proposerAddress,
-      }
+      name: campaignForm.proposerName,
+      email: campaignForm.proposerEmail,
+      phone: campaignForm.proposerPhone,
+      address: campaignForm.proposerAddress,
+    }
     : {
-        name: adminProfile?.name ?? session?.user?.name,
-        email: adminProfile?.email ?? session?.user?.email,
-        phone: adminProfile?.phone ?? session?.user?.phone,
-        address: adminProfile?.address ?? session?.user?.address,
-      }
+      name: adminProfile?.name ?? session?.user?.name,
+      email: adminProfile?.email ?? session?.user?.email,
+      phone: adminProfile?.phone ?? session?.user?.phone,
+      address: adminProfile?.address ?? session?.user?.address,
+    }
 
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<{ url: string; isExisting: boolean }[]>(
@@ -243,6 +244,25 @@ export function CampaignFormView({
       const newFileIndex = imagePreviews.slice(0, index).filter(p => !p.isExisting).length
       setImageFiles(prev => prev.filter((_, i) => i !== newFileIndex))
     }
+  }
+
+  // ⬅ tambah: state khusus foto QRIS (single file, terpisah dari foto campaign)
+  const qrisInputRef = useRef<HTMLInputElement>(null)
+  const [qrisFile, setQrisFile] = useState<File | null>(null)
+  const [qrisPreview, setQrisPreview] = useState<string | null>(campaignForm.qrisImageUrl || null)
+
+  const handleQrisChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setQrisFile(file)
+    setQrisPreview(URL.createObjectURL(file))
+    if (qrisInputRef.current) qrisInputRef.current.value = ''
+  }
+
+  const handleRemoveQris = () => {
+    setQrisFile(null)
+    setQrisPreview(null)
+    setCampaignForm({ ...campaignForm, qrisImageUrl: '' })
   }
 
   const handleAddPayment = (label: string, accountNumber: string) => {
@@ -307,7 +327,7 @@ export function CampaignFormView({
             </Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg px-6"
-              onClick={() => onSave(imageFiles.length > 0 ? imageFiles : undefined)}
+              onClick={() => onSave(imageFiles.length > 0 ? imageFiles : undefined, qrisFile ?? undefined)}
               disabled={submitting}
             >
               {submitting ? 'Menyimpan...' : isLocked ? 'Publikasikan' : 'Simpan'}
@@ -591,6 +611,36 @@ export function CampaignFormView({
                     Tambah metode pembayaran
                   </span>
                 </button>
+              </div>
+
+              {/* Foto QRIS */}
+              <div className="space-y-2 pt-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Foto QRIS
+                  <span className="text-gray-400 font-normal ml-1">(opsional, untuk metode pembayaran QRIS)</span>
+                </Label>
+
+                {qrisPreview ? (
+                  <div className="relative w-40 aspect-square rounded-xl overflow-hidden border border-gray-200 group">
+                    <img src={qrisPreview} alt="QRIS" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <button type="button" onClick={handleRemoveQris}
+                        className="w-7 h-7 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors">
+                        <X className="h-3.5 w-3.5 text-white" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => qrisInputRef.current?.click()}
+                    className="w-40 aspect-square rounded-xl border-2 border-dashed border-gray-200 hover:border-teal-400 hover:bg-teal-50/50 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer group">
+                    <ImagePlus className="h-5 w-5 text-gray-300 group-hover:text-teal-500" />
+                    <span className="text-[11px] text-gray-400 group-hover:text-teal-500">Upload QRIS</span>
+                  </button>
+                )}
+
+                <input ref={qrisInputRef} type="file" accept="image/png,image/jpeg,image/webp"
+                  className="hidden" onChange={handleQrisChange} />
+                <p className="text-xs text-gray-400">Foto QR code yang di-generate dari aplikasi bank/e-wallet admin.</p>
               </div>
 
               {/* Alamat Donasi Barang */}

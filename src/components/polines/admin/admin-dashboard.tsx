@@ -67,6 +67,7 @@ interface AdminDashboardProps {
     isUrgent: boolean
     isPublic: boolean
     paymentMethods: PaymentMethod[]  // ← pakai type dari types.ts, bukan inline
+    qrisImageUrl?: string
     uniqueCode: string
     images?: string[]
     dropOffLocation?: string   // ⬅ tambah
@@ -76,7 +77,7 @@ interface AdminDashboardProps {
   editingCampaign: Campaign | null
   setEditingCampaign: (c: Campaign | null) => void
   // submitCampaign: () => void
-  submitCampaign: (imageFiles?: File[]) => void
+  submitCampaign: (imageFiles?: File[], qrisFile?: File) => void
   submitting: boolean
   donations: Donation[]
   fundUsageForm: { campaignId: string; date: string; description: string; amount: string; proofFile: File | null }
@@ -162,7 +163,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
       startDate: '', endDate: '', isUrgent: false, isPublic: true,
       paymentMethods: [], uniqueCode: '',
       images: [], location: '',
-      dropOffLocation: '',
+      dropOffLocation: '', qrisImageUrl: '',
     })
     setSubView('campaign-form')
   }
@@ -186,6 +187,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
         accountNumber: pm.accountNumber,
         isVisible: pm.isVisible ?? true,
       })),
+      qrisImageUrl: c.qrisImageUrl ?? '',
       uniqueCode: String(c.uniqueCode ?? 0),
       images: Array.isArray(c.images)
         ? c.images
@@ -211,17 +213,18 @@ export function AdminDashboard(props: AdminDashboardProps) {
       dropOffLocation: c.dropOffLocation ?? '',
       images: Array.isArray(c.images) ? c.images : (c.images ? JSON.parse(c.images) : []),
       mode: 'complete-from-proposal',
+      qrisImageUrl: c.qrisImageUrl ?? '',
     })
     setSubView('campaign-form')
   }
 
-  const handleSaveCampaign = async (imageFiles?: File[]) => {
+  const handleSaveCampaign = async (imageFiles?: File[], qrisFile?: File) => {
   // Sync status berdasarkan isPublic sebelum submit
   setCampaignForm((prev: typeof campaignForm) => ({
     ...prev,
     status: prev.isPublic ? 'active' : 'closed',
   }))
-  await submitCampaign(imageFiles)
+  await submitCampaign(imageFiles, qrisFile)
   setSubView(null)
   setEditingCampaign(null)
 }

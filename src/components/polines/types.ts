@@ -32,6 +32,7 @@ export interface Campaign {
   creator?: { name: string }
   _count?: { donations: number }
   paymentMethods: PaymentMethod[]
+  qrisImageUrl?: string | null 
 }
 
 export interface Donation {

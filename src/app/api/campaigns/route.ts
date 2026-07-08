@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       title, description, category, targetAmount,
       startDate, endDate, isUrgent, isPublic,
       paymentMethods, uniqueCode, images, location,
-      dropOffLocation,
+      dropOffLocation, qrisImageUrl,
     } = body;
 
     if (!title || !description || !category || !targetAmount || !startDate || !endDate)
@@ -82,6 +82,7 @@ export async function POST(request: NextRequest) {
         paymentMethods: Array.isArray(paymentMethods) && paymentMethods.length > 0
           ? JSON.stringify(paymentMethods)
           : null,
+        qrisImageUrl: qrisImageUrl || null,
         createdBy: (session.user as { id: string }).id,
       },
     });

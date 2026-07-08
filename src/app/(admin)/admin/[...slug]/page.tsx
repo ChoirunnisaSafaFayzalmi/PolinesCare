@@ -135,12 +135,13 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
     images?: string[]
     location?: string
     dropOffLocation?: string
+    qrisImageUrl?: string
     mode?: 'create' | 'complete-from-proposal'
   }>({
     title: '', description: '', category: 'Sosial', targetAmount: '',
     startDate: '', endDate: '', isUrgent: false, isPublic: true,
     paymentMethods: [], uniqueCode: '',
-    images: [], location: '', dropOffLocation: '',
+    images: [], location: '', dropOffLocation: '', qrisImageUrl: '',
     mode: 'create',
   })
 
@@ -242,14 +243,9 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   // CAMPAIGN CRUD (Admin)
   // ============================================================
   // NOTE: asumsi kontrak API. Sesuaikan field/format kalau backend kamu beda.
-  const submitCampaign = async (imageFiles?: File[]) => {
+  const submitCampaign = async (imageFiles?: File[], qrisFile?: File) => {
   setSubmitting(true)
   try {
-    // ⬅ FIX: /api/campaigns SELALU expect JSON dengan images: string[] (URL),
-    // bukan file mentah. Endpoint terpisah /api/upload (Cloudinary) yang
-    // nerima FormData & balikin URL. Jadi kalau ada file baru, upload dulu
-    // ke /api/upload, gabungkan URL hasilnya dengan images lama, baru kirim
-    // semuanya sebagai JSON biasa ke /api/campaigns.
     let finalImages = campaignForm.images ?? []
 
     if (imageFiles && imageFiles.length > 0) {
@@ -269,6 +265,24 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
       finalImages = [...finalImages, ...newUrls]
     }
 
+    // ⬅ tambah: upload foto QRIS (single file) ke folder terpisah "qris"
+    let finalQrisUrl = campaignForm.qrisImageUrl ?? ''
+    if (qrisFile) {
+      const qrisFd = new FormData()
+      qrisFd.append('folder', 'qris')
+      qrisFd.append('file', qrisFile)
+
+      const qrisUploadRes = await fetch('/api/upload', { method: 'POST', body: qrisFd })
+      if (!qrisUploadRes.ok) {
+        const err = await qrisUploadRes.json().catch(() => ({}))
+        toast.error(err.error || 'Gagal mengupload foto QRIS')
+        setSubmitting(false)
+        return
+      }
+      const qrisData = await qrisUploadRes.json()
+      finalQrisUrl = qrisData.url ?? finalQrisUrl
+    }
+
     const url = editingCampaign ? `/api/campaigns/${editingCampaign.id}` : '/api/campaigns'
     const method = editingCampaign ? 'PUT' : 'POST'
 
@@ -286,6 +300,7 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
       dropOffLocation: campaignForm.dropOffLocation ?? '',
       paymentMethods: campaignForm.paymentMethods,
       images: finalImages,
+      qrisImageUrl: finalQrisUrl,   // ⬅ tambah
       ...(campaignForm.mode === 'complete-from-proposal' ? { status: 'active' } : {}),
     }
 

@@ -61,7 +61,7 @@ export async function PUT(
     const {
       title, description, category, targetAmount,
       startDate, endDate, isUrgent, isPublic,
-      paymentMethods, uniqueCode, images, status, location, dropOffLocation,
+      paymentMethods, uniqueCode, images, status, location, dropOffLocation, qrisImageUrl,
     } = body;
 
     const existing = await db.campaign.findUnique({ where: { id } });
@@ -90,6 +90,7 @@ export async function PUT(
         paymentMethods: Array.isArray(paymentMethods) && paymentMethods.length > 0
           ? JSON.stringify(paymentMethods)
           : null,
+        qrisImageUrl: qrisImageUrl || null,
       },
     });
 
