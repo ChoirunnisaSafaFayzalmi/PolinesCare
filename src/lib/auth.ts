@@ -42,31 +42,31 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = (user as { role?: string }).role;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        (session.user as { id?: string }).id = token.id as string;
-        (session.user as { role?: string }).role = token.role as string;
-      }
-      return session;
-    },
+callbacks: {
+  async jwt({ token, user }) {
+    if (user) {
+      token.id = user.id;
+      token.role = (user as { role?: string }).role ?? "user";
+    }
+    return token;
   },
-  session: {
-    strategy: "jwt",
+  async session({ session, token }) {
+    if (session.user) {
+      (session.user as { id?: string }).id = token.id as string;
+      (session.user as { role?: string }).role = token.role as string;
+    }
+    return session;
   },
-  pages: {
-    signIn: "/login",
-  },
-  secret: process.env.NEXTAUTH_SECRET || "polines-care-secret-key-change-in-production",
+},
+session: {
+  strategy: "jwt",
+},
+pages: {
+  signIn: "/login",
+},
+secret: process.env.NEXTAUTH_SECRET || "polines-care-secret-key-change-in-production",
 };
 
 export const auth = () => getServerSession(authOptions);
-
-export { signIn, signOut } from "next-auth";
+// baris export signIn/signOut dihapus
+// export { signIn, signOut } from "next-auth";
