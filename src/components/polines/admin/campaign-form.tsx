@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,6 +29,11 @@ interface CampaignFormViewProps {
     images?: string[]
     location?: string
     dropOffLocation?: string
+    // ⬅ tambah: data pengaju, dipakai saat mode === 'complete-from-proposal'
+    proposerName?: string
+    proposerEmail?: string
+    proposerPhone?: string
+    proposerAddress?: string
   }
   setCampaignForm: (form: any) => void
   editingCampaign: Campaign | null
@@ -160,6 +165,50 @@ export function CampaignFormView({
   const [showAddModal, setShowAddModal] = useState(false)
   const isLocked = mode === 'complete-from-proposal'
 
+  // ⬅ FIX: session dari NextAuth TIDAK membawa field phone & address (lihat
+  // AdminProfileTab yang fetch langsung dari /api/user/profile, bukan dari
+  // session). Akibatnya section "Informasi Pembuat" di bawah selalu tampil
+  // "Belum diisi" untuk No Telp & Alamat walau datanya sudah lengkap di
+  // database. Solusinya: fetch profil admin sendiri di sini (hanya saat
+  // mode === 'create', karena mode proposal pakai data pengaju, bukan admin).
+  const [adminProfile, setAdminProfile] = useState<{
+    name?: string; email?: string; phone?: string; address?: string
+  } | null>(null)
+
+  useEffect(() => {
+    if (mode !== 'create') return
+    fetch('/api/user/profile')
+      .then(r => r.json())
+      .then(d => {
+        if (d.user) {
+          setAdminProfile({
+            name: d.user.name,
+            email: d.user.email,
+            phone: d.user.phone,
+            address: d.user.address,
+          })
+        }
+      })
+      .catch(() => { /* silent, fallback ke session */ })
+  }, [mode])
+
+  // ⬅ Sumber data "Informasi Pembuat" tergantung mode:
+  // - complete-from-proposal → data pengaju/donatur dari proposal
+  // - create/edit            → data admin yang login (adminProfile, fallback session)
+  const creatorInfo = isLocked
+    ? {
+        name: campaignForm.proposerName,
+        email: campaignForm.proposerEmail,
+        phone: campaignForm.proposerPhone,
+        address: campaignForm.proposerAddress,
+      }
+    : {
+        name: adminProfile?.name ?? session?.user?.name,
+        email: adminProfile?.email ?? session?.user?.email,
+        phone: adminProfile?.phone ?? session?.user?.phone,
+        address: adminProfile?.address ?? session?.user?.address,
+      }
+
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<{ url: string; isExisting: boolean }[]>(
     campaignForm.images?.map(url => ({ url, isExisting: true })) || []
@@ -281,10 +330,10 @@ export function CampaignFormView({
             <div className="bg-gray-50 rounded-xl border border-gray-100 p-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                  { label: 'Nama', value: session?.user?.name },
-                  { label: 'Email', value: session?.user?.email },
-                  { label: 'No Telp', value: session?.user?.phone },
-                  { label: 'Alamat', value: session?.user?.address },
+                  { label: 'Nama', value: creatorInfo.name },
+                  { label: 'Email', value: creatorInfo.email },
+                  { label: 'No Telp', value: creatorInfo.phone },
+                  { label: 'Alamat', value: creatorInfo.address },
                 ].map(({ label, value }) => (
                   <div key={label} className="space-y-1">
                     <p className="text-xs text-gray-400 font-medium">{label}</p>
@@ -296,7 +345,9 @@ export function CampaignFormView({
               </div>
               <p className="text-xs text-gray-400 mt-4 flex items-center gap-1">
                 <span className="inline-block w-3 h-3 rounded-full bg-teal-400 flex-shrink-0" />
-                Data diambil dari profil akun admin yang sedang login. Ubah di halaman Profil.
+                {isLocked
+                  ? 'Data diambil dari proposal yang diajukan donatur.'
+                  : 'Data diambil dari profil akun admin yang sedang login. Ubah di halaman Profil.'}
               </p>
             </div>
           </section>

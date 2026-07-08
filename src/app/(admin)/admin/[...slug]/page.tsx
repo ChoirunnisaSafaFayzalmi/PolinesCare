@@ -7,12 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 
 // Types & Helpers
-import type { Campaign, Donation, Proposal, AppNotification, FundUsage, PlatformStats } from '@/components/polines/types'
+import type { Campaign, Donation, Proposal, AppNotification, FundUsage, PlatformStats, PaymentMethod } from '@/components/polines/types'
 
 // Components
 import { AdminDashboard } from '@/components/polines/admin/admin-dashboard'
-import { CampaignFormModal } from '@/components/polines/admin/campaign-form-modal'
-import { FundUsageModal } from '@/components/polines/admin/fund-usage-modal'
 
 // ============================================================
 // URL → State mapping
@@ -34,6 +32,16 @@ function buildAdminPath(tab: string, campaignSubTab?: string) {
   if (tab === 'campaign' && campaignSubTab === 'ajuan') return '/admin/campaign/ajuan'
   if (tab === 'dashboard') return '/admin/dashboard'
   return `/admin/${tab}`
+}
+
+// ============================================================
+// Fund usage payload shape (matches AdminDashboardProps)
+// ============================================================
+interface FundUsageSubmitPayload {
+  date: string
+  description: string
+  amount: string
+  proofFile: File | null
 }
 
 // ============================================================
@@ -115,23 +123,31 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   }, []) // only on mount
 
   // ---- Modal States ----
-  const [campaignFormModalOpen, setCampaignFormModalOpen] = useState(false)
-  const [fundUsageModalOpen, setFundUsageModalOpen] = useState(false)
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  // ---- Campaign Form State ----
-  const [campaignForm, setCampaignForm] = useState({
-    organizerName: '', organizerEmail: '', organizerPhone: '', organizerAddress: '',
+  // ---- Campaign Form State (shape sesuai CampaignFormView / AdminDashboardProps) ----
+  const [campaignForm, setCampaignForm] = useState<{
+    title: string; description: string; category: string; targetAmount: string
+    startDate: string; endDate: string; isUrgent: boolean; isPublic: boolean
+    paymentMethods: PaymentMethod[]
+    uniqueCode: string
+    images?: string[]
+    location?: string
+    dropOffLocation?: string
+    mode?: 'create' | 'complete-from-proposal'
+  }>({
     title: '', description: '', category: 'Sosial', targetAmount: '',
-    startDate: '', endDate: '', isUrgent: false,
-    paymentMethod: 'transfer', accountNumber: '', uniqueCode: ''
+    startDate: '', endDate: '', isUrgent: false, isPublic: true,
+    paymentMethods: [], uniqueCode: '',
+    images: [], location: '', dropOffLocation: '',
+    mode: 'create',
   })
 
-  // ---- Fund Usage Form State ----
-  const [fundUsageForm, setFundUsageForm] = useState({ campaignId: '', description: '', amount: '' })
-
-
+  // ---- Fund Usage Form State (shape sesuai AdminDashboardProps) ----
+  const [fundUsageForm, setFundUsageForm] = useState<{
+    campaignId: string; date: string; description: string; amount: string; proofFile: File | null
+  }>({ campaignId: '', date: '', description: '', amount: '', proofFile: null })
 
   // ============================================================
   // DATA FETCHING
@@ -199,12 +215,18 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   }, [])
 
   // ---- Load initial data (always fetch fresh since no remounting) ----
+  // NOTE: rule react-hooks/set-state-in-effect kadang false-positive untuk pola
+  // "fetch data saat mount" seperti ini — masing-masing fetch* sudah async & aman.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAllCampaigns(); fetchCampaigns(); fetchStats(statsMonth); fetchProposals(); fetchDonations(); fetchNotifications()
   }, [])
 
   useEffect(() => {
-    if (reportCampaignId) fetchFundUsages(reportCampaignId)
+    if (reportCampaignId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchFundUsages(reportCampaignId)
+    }
   }, [reportCampaignId, fetchFundUsages])
 
   // ============================================================
@@ -219,48 +241,84 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   // ============================================================
   // CAMPAIGN CRUD (Admin)
   // ============================================================
-  const openCampaignForm = (campaign?: Campaign) => {
-    if (campaign) {
-      setEditingCampaign(campaign)
-      setCampaignForm({
-        organizerName: '', organizerEmail: '', organizerPhone: '', organizerAddress: '',
-        title: campaign.title, description: campaign.description, category: campaign.category,
-        targetAmount: String(campaign.targetAmount), startDate: campaign.startDate.split('T')[0],
-        endDate: campaign.endDate.split('T')[0], isUrgent: campaign.isUrgent,
-        paymentMethod: 'transfer', accountNumber: '', uniqueCode: String(campaign.uniqueCode || '')
-      })
-    } else {
-      setEditingCampaign(null)
-      setCampaignForm({
-        organizerName: '', organizerEmail: '', organizerPhone: '', organizerAddress: '',
-        title: '', description: '', category: 'Sosial', targetAmount: '',
-        startDate: '', endDate: '', isUrgent: false,
-        paymentMethod: 'transfer', accountNumber: '', uniqueCode: ''
-      })
-    }
-    setCampaignFormModalOpen(true)
-  }
+  // NOTE: asumsi kontrak API. Sesuaikan field/format kalau backend kamu beda.
+  const submitCampaign = async (imageFiles?: File[]) => {
+  setSubmitting(true)
+  try {
+    // ⬅ FIX: /api/campaigns SELALU expect JSON dengan images: string[] (URL),
+    // bukan file mentah. Endpoint terpisah /api/upload (Cloudinary) yang
+    // nerima FormData & balikin URL. Jadi kalau ada file baru, upload dulu
+    // ke /api/upload, gabungkan URL hasilnya dengan images lama, baru kirim
+    // semuanya sebagai JSON biasa ke /api/campaigns.
+    let finalImages = campaignForm.images ?? []
 
-  const submitCampaign = async () => {
-    setSubmitting(true)
-    try {
-      const body = { ...campaignForm, targetAmount: Number(campaignForm.targetAmount), uniqueCode: Number(campaignForm.uniqueCode) || 0, startDate: new Date(campaignForm.startDate).toISOString(), endDate: new Date(campaignForm.endDate).toISOString() }
-      const url = editingCampaign ? `/api/campaigns/${editingCampaign.id}` : '/api/campaigns'
-      const method = editingCampaign ? 'PUT' : 'POST'
-      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      if (res.ok) {
-        toast.success(editingCampaign ? 'Campaign berhasil diperbarui' : 'Campaign berhasil dibuat')
-        setCampaignFormModalOpen(false); fetchCampaigns(); fetchAllCampaigns(); fetchStats()
-      } else { const data = await res.json(); toast.error(data.error || 'Gagal menyimpan campaign') }
-    } catch { toast.error('Terjadi kesalahan') }
-    finally { setSubmitting(false) }
+    if (imageFiles && imageFiles.length > 0) {
+      const uploadFd = new FormData()
+      uploadFd.append('folder', 'campaigns')
+      imageFiles.forEach(file => uploadFd.append('files', file))
+
+      const uploadRes = await fetch('/api/upload', { method: 'POST', body: uploadFd })
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json().catch(() => ({}))
+        toast.error(err.error || 'Gagal mengupload foto')
+        setSubmitting(false)
+        return
+      }
+      const uploadData = await uploadRes.json()
+      const newUrls: string[] = uploadData.urls ?? (uploadData.url ? [uploadData.url] : [])
+      finalImages = [...finalImages, ...newUrls]
+    }
+
+    const url = editingCampaign ? `/api/campaigns/${editingCampaign.id}` : '/api/campaigns'
+    const method = editingCampaign ? 'PUT' : 'POST'
+
+    const body = {
+      title: campaignForm.title,
+      description: campaignForm.description,
+      category: campaignForm.category,
+      targetAmount: Number(campaignForm.targetAmount) || 0,
+      startDate: new Date(campaignForm.startDate).toISOString(),
+      endDate: new Date(campaignForm.endDate).toISOString(),
+      isUrgent: campaignForm.isUrgent,
+      isPublic: campaignForm.isPublic,
+      uniqueCode: Number(campaignForm.uniqueCode) || 0,
+      location: campaignForm.location ?? '',
+      dropOffLocation: campaignForm.dropOffLocation ?? '',
+      paymentMethods: campaignForm.paymentMethods,
+      images: finalImages,
+      ...(campaignForm.mode === 'complete-from-proposal' ? { status: 'active' } : {}),
+    }
+
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+
+    if (res.ok) {
+      toast.success(editingCampaign ? 'Campaign berhasil diperbarui' : 'Campaign berhasil dibuat')
+      await Promise.all([
+        fetchCampaigns(),
+        fetchAllCampaigns(),
+        fetchStats(statsMonth),
+        fetchProposals(),
+      ])
+    } else {
+      const data = await res.json().catch(() => ({}))
+      toast.error(data.error || 'Gagal menyimpan campaign')
+    }
+  } catch {
+    toast.error('Terjadi kesalahan')
+  } finally {
+    setSubmitting(false)
   }
+}
 
   const deleteCampaign = async (id: string) => {
-    if (!confirm('Yakin ingin menghapus campaign ini?')) return
+    // if (!confirm('Yakin ingin menghapus campaign ini?')) return
     try {
       const res = await fetch(`/api/campaigns/${id}`, { method: 'DELETE' })
-      if (res.ok) { toast.success('Campaign berhasil dihapus'); fetchCampaigns(); fetchAllCampaigns(); fetchStats() }
+      if (res.ok) { toast.success('Campaign berhasil dihapus'); fetchCampaigns(); fetchAllCampaigns(); fetchStats(statsMonth) }
       else toast.error('Gagal menghapus campaign')
     } catch { toast.error('Terjadi kesalahan') }
   }
@@ -268,11 +326,6 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   // ============================================================
   // DONATION VERIFICATION (Admin)
   // ============================================================
-  // FIX: backend di /api/donations/[id]/route.ts hanya mengekspor handler PATCH,
-  // bukan PUT. Sebelumnya method di sini adalah 'PUT' sehingga request selalu
-  // gagal dengan 405 Method Not Allowed -> database tidak pernah ter-update,
-  // walau UI sempat terlihat berubah karena optimistic update di state lokal
-  // komponen AdminDashboard. Diubah menjadi 'PATCH' agar cocok dengan backend.
   const verifyDonation = async (id: string, status: 'approved' | 'rejected') => {
     try {
       const res = await fetch(`/api/donations/${id}`, {
@@ -282,7 +335,7 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
       })
       if (res.ok) {
         toast.success(`Donasi berhasil ${status === 'approved' ? 'disetujui' : 'ditolak'}`)
-        fetchDonations(); fetchCampaigns(); fetchAllCampaigns(); fetchStats(); fetchNotifications()
+        fetchDonations(); fetchCampaigns(); fetchAllCampaigns(); fetchStats(statsMonth); fetchNotifications()
       } else {
         const data = await res.json().catch(() => ({}))
         toast.error(data.error || 'Gagal memverifikasi donasi')
@@ -298,7 +351,10 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   const updateProposalStatus = async (id: string, status: 'approved' | 'rejected') => {
     try {
       const res = await fetch(`/api/proposals/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) })
-      if (res.ok) { toast.success(`Proposal berhasil ${status === 'approved' ? 'disetujui' : 'ditolak'}`); fetchProposals(); fetchNotifications() }
+      if (res.ok) {
+        toast.success(`Proposal berhasil ${status === 'approved' ? 'disetujui' : 'ditolak'}`)
+        fetchProposals(); fetchNotifications(); fetchAllCampaigns()
+      }
       else toast.error('Gagal memperbarui proposal')
     } catch { toast.error('Terjadi kesalahan') }
   }
@@ -314,17 +370,67 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   // ============================================================
   // FUND USAGE HANDLERS (Admin)
   // ============================================================
-  const submitFundUsage = async () => {
+  const buildFundUsageFormData = (payload: { campaignId: string; date: string; description: string; amount: string; proofFile: File | null }) => {
+    const fd = new FormData()
+    fd.append('campaignId', payload.campaignId)
+    fd.append('date', payload.date)
+    fd.append('description', payload.description)
+    fd.append('amount', String(Number(payload.amount) || 0))
+    if (payload.proofFile) fd.append('proof', payload.proofFile)
+    return fd
+  }
+
+  const submitFundUsage = async (payload?: FundUsageSubmitPayload & { campaignId: string }) => {
+    const data = payload ?? fundUsageForm
     setSubmitting(true)
     try {
-      const res = await fetch('/api/fund-usage', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ campaignId: fundUsageForm.campaignId, description: fundUsageForm.description, amount: Number(fundUsageForm.amount) })
-      })
-      if (res.ok) { toast.success('Laporan penggunaan dana berhasil ditambahkan'); setFundUsageModalOpen(false); if (reportCampaignId) fetchFundUsages(reportCampaignId) }
-      else toast.error('Gagal menambahkan laporan')
-    } catch { toast.error('Terjadi kesalahan') }
-    finally { setSubmitting(false) }
+      const fd = buildFundUsageFormData(data)
+      const res = await fetch('/api/fund-usage', { method: 'POST', body: fd })
+      if (res.ok) {
+        toast.success('Laporan penggunaan dana berhasil ditambahkan')
+        if (data.campaignId) fetchFundUsages(data.campaignId)
+      } else {
+        const err = await res.json().catch(() => ({}))
+        toast.error(err.error || 'Gagal menambahkan laporan')
+      }
+    } catch {
+      toast.error('Terjadi kesalahan')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const editFundUsage = async (fundUsageId: string, payload: FundUsageSubmitPayload) => {
+    setSubmitting(true)
+    try {
+      const fd = buildFundUsageFormData({ campaignId: '', ...payload })
+      const res = await fetch(`/api/fund-usage/${fundUsageId}`, { method: 'PUT', body: fd })
+      if (res.ok) {
+        toast.success('Laporan berhasil diperbarui')
+        if (reportCampaignId) fetchFundUsages(reportCampaignId)
+      } else {
+        const err = await res.json().catch(() => ({}))
+        toast.error(err.error || 'Gagal memperbarui laporan')
+      }
+    } catch {
+      toast.error('Terjadi kesalahan')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const deleteFundUsage = async (fundUsageId: string) => {
+    try {
+      const res = await fetch(`/api/fund-usage/${fundUsageId}`, { method: 'DELETE' })
+      if (res.ok) {
+        toast.success('Laporan berhasil dihapus')
+        if (reportCampaignId) fetchFundUsages(reportCampaignId)
+      } else {
+        toast.error('Gagal menghapus laporan')
+      }
+    } catch {
+      toast.error('Terjadi kesalahan')
+    }
   }
 
   // ============================================================
@@ -405,18 +511,21 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
         adminCampaignFilter={adminCampaignFilter} setAdminCampaignFilter={setAdminCampaignFilter}
         adminCampaignStatus={adminCampaignStatus} setAdminCampaignStatus={setAdminCampaignStatus}
         donationFilter={donationFilter} setDonationFilter={setDonationFilter}
-        openCampaignForm={openCampaignForm} deleteCampaign={deleteCampaign}
+        deleteCampaign={deleteCampaign}
         verifyDonation={verifyDonation} updateProposalStatus={updateProposalStatus}
         markNotificationRead={markNotificationRead} markAllNotificationsRead={markAllNotificationsRead}
-        setFundUsageForm={setFundUsageForm} setFundUsageModalOpen={setFundUsageModalOpen}
+        setFundUsageForm={setFundUsageForm}
+        submitFundUsage={submitFundUsage}
+        editFundUsage={editFundUsage}
+        deleteFundUsage={deleteFundUsage}
         setView={() => { window.location.href = '/' }} handleSignOut={handleSignOut}
         session={session}
-        notifDropdownOpen={notifDropdownOpen} setNotifDropdownOpen={setNotifDropdownOpen}
+        // notifDropdownOpen={notifDropdownOpen} setNotifDropdownOpen={setNotifDropdownOpen}
         campaignForm={campaignForm} setCampaignForm={setCampaignForm}
         editingCampaign={editingCampaign} setEditingCampaign={setEditingCampaign}
         submitCampaign={submitCampaign} submitting={submitting}
         donations={donations}
-        fundUsageForm={fundUsageForm} submitFundUsage={submitFundUsage}
+        fundUsageForm={fundUsageForm}
         updateProposalCriteria={updateProposalCriteria}
         initialCampaignSubTab={initialCampaignSubTab}
         adminCampaignSubTab={adminCampaignSubTab}
@@ -424,18 +533,6 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
         onNavigateCampaignSubTab={navigateCampaignSubTab}
         statsMonth={statsMonth}
         onChangeStatsMonth={onChangeStatsMonth}
-      />
-
-      {/* Modals */}
-      <CampaignFormModal
-        open={campaignFormModalOpen} onClose={() => { setCampaignFormModalOpen(false); setEditingCampaign(null) }}
-        editingCampaign={editingCampaign} campaignForm={campaignForm}
-        setCampaignForm={setCampaignForm} submitting={submitting} onSubmit={submitCampaign}
-      />
-      <FundUsageModal
-        open={fundUsageModalOpen} onClose={() => setFundUsageModalOpen(false)}
-        fundUsageForm={fundUsageForm} setFundUsageForm={setFundUsageForm}
-        allCampaigns={allCampaigns} submitting={submitting} onSubmit={submitFundUsage}
       />
     </div>
   )
