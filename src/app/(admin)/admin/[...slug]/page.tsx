@@ -215,12 +215,19 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
     } catch { setFundUsages([]) }
   }, [])
 
+  const fetchAllFundUsages = useCallback(async () => {
+    try {
+      const res = await fetch('/api/fund-usage')
+      if (res.ok) { const data = await res.json(); setFundUsages(data.fundUsages || data || []) }
+    } catch { setFundUsages([]) }
+  }, [])
+
   // ---- Load initial data (always fetch fresh since no remounting) ----
   // NOTE: rule react-hooks/set-state-in-effect kadang false-positive untuk pola
   // "fetch data saat mount" seperti ini — masing-masing fetch* sudah async & aman.
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchAllCampaigns(); fetchCampaigns(); fetchStats(statsMonth); fetchProposals(); fetchDonations(); fetchNotifications()
+    fetchAllCampaigns(); fetchCampaigns(); fetchStats(statsMonth); fetchProposals(); fetchDonations(); fetchNotifications(); fetchAllFundUsages()
   }, [])
 
   useEffect(() => {
@@ -244,90 +251,90 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   // ============================================================
   // NOTE: asumsi kontrak API. Sesuaikan field/format kalau backend kamu beda.
   const submitCampaign = async (imageFiles?: File[], qrisFile?: File) => {
-  setSubmitting(true)
-  try {
-    let finalImages = campaignForm.images ?? []
+    setSubmitting(true)
+    try {
+      let finalImages = campaignForm.images ?? []
 
-    if (imageFiles && imageFiles.length > 0) {
-      const uploadFd = new FormData()
-      uploadFd.append('folder', 'campaigns')
-      imageFiles.forEach(file => uploadFd.append('files', file))
+      if (imageFiles && imageFiles.length > 0) {
+        const uploadFd = new FormData()
+        uploadFd.append('folder', 'campaigns')
+        imageFiles.forEach(file => uploadFd.append('files', file))
 
-      const uploadRes = await fetch('/api/upload', { method: 'POST', body: uploadFd })
-      if (!uploadRes.ok) {
-        const err = await uploadRes.json().catch(() => ({}))
-        toast.error(err.error || 'Gagal mengupload foto')
-        setSubmitting(false)
-        return
+        const uploadRes = await fetch('/api/upload', { method: 'POST', body: uploadFd })
+        if (!uploadRes.ok) {
+          const err = await uploadRes.json().catch(() => ({}))
+          toast.error(err.error || 'Gagal mengupload foto')
+          setSubmitting(false)
+          return
+        }
+        const uploadData = await uploadRes.json()
+        const newUrls: string[] = uploadData.urls ?? (uploadData.url ? [uploadData.url] : [])
+        finalImages = [...finalImages, ...newUrls]
       }
-      const uploadData = await uploadRes.json()
-      const newUrls: string[] = uploadData.urls ?? (uploadData.url ? [uploadData.url] : [])
-      finalImages = [...finalImages, ...newUrls]
-    }
 
-    // ⬅ tambah: upload foto QRIS (single file) ke folder terpisah "qris"
-    let finalQrisUrl = campaignForm.qrisImageUrl ?? ''
-    if (qrisFile) {
-      const qrisFd = new FormData()
-      qrisFd.append('folder', 'qris')
-      qrisFd.append('file', qrisFile)
+      // ⬅ tambah: upload foto QRIS (single file) ke folder terpisah "qris"
+      let finalQrisUrl = campaignForm.qrisImageUrl ?? ''
+      if (qrisFile) {
+        const qrisFd = new FormData()
+        qrisFd.append('folder', 'qris')
+        qrisFd.append('file', qrisFile)
 
-      const qrisUploadRes = await fetch('/api/upload', { method: 'POST', body: qrisFd })
-      if (!qrisUploadRes.ok) {
-        const err = await qrisUploadRes.json().catch(() => ({}))
-        toast.error(err.error || 'Gagal mengupload foto QRIS')
-        setSubmitting(false)
-        return
+        const qrisUploadRes = await fetch('/api/upload', { method: 'POST', body: qrisFd })
+        if (!qrisUploadRes.ok) {
+          const err = await qrisUploadRes.json().catch(() => ({}))
+          toast.error(err.error || 'Gagal mengupload foto QRIS')
+          setSubmitting(false)
+          return
+        }
+        const qrisData = await qrisUploadRes.json()
+        finalQrisUrl = qrisData.url ?? finalQrisUrl
       }
-      const qrisData = await qrisUploadRes.json()
-      finalQrisUrl = qrisData.url ?? finalQrisUrl
+
+      const url = editingCampaign ? `/api/campaigns/${editingCampaign.id}` : '/api/campaigns'
+      const method = editingCampaign ? 'PUT' : 'POST'
+
+      const body = {
+        title: campaignForm.title,
+        description: campaignForm.description,
+        category: campaignForm.category,
+        targetAmount: Number(campaignForm.targetAmount) || 0,
+        startDate: new Date(campaignForm.startDate).toISOString(),
+        endDate: new Date(campaignForm.endDate).toISOString(),
+        isUrgent: campaignForm.isUrgent,
+        isPublic: campaignForm.isPublic,
+        uniqueCode: Number(campaignForm.uniqueCode) || 0,
+        location: campaignForm.location ?? '',
+        dropOffLocation: campaignForm.dropOffLocation ?? '',
+        paymentMethods: campaignForm.paymentMethods,
+        images: finalImages,
+        qrisImageUrl: finalQrisUrl,   // ⬅ tambah
+        ...(campaignForm.mode === 'complete-from-proposal' ? { status: 'active' } : {}),
+      }
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+      if (res.ok) {
+        toast.success(editingCampaign ? 'Campaign berhasil diperbarui' : 'Campaign berhasil dibuat')
+        await Promise.all([
+          fetchCampaigns(),
+          fetchAllCampaigns(),
+          fetchStats(statsMonth),
+          fetchProposals(),
+        ])
+      } else {
+        const data = await res.json().catch(() => ({}))
+        toast.error(data.error || 'Gagal menyimpan campaign')
+      }
+    } catch {
+      toast.error('Terjadi kesalahan')
+    } finally {
+      setSubmitting(false)
     }
-
-    const url = editingCampaign ? `/api/campaigns/${editingCampaign.id}` : '/api/campaigns'
-    const method = editingCampaign ? 'PUT' : 'POST'
-
-    const body = {
-      title: campaignForm.title,
-      description: campaignForm.description,
-      category: campaignForm.category,
-      targetAmount: Number(campaignForm.targetAmount) || 0,
-      startDate: new Date(campaignForm.startDate).toISOString(),
-      endDate: new Date(campaignForm.endDate).toISOString(),
-      isUrgent: campaignForm.isUrgent,
-      isPublic: campaignForm.isPublic,
-      uniqueCode: Number(campaignForm.uniqueCode) || 0,
-      location: campaignForm.location ?? '',
-      dropOffLocation: campaignForm.dropOffLocation ?? '',
-      paymentMethods: campaignForm.paymentMethods,
-      images: finalImages,
-      qrisImageUrl: finalQrisUrl,   // ⬅ tambah
-      ...(campaignForm.mode === 'complete-from-proposal' ? { status: 'active' } : {}),
-    }
-
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-
-    if (res.ok) {
-      toast.success(editingCampaign ? 'Campaign berhasil diperbarui' : 'Campaign berhasil dibuat')
-      await Promise.all([
-        fetchCampaigns(),
-        fetchAllCampaigns(),
-        fetchStats(statsMonth),
-        fetchProposals(),
-      ])
-    } else {
-      const data = await res.json().catch(() => ({}))
-      toast.error(data.error || 'Gagal menyimpan campaign')
-    }
-  } catch {
-    toast.error('Terjadi kesalahan')
-  } finally {
-    setSubmitting(false)
   }
-}
 
   const deleteCampaign = async (id: string) => {
     // if (!confirm('Yakin ingin menghapus campaign ini?')) return
@@ -399,11 +406,39 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
     const data = payload ?? fundUsageForm
     setSubmitting(true)
     try {
-      const fd = buildFundUsageFormData(data)
-      const res = await fetch('/api/fund-usage', { method: 'POST', body: fd })
+      // Upload bukti dulu ke Cloudinary kalau ada file
+      let documentUrl: string | null = null
+      if (data.proofFile) {
+        const uploadFd = new FormData()
+        uploadFd.append('folder', 'fund-usage')
+        uploadFd.append('file', data.proofFile)
+
+        const uploadRes = await fetch('/api/upload', { method: 'POST', body: uploadFd })
+        if (!uploadRes.ok) {
+          const err = await uploadRes.json().catch(() => ({}))
+          toast.error(err.error || 'Gagal mengupload bukti')
+          setSubmitting(false)
+          return
+        }
+        const uploadData = await uploadRes.json()
+        documentUrl = uploadData.url ?? null
+      }
+
+      const res = await fetch('/api/fund-usage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          campaignId: data.campaignId,
+          date: data.date,
+          description: data.description,
+          amount: Number(data.amount) || 0,
+          documentUrl,
+        }),
+      })
+
       if (res.ok) {
         toast.success('Laporan penggunaan dana berhasil ditambahkan')
-        if (data.campaignId) fetchFundUsages(data.campaignId)
+        fetchAllFundUsages()
       } else {
         const err = await res.json().catch(() => ({}))
         toast.error(err.error || 'Gagal menambahkan laporan')
@@ -418,11 +453,40 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   const editFundUsage = async (fundUsageId: string, payload: FundUsageSubmitPayload) => {
     setSubmitting(true)
     try {
-      const fd = buildFundUsageFormData({ campaignId: '', ...payload })
-      const res = await fetch(`/api/fund-usage/${fundUsageId}`, { method: 'PUT', body: fd })
+      // Upload bukti baru ke Cloudinary HANYA kalau admin pilih file baru.
+      // Kalau tidak, documentUrl dibiarkan undefined supaya backend
+      // mempertahankan bukti lama (lihat logic di PUT /api/fund-usage/[id]).
+      let documentUrl: string | undefined = undefined
+      if (payload.proofFile) {
+        const uploadFd = new FormData()
+        uploadFd.append('folder', 'fund-usage')
+        uploadFd.append('file', payload.proofFile)
+
+        const uploadRes = await fetch('/api/upload', { method: 'POST', body: uploadFd })
+        if (!uploadRes.ok) {
+          const err = await uploadRes.json().catch(() => ({}))
+          toast.error(err.error || 'Gagal mengupload bukti')
+          setSubmitting(false)
+          return
+        }
+        const uploadData = await uploadRes.json()
+        documentUrl = uploadData.url
+      }
+
+      const res = await fetch(`/api/fund-usage/${fundUsageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: payload.description,
+          amount: Number(payload.amount) || 0,
+          date: payload.date,
+          ...(documentUrl !== undefined ? { documentUrl } : {}),
+        }),
+      })
+
       if (res.ok) {
         toast.success('Laporan berhasil diperbarui')
-        if (reportCampaignId) fetchFundUsages(reportCampaignId)
+        fetchAllFundUsages()
       } else {
         const err = await res.json().catch(() => ({}))
         toast.error(err.error || 'Gagal memperbarui laporan')
@@ -439,7 +503,7 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
       const res = await fetch(`/api/fund-usage/${fundUsageId}`, { method: 'DELETE' })
       if (res.ok) {
         toast.success('Laporan berhasil dihapus')
-        if (reportCampaignId) fetchFundUsages(reportCampaignId)
+        fetchAllFundUsages()
       } else {
         toast.error('Gagal menghapus laporan')
       }

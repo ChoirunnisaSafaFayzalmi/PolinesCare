@@ -2,21 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 
-// GET /api/fund-usage - List fund usage for a campaign
+// GET /api/fund-usage - List fund usage (semua campaign, atau filter by campaignId)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const campaignId = searchParams.get("campaignId");
 
-    if (!campaignId) {
-      return NextResponse.json(
-        { error: "campaignId wajib diisi" },
-        { status: 400 }
-      );
-    }
-
     const fundUsages = await db.fundUsage.findMany({
-      where: { campaignId },
+      where: campaignId ? { campaignId } : undefined,
       orderBy: { date: "desc" },
     });
 
