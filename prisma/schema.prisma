@@ -107,14 +107,17 @@ model Donation {
 }
 
 model FundUsage {
-  id          String   @id @default(cuid())
-  campaignId  String
-  description String
-  amount      Int
-  date        DateTime @default(now())
-  documentUrl String?
-  createdBy   String
-  createdAt   DateTime @default(now())
+  id           String   @id @default(cuid())
+  campaignId   String
+  type         String   @default("uang") // uang, barang
+  description  String
+  amount       Int?     // wajib kalau type = uang
+  itemName     String?  // wajib kalau type = barang
+  itemQuantity Int?     // wajib kalau type = barang
+  date         DateTime @default(now())
+  documentUrl  String?
+  createdBy    String
+  createdAt    DateTime @default(now())
 
   campaign Campaign @relation(fields: [campaignId], references: [id])
 }

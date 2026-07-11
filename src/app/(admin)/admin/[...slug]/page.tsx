@@ -38,9 +38,12 @@ function buildAdminPath(tab: string, campaignSubTab?: string) {
 // Fund usage payload shape (matches AdminDashboardProps)
 // ============================================================
 interface FundUsageSubmitPayload {
+  type: 'uang' | 'barang'
   date: string
   description: string
   amount: string
+  itemName: string
+  itemQuantity: string
   proofFile: File | null
 }
 
@@ -147,8 +150,18 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
 
   // ---- Fund Usage Form State (shape sesuai AdminDashboardProps) ----
   const [fundUsageForm, setFundUsageForm] = useState<{
-    campaignId: string; date: string; description: string; amount: string; proofFile: File | null
-  }>({ campaignId: '', date: '', description: '', amount: '', proofFile: null })
+    campaignId: string
+    type: 'uang' | 'barang'
+    date: string
+    description: string
+    amount: string
+    itemName: string
+    itemQuantity: string
+    proofFile: File | null
+  }>({
+    campaignId: '', type: 'uang', date: '', description: '',
+    amount: '', itemName: '', itemQuantity: '', proofFile: null,
+  })
 
   // ============================================================
   // DATA FETCHING
@@ -392,16 +405,6 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   // ============================================================
   // FUND USAGE HANDLERS (Admin)
   // ============================================================
-  const buildFundUsageFormData = (payload: { campaignId: string; date: string; description: string; amount: string; proofFile: File | null }) => {
-    const fd = new FormData()
-    fd.append('campaignId', payload.campaignId)
-    fd.append('date', payload.date)
-    fd.append('description', payload.description)
-    fd.append('amount', String(Number(payload.amount) || 0))
-    if (payload.proofFile) fd.append('proof', payload.proofFile)
-    return fd
-  }
-
   const submitFundUsage = async (payload?: FundUsageSubmitPayload & { campaignId: string }) => {
     const data = payload ?? fundUsageForm
     setSubmitting(true)
@@ -429,9 +432,12 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           campaignId: data.campaignId,
+          type: data.type,
           date: data.date,
           description: data.description,
-          amount: Number(data.amount) || 0,
+          amount: data.type === 'uang' ? (Number(data.amount) || 0) : undefined,
+          itemName: data.type === 'barang' ? data.itemName : undefined,
+          itemQuantity: data.type === 'barang' ? (Number(data.itemQuantity) || 0) : undefined,
           documentUrl,
         }),
       })
@@ -477,8 +483,11 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          type: payload.type,
           description: payload.description,
-          amount: Number(payload.amount) || 0,
+          amount: payload.type === 'uang' ? (Number(payload.amount) || 0) : undefined,
+          itemName: payload.type === 'barang' ? payload.itemName : undefined,
+          itemQuantity: payload.type === 'barang' ? (Number(payload.itemQuantity) || 0) : undefined,
           date: payload.date,
           ...(documentUrl !== undefined ? { documentUrl } : {}),
         }),

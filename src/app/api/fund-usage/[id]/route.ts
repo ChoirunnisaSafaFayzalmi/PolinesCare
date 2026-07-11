@@ -1,3 +1,5 @@
+// LOKASI: app/api/fund-usage/[id]/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
@@ -32,11 +34,40 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { description, amount, date, documentUrl } = body;
+    const {
+      type = existing.type,
+      description,
+      amount,
+      itemName,
+      itemQuantity,
+      date,
+      documentUrl,
+    } = body;
 
-    if (!description || !amount) {
+    if (!description) {
       return NextResponse.json(
-        { error: "Field wajib: description, amount" },
+        { error: "Field wajib: description" },
+        { status: 400 }
+      );
+    }
+
+    if (type !== "uang" && type !== "barang") {
+      return NextResponse.json(
+        { error: "Tipe harus 'uang' atau 'barang'" },
+        { status: 400 }
+      );
+    }
+
+    if (type === "uang" && !amount) {
+      return NextResponse.json(
+        { error: "Nominal wajib diisi untuk tipe uang" },
+        { status: 400 }
+      );
+    }
+
+    if (type === "barang" && (!itemName || !itemQuantity)) {
+      return NextResponse.json(
+        { error: "Nama barang dan jumlah wajib diisi untuk tipe barang" },
         { status: 400 }
       );
     }
@@ -44,8 +75,11 @@ export async function PUT(
     const fundUsage = await db.fundUsage.update({
       where: { id },
       data: {
+        type,
         description,
-        amount: Number(amount),
+        amount: type === "uang" ? Number(amount) : null,
+        itemName: type === "barang" ? itemName : null,
+        itemQuantity: type === "barang" ? Number(itemQuantity) : null,
         date: date ? new Date(date) : existing.date,
         // documentUrl hanya diganti kalau ada nilai baru yang dikirim;
         // kalau tidak ada file baru diupload saat edit, bukti lama tetap dipertahankan.

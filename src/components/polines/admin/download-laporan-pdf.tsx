@@ -7,11 +7,14 @@ function slugify(text: string) {
 
 /**
  * Hitung sisa dana berjalan per baris (immutable, tidak mutate variabel luar).
+ * Entri bertipe "barang" tidak mengurangi saldo Rupiah - saldo dibawa apa
+ * adanya dari baris sebelumnya untuk baris tipe barang.
  */
 function computeRowsWithBalance(fundUsages: FundUsage[], collectedAmount: number) {
   return (fundUsages || []).reduce<Array<FundUsage & { sisaDana: number }>>((acc, f) => {
     const prevBalance = acc.length > 0 ? acc[acc.length - 1].sisaDana : collectedAmount
-    return [...acc, { ...f, sisaDana: prevBalance - f.amount }]
+    const sisaDana = f.type === 'uang' ? prevBalance - (f.amount ?? 0) : prevBalance
+    return [...acc, { ...f, sisaDana }]
   }, [])
 }
 
@@ -31,13 +34,20 @@ export async function downloadLaporanPdf({ campaignTitle, collectedAmount, fundU
   const { pdf } = await import('@react-pdf/renderer')
 
   const rowsWithBalance = computeRowsWithBalance(fundUsages, collectedAmount)
-  const totalUsed = rowsWithBalance.reduce((sum, f) => sum + f.amount, 0)
+  // totalUsed HANYA menjumlahkan entri bertipe "uang".
+  const totalUsed = rowsWithBalance.reduce(
+    (sum, f) => (f.type === 'uang' ? sum + (f.amount ?? 0) : sum),
+    0
+  )
 
   const pdfRows: LaporanPdfRow[] = rowsWithBalance.map(r => ({
     id: r.id,
+    type: r.type,
     date: r.date,
     description: r.description,
-    amount: r.amount,
+    amount: r.amount ?? null,
+    itemName: r.itemName ?? null,
+    itemQuantity: r.itemQuantity ?? null,
     sisaDana: r.sisaDana,
   }))
 

@@ -106,7 +106,8 @@ export interface RecommendedCampaign extends Campaign {
 }
 
 export interface FundUsage {
-  id: string; campaignId: string; description: string; amount: number;
+  id: string; campaignId: string; type: string; description: string;
+  amount: number | null; itemName?: string | null; itemQuantity?: number | null;
   date: string; documentUrl?: string; campaign?: { title: string };
 }
 

@@ -16,10 +16,23 @@ import { formatRupiah, formatDate } from '@/components/polines/types'
 
 interface FundUsageItem {
   id: string
+  type: string // 'uang' | 'barang'
   description: string
-  amount: number
+  amount: number | null
+  itemName?: string | null
+  itemQuantity?: number | null
   date: string
   documentUrl?: string | null
+}
+
+// Cuma field yang dibutuhkan buat ditampilkan - SENGAJA tidak menyertakan
+// nama donatur karena halaman ini publicly accessible (gak ada auth gate),
+// jadi identitas donatur individual tidak ditampilkan di sini.
+interface BarangDiterimaItem {
+  id: string
+  itemName?: string | null
+  itemQuantity?: number | null
+  createdAt: string
 }
 
 interface CampaignSummary {
@@ -38,6 +51,7 @@ interface FundUsageReportProps {
 export function FundUsageReport({ campaignId, autoPrint = false }: FundUsageReportProps) {
   const [campaign, setCampaign] = useState<CampaignSummary | null>(null)
   const [fundUsages, setFundUsages] = useState<FundUsageItem[]>([])
+  const [barangDiterima, setBarangDiterima] = useState<BarangDiterimaItem[]>([])
   const [totalUsed, setTotalUsed] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -49,10 +63,12 @@ export function FundUsageReport({ campaignId, autoPrint = false }: FundUsageRepo
       setLoading(true)
       setError(null)
       try {
-        const [campaignRes, fundUsageRes] = await Promise.all([
+        const [campaignRes, fundUsageRes, donationsRes] = await Promise.all([
           // GANTI URL INI kalau endpoint detail campaign kamu bukan /api/campaigns/[id]
           fetch(`/api/campaigns/${campaignId}`),
           fetch(`/api/fund-usage?campaignId=${campaignId}`),
+          // GANTI URL/PARAM INI kalau endpoint donasi kamu beda (mis. bukan query ?campaignId=)
+          fetch(`/api/donations?campaignId=${campaignId}`),
         ])
 
         if (!campaignRes.ok || !fundUsageRes.ok) {
@@ -68,7 +84,21 @@ export function FundUsageReport({ campaignId, autoPrint = false }: FundUsageRepo
         // contoh: { campaign: {...} } atau langsung objek campaign-nya
         setCampaign(campaignData.campaign ?? campaignData)
         setFundUsages(fundUsageData.fundUsages ?? [])
+        // totalUsed dari API sudah dihitung khusus tipe "uang" saja
         setTotalUsed(fundUsageData.totalUsed ?? 0)
+
+        // Donasi barang bersifat opsional buat halaman ini - kalau endpoint-nya
+        // gagal/beda struktur, jangan sampai bikin seluruh laporan gagal tampil,
+        // cukup section "Barang Diterima" aja yang kosong.
+        if (donationsRes.ok) {
+          const donationsData = await donationsRes.json()
+          const allDonations = donationsData.donations ?? donationsData ?? []
+          const barang = (allDonations as Array<{
+            id: string; type: string; status: string
+            itemName?: string | null; itemQuantity?: number | null; createdAt: string
+          }>).filter(d => d.type === 'barang' && d.status === 'approved')
+          setBarangDiterima(barang)
+        }
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : 'Terjadi kesalahan')
       } finally {
@@ -115,7 +145,18 @@ export function FundUsageReport({ campaignId, autoPrint = false }: FundUsageRepo
       : 0
 
   return (
-    <div className="space-y-6 print:space-y-4">
+    <div id="laporan-print-area" className="space-y-6 print:space-y-4">
+      {/* Pas mode print, sembunyikan SEMUA elemen di halaman (navbar, footer,
+          tab lain, dll) lalu munculin balik cuma area laporan ini. Ini perlu
+          karena window.print() nge-print apa adanya yang keliatan di layar,
+          sedangkan navbar/footer itu di luar komponen ini (bukan children-nya). */}
+      <style>{`
+        @media print {
+          body * { visibility: hidden; }
+          #laporan-print-area, #laporan-print-area * { visibility: visible; }
+          #laporan-print-area { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+      `}</style>
       <Card className="print:shadow-none print:border-none">
         <CardHeader className="flex flex-row items-start justify-between gap-3">
           <div>
@@ -168,13 +209,42 @@ export function FundUsageReport({ campaignId, autoPrint = false }: FundUsageRepo
                 style={{ width: `${usedPercentage}%` }}
               />
             </div>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              Progress ini hanya menghitung penggunaan dana (Rupiah). Distribusi barang dicatat terpisah di bawah.
+            </p>
           </div>
         </CardContent>
       </Card>
 
+      {barangDiterima.length > 0 && (
+        <Card className="print:shadow-none print:border-none">
+          <CardHeader>
+            <CardTitle className="text-base">Barang Diterima dari Donatur</CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Daftar donasi barang yang sudah diverifikasi untuk campaign ini.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {barangDiterima.map((b) => (
+                <div key={b.id} className="flex items-center justify-between gap-3 border-b pb-2 last:border-none">
+                  <div>
+                    <p className="text-sm">{b.itemName || '—'}</p>
+                    <p className="text-xs text-muted-foreground">{formatDate(b.createdAt)}</p>
+                  </div>
+                  <Badge variant="outline" className="whitespace-nowrap text-orange-600">
+                    {b.itemQuantity ?? 0} pcs
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="print:shadow-none print:border-none">
         <CardHeader>
-          <CardTitle className="text-base">Rincian Penggunaan Dana</CardTitle>
+          <CardTitle className="text-base">Rincian Penggunaan Dana & Penyaluran Barang</CardTitle>
         </CardHeader>
         <CardContent>
           {fundUsages.length === 0 ? (
@@ -206,7 +276,9 @@ export function FundUsageReport({ campaignId, autoPrint = false }: FundUsageRepo
                     )}
                   </div>
                   <Badge variant="outline" className="whitespace-nowrap">
-                    {formatRupiah(f.amount)}
+                    {f.type === 'barang'
+                      ? `${f.itemQuantity ?? ''} ${f.itemName ?? ''}`.trim()
+                      : formatRupiah(f.amount ?? 0)}
                   </Badge>
                 </div>
               ))}

@@ -9,9 +9,12 @@ import { Textarea } from '@/components/ui/textarea'
 import { Plus, Save, Upload, X, FileImage } from 'lucide-react'
 
 export interface FundUsageSubmitPayload {
+  type: 'uang' | 'barang'
   date: string
   description: string
-  amount: string
+  amount: string        // dipakai kalau type === 'uang'
+  itemName: string       // dipakai kalau type === 'barang'
+  itemQuantity: string   // dipakai kalau type === 'barang'
   proofFile: File | null
 }
 
@@ -30,7 +33,15 @@ interface FundUsageModalProps {
   existingDocumentUrl?: string | null
 }
 
-const DEFAULT_FORM: FundUsageSubmitPayload = { date: '', description: '', amount: '', proofFile: null }
+const DEFAULT_FORM: FundUsageSubmitPayload = {
+  type: 'uang',
+  date: '',
+  description: '',
+  amount: '',
+  itemName: '',
+  itemQuantity: '',
+  proofFile: null,
+}
 
 export function FundUsageModal({
   open, onClose, campaignTitle, form = DEFAULT_FORM, setForm, submitting, onSubmit,
@@ -48,7 +59,10 @@ export function FundUsageModal({
     onSubmit()
   }
 
-  const isValid = !!form.date && !!form.description && !!form.amount
+  const isValid =
+    !!form.date &&
+    !!form.description &&
+    (form.type === 'uang' ? !!form.amount : !!form.itemName && !!form.itemQuantity)
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose() }}>
@@ -60,6 +74,34 @@ export function FundUsageModal({
           <div className="space-y-1.5">
             <Label className="text-sm text-gray-500">Campaign</Label>
             <p className="text-sm font-medium text-gray-900">{campaignTitle}</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700">Tipe</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, type: 'uang' })}
+                className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                  form.type === 'uang'
+                    ? 'border-teal-600 bg-teal-50 text-teal-700'
+                    : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                Uang
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, type: 'barang' })}
+                className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                  form.type === 'barang'
+                    ? 'border-teal-600 bg-teal-50 text-teal-700'
+                    : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                Barang
+              </button>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -77,22 +119,49 @@ export function FundUsageModal({
             <Textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              placeholder="Contoh: Pembelian sembako untuk korban banjir"
+              placeholder={
+                form.type === 'uang'
+                  ? 'Contoh: Pembelian sembako untuk korban banjir'
+                  : 'Contoh: Beras dibagikan ke 100 KK terdampak banjir'
+              }
               rows={3}
               className="rounded-lg border-gray-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700">Nominal (Rp)</Label>
-            <Input
-              type="number"
-              value={form.amount}
-              onChange={(e) => setForm({ ...form, amount: e.target.value })}
-              placeholder="Contoh: 1500000"
-              className="rounded-lg border-gray-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-            />
-          </div>
+          {form.type === 'uang' ? (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Nominal (Rp)</Label>
+              <Input
+                type="number"
+                value={form.amount}
+                onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                placeholder="Contoh: 1500000"
+                className="rounded-lg border-gray-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+              />
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Nama Barang</Label>
+                <Input
+                  value={form.itemName}
+                  onChange={(e) => setForm({ ...form, itemName: e.target.value })}
+                  placeholder="Contoh: Beras"
+                  className="rounded-lg border-gray-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Jumlah</Label>
+                <Input
+                  value={form.itemQuantity}
+                  onChange={(e) => setForm({ ...form, itemQuantity: e.target.value })}
+                  placeholder="Contoh: 50 kg"
+                  className="rounded-lg border-gray-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label className="text-sm font-medium text-gray-700">Upload Bukti</Label>

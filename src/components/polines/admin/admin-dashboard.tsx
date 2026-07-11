@@ -20,9 +20,12 @@ import { AdminProfileTab } from './admin-profile'
 type SubView = 'campaign-form' | 'donasi-detail' | 'laporan-detail' | 'ajuan-detail' | null
 
 interface FundUsageSubmitPayload {
+  type: 'uang' | 'barang'
   date: string
   description: string
   amount: string
+  itemName: string
+  itemQuantity: string
   proofFile: File | null
 }
 
@@ -239,9 +242,12 @@ export function AdminDashboard(props: AdminDashboardProps) {
   const handleAddFundUsage = (campaignId: string, payload: FundUsageSubmitPayload) => {
     const fullPayload = {
       campaignId,
+      type: payload.type,
       date: payload.date,
       description: payload.description,
       amount: payload.amount,
+      itemName: payload.itemName,
+      itemQuantity: payload.itemQuantity,
       proofFile: payload.proofFile,
     }
     // Tetap sinkronkan state form (opsional, untuk konsistensi tampilan/debug)
@@ -298,6 +304,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
         <LaporanDetailView
           campaign={selectedLaporanCampaign}
           fundUsages={fundUsages.filter(f => f.campaignId === selectedLaporanCampaign.id)}
+          donations={donations.filter(d => d.campaignId === selectedLaporanCampaign.id)}
           onAddFundUsage={handleAddFundUsage}
           onEditFundUsage={handleEditFundUsage}
           onDeleteFundUsage={handleDeleteFundUsage}

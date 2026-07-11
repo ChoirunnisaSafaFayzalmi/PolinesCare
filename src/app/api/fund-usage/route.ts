@@ -1,3 +1,5 @@
+// LOKASI: app/api/fund-usage/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
@@ -13,8 +15,11 @@ export async function GET(request: NextRequest) {
       orderBy: { date: "desc" },
     });
 
+    // totalUsed HANYA menjumlahkan entri bertipe "uang" - entri "barang"
+    // tidak punya nilai Rupiah yang applicable jadi tidak ikut dijumlah.
     const totalUsed = fundUsages.reduce(
-      (sum: number, f: { amount: number }) => sum + f.amount,
+      (sum: number, f: { type: string; amount: number | null }) =>
+        f.type === "uang" ? sum + (f.amount ?? 0) : sum,
       0
     );
 
@@ -42,11 +47,41 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { campaignId, description, amount, date, documentUrl } = body;
+    const {
+      campaignId,
+      type = "uang",
+      description,
+      amount,
+      itemName,
+      itemQuantity,
+      date,
+      documentUrl,
+    } = body;
 
-    if (!campaignId || !description || !amount) {
+    if (!campaignId || !description) {
       return NextResponse.json(
-        { error: "Field wajib: campaignId, description, amount" },
+        { error: "Field wajib: campaignId, description" },
+        { status: 400 }
+      );
+    }
+
+    if (type !== "uang" && type !== "barang") {
+      return NextResponse.json(
+        { error: "Tipe harus 'uang' atau 'barang'" },
+        { status: 400 }
+      );
+    }
+
+    if (type === "uang" && !amount) {
+      return NextResponse.json(
+        { error: "Nominal wajib diisi untuk tipe uang" },
+        { status: 400 }
+      );
+    }
+
+    if (type === "barang" && (!itemName || !itemQuantity)) {
+      return NextResponse.json(
+        { error: "Nama barang dan jumlah wajib diisi untuk tipe barang" },
         { status: 400 }
       );
     }
@@ -62,8 +97,11 @@ export async function POST(request: NextRequest) {
     const fundUsage = await db.fundUsage.create({
       data: {
         campaignId,
+        type,
         description,
-        amount: Number(amount),
+        amount: type === "uang" ? Number(amount) : null,
+        itemName: type === "barang" ? itemName : null,
+        itemQuantity: type === "barang" ? Number(itemQuantity) : null,
         date: date ? new Date(date) : new Date(),
         documentUrl: documentUrl || null,
         createdBy: (session.user as { id: string }).id,
