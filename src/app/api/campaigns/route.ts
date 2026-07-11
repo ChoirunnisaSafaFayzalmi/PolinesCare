@@ -10,6 +10,15 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search");
     const isUrgent = searchParams.get("urgent");
 
+    // ⬅ TAMBAHAN: auto-complete campaign yang tanggal berakhirnya sudah lewat
+    await db.campaign.updateMany({
+      where: {
+        status: "active",
+        endDate: { lt: new Date() },
+      },
+      data: { status: "completed", isPublic: false },
+    });
+
     const where: Record<string, unknown> = {};
     if (category && category !== "all") where.category = category;
     if (status && status !== "all") where.status = status;

@@ -315,6 +315,7 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
         endDate: new Date(campaignForm.endDate).toISOString(),
         isUrgent: campaignForm.isUrgent,
         isPublic: campaignForm.isPublic,
+        status: campaignForm.isPublic ? 'active' : 'completed',
         uniqueCode: Number(campaignForm.uniqueCode) || 0,
         location: campaignForm.location ?? '',
         dropOffLocation: campaignForm.dropOffLocation ?? '',

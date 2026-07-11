@@ -21,7 +21,10 @@ export async function GET(
       where: { id },
       include: {
         campaign: {
-          select: { id: true, title: true, category: true, image: true },
+          // ⬅ FIX: field di schema Prisma bernama "images" (jamak), bukan "image".
+          // Query lama dengan "image: true" akan error / diabaikan Prisma karena
+          // field itu tidak ada di model Campaign.
+          select: { id: true, title: true, category: true, images: true },
         },
         user: {
           select: { id: true, name: true, email: true },
@@ -38,7 +41,18 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    return NextResponse.json({ donation });
+    return NextResponse.json({
+      donation: {
+        ...donation,
+        campaign: donation.campaign
+          ? {
+              ...donation.campaign,
+              // images disimpan sebagai JSON string di DB, parse dulu sebelum dikirim ke client
+              images: donation.campaign.images ? JSON.parse(donation.campaign.images) : [],
+            }
+          : null,
+      },
+    });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Terjadi kesalahan";
     return NextResponse.json({ error: message }, { status: 500 });
@@ -100,6 +114,26 @@ export async function PATCH(
           where: { id: donation.campaignId },
           data: { collectedAmount: { decrement: donation.amount } },
         });
+      }
+
+      // ⬅ TAMBAHAN: cek apakah campaign sudah mencapai target setelah donasi baru di-approve.
+      // Fetch ulang campaign supaya collectedAmount yang dibaca adalah nilai terbaru
+      // (setelah increment di atas), bukan nilai lama sebelum donasi ini disetujui.
+      if (status === "approved" && donation.status !== "approved") {
+        const campaign = await db.campaign.findUnique({
+          where: { id: donation.campaignId },
+        });
+
+        if (
+          campaign &&
+          campaign.status === "active" &&
+          campaign.collectedAmount >= campaign.targetAmount
+        ) {
+          await db.campaign.update({
+            where: { id: campaign.id },
+            data: { status: "completed", isPublic: false },
+          });
+        }
       }
 
       // ── Kirim notifikasi ke donatur jika status berubah ──

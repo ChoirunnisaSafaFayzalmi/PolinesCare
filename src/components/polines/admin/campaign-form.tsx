@@ -514,13 +514,18 @@ export function CampaignFormView({
               <div className="space-y-4 pt-1">
                 <Toggle
                   checked={campaignForm.isPublic}
-                  onChange={() => setCampaignForm({
-                    ...campaignForm,
-                    isPublic: !campaignForm.isPublic,
-                    status: !campaignForm.isPublic ? 'active' : 'closed',
-                  })}
-                  label="Publik"
-                  description="Campaign tampil di beranda donatur"
+                  onChange={() => {
+                    const nowPublic = !campaignForm.isPublic
+                    setCampaignForm({
+                      ...campaignForm,
+                      isPublic: nowPublic,
+                      status: nowPublic ? 'active' : 'completed',   // ⬅ closed → completed
+                    })
+                  }}
+                  label="Status Aktif"
+                  description={campaignForm.isPublic
+                    ? 'Campaign tampil di beranda donatur'
+                    : 'Campaign dianggap selesai & disembunyikan dari beranda'}
                 />
                 <Toggle
                   checked={campaignForm.isUrgent}

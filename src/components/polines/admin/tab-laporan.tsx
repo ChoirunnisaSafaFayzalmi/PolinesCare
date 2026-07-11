@@ -41,7 +41,7 @@ export function LaporanTab({ allCampaigns, fundUsages, onViewDetail }: LaporanTa
       ...c,
       totalUsed,
       sisaDana: c.collectedAmount - totalUsed,
-      laporanStatus: c.collectedAmount >= c.targetAmount ? 'Selesai' : 'Progress',
+      laporanStatus: c.status === 'completed' ? 'Selesai' : 'Progress', 
     }
   })
 
