@@ -246,12 +246,12 @@ export function DonationModal({
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Campaign</Label>
-              <Select value={donationForm.campaignId} onValueChange={(v) => setDonationForm({ ...donationForm, campaignId: v })}>
-                <SelectTrigger><SelectValue placeholder="Pilih campaign" /></SelectTrigger>
-                <SelectContent>
-                  {campaigns.map(c => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              {/* ⬅ ganti Select jadi tampilan statis */}
+              <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5">
+                <p className="text-sm font-medium text-gray-800">
+                  {selectedCampaign?.title ?? 'Campaign tidak ditemukan'}
+                </p>
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Tipe Donasi</Label>
@@ -354,9 +354,21 @@ export function DonationModal({
 
               {donationForm.paymentMethod === 'qris' && (
                 <div className="flex flex-col items-center p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm font-medium mb-2">Scan QR Code untuk Pembayaran</p>
-                  <QRCodeSVG />
-                  <p className="text-xs text-muted-foreground mt-2">Gunakan aplikasi e-wallet untuk scan</p>
+                  {selectedCampaign?.qrisImageUrl ? (
+                    <>
+                      <p className="text-sm font-medium mb-2">Scan QR Code untuk Pembayaran</p>
+                      <img
+                        src={selectedCampaign.qrisImageUrl}
+                        alt="QRIS"
+                        className="w-56 h-56 object-contain rounded-lg border bg-white"
+                      />
+                      <p className="text-xs text-muted-foreground mt-2">Gunakan aplikasi e-wallet untuk scan</p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-gray-500 text-center py-6">
+                      QRIS belum tersedia untuk campaign ini. Silakan gunakan metode Transfer.
+                    </p>
+                  )}
                 </div>
               )}
 

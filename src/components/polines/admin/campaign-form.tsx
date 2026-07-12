@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,15 +25,21 @@ interface CampaignFormViewProps {
     title: string; description: string; category: string; targetAmount: string
     startDate: string; endDate: string; isUrgent: boolean; isPublic: boolean
     paymentMethods: PaymentMethod[]
+    qrisImageUrl?: string
     uniqueCode: string
     images?: string[]
     location?: string
     dropOffLocation?: string
+    // data pengaju, dipakai saat mode === 'complete-from-proposal'
+    proposerName?: string
+    proposerEmail?: string
+    proposerPhone?: string
+    proposerAddress?: string
   }
   setCampaignForm: (form: any) => void
   editingCampaign: Campaign | null
   submitting: boolean
-  onSave: (imageFiles?: File[]) => void
+  onSave: (imageFiles?: File[], qrisFile?: File) => void
   onBack: () => void
   session: {
     user?: {
@@ -72,7 +78,7 @@ function Toggle({ checked, onChange, label, description }: {
   )
 }
 
-// Modal for adding payment method — no blur, light transparent overlay
+// Modal for adding payment method
 function AddPaymentModal({
   onAdd,
   onClose,
@@ -160,6 +166,49 @@ export function CampaignFormView({
   const [showAddModal, setShowAddModal] = useState(false)
   const isLocked = mode === 'complete-from-proposal'
 
+  const [adminProfile, setAdminProfile] = useState<{
+    name?: string; email?: string; phone?: string; address?: string
+  } | null>(null)
+
+  useEffect(() => {
+    if (mode !== 'create') return
+    fetch('/api/user/profile')
+      .then(r => r.json())
+      .then(d => {
+        if (d.user) {
+          setAdminProfile({
+            name: d.user.name,
+            email: d.user.email,
+            phone: d.user.phone,
+            address: d.user.address,
+          })
+        }
+      })
+      .catch(() => { /* silent, fallback ke session */ })
+  }, [mode])
+
+  // Gabungan logika pengecekan dari HEAD (lokal) & origin (remote)
+  const creatorInfo = isLocked
+    ? {
+      name: campaignForm.proposerName,
+      email: campaignForm.proposerEmail,
+      phone: campaignForm.proposerPhone,
+      address: campaignForm.proposerAddress,
+    }
+    : editingCampaign
+      ? {
+        name: editingCampaign.creator?.name,
+        email: editingCampaign.creator?.email,
+        phone: editingCampaign.creator?.phone,
+        address: editingCampaign.creator?.address,
+      }
+      : {
+        name: adminProfile?.name ?? session?.user?.name,
+        email: adminProfile?.email ?? session?.user?.email,
+        phone: adminProfile?.phone ?? session?.user?.phone,
+        address: adminProfile?.address ?? session?.user?.address,
+      }
+
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<{ url: string; isExisting: boolean }[]>(
     campaignForm.images?.map(url => ({ url, isExisting: true })) || []
@@ -174,18 +223,11 @@ export function CampaignFormView({
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
-  // ⬅ FIX: sebelumnya hanya meng-update state lokal (imagePreviews/imageFiles).
-  // Untuk gambar EXISTING (yang sudah tersimpan di database), kita juga harus
-  // menghapusnya dari campaignForm.images — karena submitCampaign() di page.tsx
-  // menghitung "existingImages" langsung dari campaignForm.images, BUKAN dari
-  // imagePreviews. Kalau tidak disinkronkan, gambar yang dihapus di UI akan
-  // selalu "kembali" saat submit, karena campaignForm.images masih berisi URL lama.
   const handleRemoveImage = (index: number) => {
     const removed = imagePreviews[index]
     setImagePreviews(prev => prev.filter((_, i) => i !== index))
 
     if (removed.isExisting) {
-      // Hapus URL ini dari campaignForm.images supaya tersinkron dengan tampilan
       setCampaignForm({
         ...campaignForm,
         images: (campaignForm.images || []).filter(url => url !== removed.url),
@@ -194,6 +236,24 @@ export function CampaignFormView({
       const newFileIndex = imagePreviews.slice(0, index).filter(p => !p.isExisting).length
       setImageFiles(prev => prev.filter((_, i) => i !== newFileIndex))
     }
+  }
+
+  const qrisInputRef = useRef<HTMLInputElement>(null)
+  const [qrisFile, setQrisFile] = useState<File | null>(null)
+  const [qrisPreview, setQrisPreview] = useState<string | null>(campaignForm.qrisImageUrl || null)
+
+  const handleQrisChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setQrisFile(file)
+    setQrisPreview(URL.createObjectURL(file))
+    if (qrisInputRef.current) qrisInputRef.current.value = ''
+  }
+
+  const handleRemoveQris = () => {
+    setQrisFile(null)
+    setQrisPreview(null)
+    setCampaignForm({ ...campaignForm, qrisImageUrl: '' })
   }
 
   const handleAddPayment = (label: string, accountNumber: string) => {
@@ -238,27 +298,12 @@ export function CampaignFormView({
     })
   }
 
-  // ⬅ FIX: sebelumnya field Target Dana pakai <Input type="number">. Masalahnya,
-  // format number bawaan HTML SELALU pakai titik (.) sebagai tanda DESIMAL,
-  // bukan pemisah ribuan seperti kebiasaan Indonesia. Akibatnya waktu admin
-  // mengetik "300.000" (maksudnya 300 ribu), browser membacanya sebagai
-  // "300 koma nol-nol-nol" = tersimpan sebagai 300 saja — jauh dari yang
-  // dimaksud, dan tidak ada error apapun yang terlihat karena secara teknis
-  // itu input number yang valid.
-  //
-  // Fix: ganti jadi <Input type="text"> biasa yang diformat manual:
-  // - Yang ditampilkan ke admin: angka dengan pemisah ribuan gaya Indonesia
-  //   (titik), misal "300.000"
-  // - Yang disimpan di state (campaignForm.targetAmount): angka murni tanpa
-  //   titik, misal "300000" — ini yang akan dikirim ke API dan di-Number()-kan
-  //   di submitCampaign(), jadi tidak perlu ubah apapun di sisi page.tsx
   const formatThousands = (rawDigits: string) => {
     if (!rawDigits) return ''
     return Number(rawDigits).toLocaleString('id-ID')
   }
 
   const handleTargetAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Buang semua karakter selain digit (termasuk titik yang mungkin diketik user)
     const rawDigits = e.target.value.replace(/\D/g, '')
     setCampaignForm({ ...campaignForm, targetAmount: rawDigits })
   }
@@ -283,7 +328,7 @@ export function CampaignFormView({
             </Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg px-6"
-              onClick={() => onSave(imageFiles.length > 0 ? imageFiles : undefined)}
+              onClick={() => onSave(imageFiles.length > 0 ? imageFiles : undefined, qrisFile ?? undefined)}
               disabled={submitting}
             >
               {submitting ? 'Menyimpan...' : isLocked ? 'Publikasikan' : 'Simpan'}
@@ -301,26 +346,15 @@ export function CampaignFormView({
         <CardContent className="space-y-8">
 
           {/* Section 1: Informasi Pembuat */}
-          {/* ⬅ FIX: sebelumnya section ini SELALU menampilkan data dari `session`
-              (admin yang sedang login sekarang), bahkan saat mode EDIT campaign
-              yang dibuat oleh admin lain. Karena admin di aplikasi ini tidak
-              cuma 1 orang, ini salah — info yang tampil harus menunjukkan siapa
-              yang BENERAN membuat campaign tersebut, bukan siapa yang sedang
-              membukanya sekarang.
-              Fix: kalau sedang edit (editingCampaign ada isinya), ambil data
-              dari editingCampaign.creator (data pembuat asli, dari database).
-              Kalau sedang buat campaign baru (editingCampaign null), baru pakai
-              data session — karena di kasus itu, yang login SEKARANG memang
-              yang akan jadi pembuatnya. */}
           <section>
             <SectionTitle>Informasi Pembuat</SectionTitle>
             <div className="bg-gray-50 rounded-xl border border-gray-100 p-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                  { label: 'Nama', value: editingCampaign?.creator?.name ?? session?.user?.name },
-                  { label: 'Email', value: editingCampaign?.creator?.email ?? session?.user?.email },
-                  { label: 'No Telp', value: editingCampaign?.creator?.phone ?? session?.user?.phone },
-                  { label: 'Alamat', value: editingCampaign?.creator?.address ?? session?.user?.address },
+                  { label: 'Nama', value: creatorInfo.name },
+                  { label: 'Email', value: creatorInfo.email },
+                  { label: 'No Telp', value: creatorInfo.phone },
+                  { label: 'Alamat', value: creatorInfo.address },
                 ].map(({ label, value }) => (
                   <div key={label} className="space-y-1">
                     <p className="text-xs text-gray-400 font-medium">{label}</p>
@@ -332,9 +366,11 @@ export function CampaignFormView({
               </div>
               <p className="text-xs text-gray-400 mt-4 flex items-center gap-1">
                 <span className="inline-block w-3 h-3 rounded-full bg-teal-400 shrink-0" />
-                {editingCampaign
-                  ? 'Data diambil dari profil pembuat campaign ini (admin atau donatur pengaju proposal).'
-                  : 'Data diambil dari profil akun admin yang sedang login. Ubah di halaman Profil.'}
+                {isLocked
+                  ? 'Data diambil dari proposal yang diajukan donatur.'
+                  : editingCampaign
+                    ? 'Data diambil dari profil pembuat campaign ini (admin atau donatur pengaju proposal).'
+                    : 'Data diambil dari profil akun admin yang sedang login. Ubah di halaman Profil.'}
               </p>
             </div>
           </section>
@@ -393,7 +429,6 @@ export function CampaignFormView({
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">Target Dana</Label>
-                  {/* ⬅ FIX: type="text" + format pemisah ribuan manual, lihat handleTargetAmountChange di atas */}
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 pointer-events-none">
                       Rp
@@ -488,13 +523,18 @@ export function CampaignFormView({
               <div className="space-y-4 pt-1">
                 <Toggle
                   checked={campaignForm.isPublic}
-                  onChange={() => setCampaignForm({
-                    ...campaignForm,
-                    isPublic: !campaignForm.isPublic,
-                    status: !campaignForm.isPublic ? 'active' : 'closed',
-                  })}
-                  label="Publik"
-                  description="Campaign tampil di beranda donatur"
+                  onChange={() => {
+                    const nowPublic = !campaignForm.isPublic
+                    setCampaignForm({
+                      ...campaignForm,
+                      isPublic: nowPublic,
+                      status: nowPublic ? 'active' : 'completed',
+                    })
+                  }}
+                  label="Status Aktif"
+                  description={campaignForm.isPublic
+                    ? 'Campaign tampil di beranda donatur'
+                    : 'Campaign dianggap selesai & disembunyikan dari beranda'}
                 />
                 <Toggle
                   checked={campaignForm.isUrgent}
@@ -514,7 +554,7 @@ export function CampaignFormView({
             </SectionTitle>
             <div className="space-y-4">
 
-              {/* Payment methods list — all manual */}
+              {/* Payment methods list */}
               <div className="space-y-2">
                 {campaignForm.paymentMethods.length === 0 && (
                   <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/50 py-6 flex flex-col items-center justify-center gap-1">
@@ -526,7 +566,6 @@ export function CampaignFormView({
                 {campaignForm.paymentMethods.map((method) => (
                   <div key={method.key} className="rounded-xl border border-teal-200 bg-teal-50/50 px-4 py-3 space-y-2">
                     <div className="flex items-center gap-2">
-                      {/* Editable label */}
                       <Input
                         value={method.label}
                         onChange={(e) => handleSetLabel(method.key, e.target.value)}
@@ -548,7 +587,6 @@ export function CampaignFormView({
                       placeholder="No. Rekening / No. HP"
                       className={`${inputCls} bg-white`}
                     />
-                    {/* Visibility toggle */}
                     <button
                       type="button"
                       onClick={() => handleToggleVisible(method.key)}
@@ -572,7 +610,6 @@ export function CampaignFormView({
                   </div>
                 ))}
 
-                {/* Add button */}
                 <button
                   type="button"
                   onClick={() => setShowAddModal(true)}
@@ -585,6 +622,36 @@ export function CampaignFormView({
                     Tambah metode pembayaran
                   </span>
                 </button>
+              </div>
+
+              {/* Foto QRIS */}
+              <div className="space-y-2 pt-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Foto QRIS
+                  <span className="text-gray-400 font-normal ml-1">(opsional, untuk metode pembayaran QRIS)</span>
+                </Label>
+
+                {qrisPreview ? (
+                  <div className="relative w-40 aspect-square rounded-xl overflow-hidden border border-gray-200 group">
+                    <img src={qrisPreview} alt="QRIS" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <button type="button" onClick={handleRemoveQris}
+                        className="w-7 h-7 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors">
+                        <X className="h-3.5 w-3.5 text-white" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => qrisInputRef.current?.click()}
+                    className="w-40 aspect-square rounded-xl border-2 border-dashed border-gray-200 hover:border-teal-400 hover:bg-teal-50/50 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer group">
+                    <ImagePlus className="h-5 w-5 text-gray-300 group-hover:text-teal-500" />
+                    <span className="text-[11px] text-gray-400 group-hover:text-teal-500">Upload QRIS</span>
+                  </button>
+                )}
+
+                <input ref={qrisInputRef} type="file" accept="image/png,image/jpeg,image/webp"
+                  className="hidden" onChange={handleQrisChange} />
+                <p className="text-xs text-gray-400">Foto QR code yang di-generate dari aplikasi bank/e-wallet admin.</p>
               </div>
 
               {/* Alamat Donasi Barang */}
@@ -632,7 +699,6 @@ export function CampaignFormView({
   )
 }
 
-// ── Helper ─────────────────────────────────────────────────────
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-3 mb-4">

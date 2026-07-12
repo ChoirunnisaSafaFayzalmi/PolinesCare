@@ -1,4 +1,4 @@
-import { Document, Page, View, Text, StyleSheet, Font } from '@react-pdf/renderer'
+import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer'
 import { formatRupiah, formatDate } from '@/components/polines/types'
 
 // ── Styles ──────────────────────────────────────────────────
@@ -91,8 +91,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9fafb',
   },
   colNo: { width: '6%' },
-  colTanggal: { width: '14%' },
-  colKeterangan: { width: '40%' },
+  colTipe: { width: '10%' },
+  colTanggal: { width: '12%' },
+  colKeterangan: { width: '32%' },
   colNominal: { width: '20%', textAlign: 'right' },
   colSisaDana: { width: '20%', textAlign: 'right' },
   cellHeader: {
@@ -135,9 +136,12 @@ const styles = StyleSheet.create({
 
 export interface LaporanPdfRow {
   id: string
+  type: string // 'uang' | 'barang'
   date: string
   description: string
-  amount: number
+  amount: number | null
+  itemName?: string | null
+  itemQuantity?: number | null
   sisaDana: number
 }
 
@@ -184,6 +188,9 @@ export function LaporanPdfDocument({ campaignTitle, collectedAmount, totalUsed, 
 
         {/* Table */}
         <Text style={styles.sectionTitle}>Rincian Penggunaan Dana</Text>
+        <Text style={{ fontSize: 8, color: '#9ca3af', marginTop: -6, marginBottom: 8 }}>
+          Kolom &quot;Sisa Dana&quot; hanya berlaku untuk entri bertipe Uang.
+        </Text>
 
         {rows.length === 0 ? (
           <View style={styles.table}>
@@ -193,24 +200,30 @@ export function LaporanPdfDocument({ campaignTitle, collectedAmount, totalUsed, 
           <View style={styles.table}>
             <View style={styles.tableHeaderRow}>
               <Text style={[styles.cellHeader, styles.colNo]}>No</Text>
+              <Text style={[styles.cellHeader, styles.colTipe]}>Tipe</Text>
               <Text style={[styles.cellHeader, styles.colTanggal]}>Tanggal</Text>
               <Text style={[styles.cellHeader, styles.colKeterangan]}>Keterangan</Text>
-              <Text style={[styles.cellHeader, styles.colNominal]}>Nominal</Text>
+              <Text style={[styles.cellHeader, styles.colNominal]}>Nominal / Jumlah</Text>
               <Text style={[styles.cellHeader, styles.colSisaDana]}>Sisa Dana</Text>
             </View>
 
             {rows.map((r, idx) => (
               <View style={styles.tableRow} key={r.id} wrap={false}>
                 <Text style={[styles.cellMuted, styles.colNo]}>{idx + 1}</Text>
+                <Text style={[styles.cellMuted, styles.colTipe]}>{r.type === 'barang' ? 'Barang' : 'Uang'}</Text>
                 <Text style={[styles.cellMuted, styles.colTanggal]}>{formatDate(r.date)}</Text>
                 <Text style={[styles.cellText, styles.colKeterangan]}>{r.description}</Text>
-                <Text style={[styles.cellNominal, styles.colNominal]}>{formatRupiah(r.amount)}</Text>
-                <Text style={[styles.cellText, styles.colSisaDana, { textAlign: 'right' }]}>{formatRupiah(r.sisaDana)}</Text>
+                <Text style={[styles.cellNominal, styles.colNominal]}>
+                  {r.type === 'barang' ? `${r.itemQuantity ?? ''} ${r.itemName ?? ''}`.trim() : formatRupiah(r.amount ?? 0)}
+                </Text>
+                <Text style={[styles.cellText, styles.colSisaDana, { textAlign: 'right' }]}>
+                  {r.type === 'barang' ? '—' : formatRupiah(r.sisaDana)}
+                </Text>
               </View>
             ))}
 
             <View style={styles.tableFooterRow}>
-              <Text style={[styles.footerLabel, { width: '60%', textAlign: 'right' }]}>TOTAL DIGUNAKAN</Text>
+              <Text style={[styles.footerLabel, { width: '54%', textAlign: 'right' }]}>TOTAL DIGUNAKAN (Uang)</Text>
               <Text style={[styles.cellNominal, styles.colNominal]}>{formatRupiah(totalUsed)}</Text>
               <Text style={styles.colSisaDana} />
             </View>

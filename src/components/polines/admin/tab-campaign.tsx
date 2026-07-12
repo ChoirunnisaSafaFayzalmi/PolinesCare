@@ -131,7 +131,7 @@ export function CampaignTab({
                 <SelectItem value="awaiting_completion">Menunggu Kelengkapan</SelectItem>   {/* ⬅ tambah */}
                 <SelectItem value="active">Aktif</SelectItem>
                 <SelectItem value="completed">Selesai</SelectItem>
-                <SelectItem value="closed">Ditutup</SelectItem>
+                {/* <SelectItem value="closed">Ditutup</SelectItem> */}
               </SelectContent>
             </Select>
             <Select value={adminCampaignFilter} onValueChange={setAdminCampaignFilter}>

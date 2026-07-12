@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Eye, Printer, ArrowLeft } from 'lucide-react'
 import type { Donation } from '@/components/polines/types'
 import { formatRupiah, formatDate, getStatusColor } from '@/components/polines/types'
+import { FundUsageReport } from '@/components/polines/donatur/fund-usage-report'
 
 const ITEMS_PER_PAGE = 10
 
@@ -23,6 +24,23 @@ export function TabRiwayat({ userDonations }: TabRiwayatProps) {
   const [methodFilter, setMethodFilter] = useState('all')
   const [dateFilter, setDateFilter] = useState('')
   const [page, setPage] = useState(1)
+
+  // State untuk swap tampilan list <-> detail laporan (in-place, tanpa ganti URL)
+  const [view, setView] = useState<'list' | 'detail'>('list')
+  const [activeCampaignId, setActiveCampaignId] = useState<string | null>(null)
+  const [autoPrint, setAutoPrint] = useState(false)
+
+  const openReport = (campaignId: string, print = false) => {
+    setActiveCampaignId(campaignId)
+    setAutoPrint(print)
+    setView('detail')
+  }
+
+  const backToList = () => {
+    setView('list')
+    setActiveCampaignId(null)
+    setAutoPrint(false)
+  }
 
   // Metode hanya relevan untuk donasi tipe "uang", jadi opsinya diambil
   // hanya dari donasi bertipe uang, dan filter ini disembunyikan total
@@ -60,56 +78,75 @@ export function TabRiwayat({ userDonations }: TabRiwayatProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
-        <CardTitle>Riwayat Donasi ({filtered.length}/{userDonations.length})</CardTitle>
+        {view === 'list' ? (
+          <>
+            <CardTitle>Riwayat Donasi ({filtered.length}/{userDonations.length})</CardTitle>
 
-        <div className="flex items-center gap-2 flex-wrap justify-end ml-auto">
-          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
-            <SelectTrigger className="w-36 rounded-lg border-gray-200">
-              <SelectValue placeholder="Semua Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Semua Status</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
+            <div className="flex items-center gap-2 flex-wrap justify-end ml-auto">
+              <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
+                <SelectTrigger className="w-36 rounded-lg border-gray-200">
+                  <SelectValue placeholder="Semua Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
 
-          {showMethodFilter && (
-            <Select value={methodFilter} onValueChange={(v) => { setMethodFilter(v); setPage(1) }}>
-              <SelectTrigger className="w-40 rounded-lg border-gray-200">
-                <SelectValue placeholder="Semua Metode" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua Metode</SelectItem>
-                {methodOptions.map(m => (
-                  <SelectItem key={m} value={m}>{m}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
+              {showMethodFilter && (
+                <Select value={methodFilter} onValueChange={(v) => { setMethodFilter(v); setPage(1) }}>
+                  <SelectTrigger className="w-40 rounded-lg border-gray-200">
+                    <SelectValue placeholder="Semua Metode" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Semua Metode</SelectItem>
+                    {methodOptions.map(m => (
+                      <SelectItem key={m} value={m}>{m}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
 
-          <Select value={typeFilter} onValueChange={handleTypeChange}>
-            <SelectTrigger className="w-36 rounded-lg border-gray-200">
-              <SelectValue placeholder="Semua Tipe" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Semua Tipe</SelectItem>
-              <SelectItem value="uang">Uang</SelectItem>
-              <SelectItem value="barang">Barang</SelectItem>
-            </SelectContent>
-          </Select>
+              <Select value={typeFilter} onValueChange={handleTypeChange}>
+                <SelectTrigger className="w-36 rounded-lg border-gray-200">
+                  <SelectValue placeholder="Semua Tipe" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Tipe</SelectItem>
+                  <SelectItem value="uang">Uang</SelectItem>
+                  <SelectItem value="barang">Barang</SelectItem>
+                </SelectContent>
+              </Select>
 
-          <Input
-            type="date"
-            value={dateFilter}
-            onChange={(e) => { setDateFilter(e.target.value); setPage(1) }}
-            className="w-auto rounded-lg border-gray-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-          />
-        </div>
+              <Input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => { setDateFilter(e.target.value); setPage(1) }}
+                className="w-auto rounded-lg border-gray-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+              />
+            </div>
+          </>
+        ) : (
+          <CardTitle className="flex items-center gap-2 text-base font-medium">
+            <button
+              onClick={backToList}
+              className="inline-flex items-center gap-1 text-muted-foreground hover:text-teal-600 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Riwayat Donasi
+            </button>
+            <span className="text-muted-foreground">/</span>
+            <span>Detail Laporan</span>
+          </CardTitle>
+        )}
       </CardHeader>
+
       <CardContent>
-        {filtered.length === 0 ? (
+        {view === 'detail' && activeCampaignId ? (
+          <FundUsageReport campaignId={activeCampaignId} autoPrint={autoPrint} />
+        ) : filtered.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">
             {userDonations.length === 0 ? 'Belum ada riwayat donasi' : 'Tidak ada donasi yang cocok dengan filter'}
           </p>
@@ -125,46 +162,78 @@ export function TabRiwayat({ userDonations }: TabRiwayatProps) {
                     <TableHead>Nominal / Jumlah</TableHead>
                     <TableHead className="hidden md:table-cell">Tanggal</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginated.map(d => (
-                    <TableRow key={d.id}>
-                      <TableCell className="font-medium max-w-[180px] truncate">
-                        {d.campaign?.title}
-                      </TableCell>
+                  {paginated.map(d => {
+                    const campaignId = d.campaignId
 
-                      <TableCell>
-                        <Badge variant={d.type === 'barang' ? 'secondary' : 'default'}>
-                          {d.type === 'barang' ? 'Barang' : 'Uang'}
-                        </Badge>
-                      </TableCell>
+                    return (
+                      <TableRow key={d.id}>
+                        <TableCell className="font-medium max-w-[180px] truncate">
+                          {d.campaign?.title}
+                        </TableCell>
 
-                      <TableCell className="hidden md:table-cell">
-                        {d.type === 'barang' ? (
-                          <span className="text-muted-foreground">—</span>
-                        ) : (
-                          <Badge variant="outline">{d.paymentMethod}</Badge>
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          <Badge variant={d.type === 'barang' ? 'secondary' : 'default'}>
+                            {d.type === 'barang' ? 'Barang' : 'Uang'}
+                          </Badge>
+                        </TableCell>
 
-                      <TableCell className="font-semibold">
-                        {d.type === 'barang' ? (
-                          <span className="text-orange-600">{d.itemQuantity ?? d.amount} pcs</span>
-                        ) : (
-                          <span className="text-teal-600">{formatRupiah(d.amount)}</span>
-                        )}
-                      </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          {d.type === 'barang' ? (
+                            <span className="text-muted-foreground">—</span>
+                          ) : (
+                            <Badge variant="outline">{d.paymentMethod}</Badge>
+                          )}
+                        </TableCell>
 
-                      <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
-                        {formatDate(d.createdAt)}
-                      </TableCell>
+                        <TableCell className="font-semibold">
+                          {d.type === 'barang' ? (
+                            <span className="text-orange-600">{d.itemQuantity ?? d.amount} pcs</span>
+                          ) : (
+                            <span className="text-teal-600">{formatRupiah(d.amount)}</span>
+                          )}
+                        </TableCell>
 
-                      <TableCell>
-                        <Badge className={getStatusColor(d.status)}>{d.status}</Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                          {formatDate(d.createdAt)}
+                        </TableCell>
+
+                        <TableCell>
+                          <Badge className={getStatusColor(d.status)}>{d.status}</Badge>
+                        </TableCell>
+
+                        <TableCell className="text-right">
+                          {d.status === 'approved' && campaignId ? (
+                            <div className="flex items-center justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-teal-600 hover:text-teal-700"
+                                onClick={() => openReport(campaignId, false)}
+                                title="Lihat Laporan"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-gray-500 hover:text-gray-700"
+                                onClick={() => openReport(campaignId, true)}
+                                title="Cetak Laporan"
+                              >
+                                <Printer className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
                 </TableBody>
               </Table>
             </div>

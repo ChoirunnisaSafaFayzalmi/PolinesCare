@@ -34,12 +34,14 @@ export function LaporanTab({ allCampaigns, fundUsages, onViewDetail }: LaporanTa
 
   const laporanData: LaporanCampaign[] = allCampaigns.map(c => {
     const usages = (fundUsages || []).filter(f => f.campaignId === c.id)
-    const totalUsed = usages.reduce((sum, f) => sum + f.amount, 0)
+    // totalUsed HANYA menjumlahkan entri bertipe "uang" - entri "barang"
+    // tidak punya nilai Rupiah yang applicable jadi tidak ikut dijumlah.
+    const totalUsed = usages.reduce((sum, f) => (f.type === 'uang' ? sum + (f.amount ?? 0) : sum), 0)
     return {
       ...c,
       totalUsed,
       sisaDana: c.collectedAmount - totalUsed,
-      laporanStatus: c.collectedAmount >= c.targetAmount ? 'Selesai' : 'Progress',
+      laporanStatus: c.status === 'completed' ? 'Selesai' : 'Progress', 
     }
   })
 

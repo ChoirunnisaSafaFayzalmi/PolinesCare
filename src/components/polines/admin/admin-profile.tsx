@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Camera, Save, User, Mail, Phone, MapPin, Shield, CheckCircle, Loader2, Eye, EyeOff, Lock } from 'lucide-react'
+import { Camera, Save, User, Mail, Phone, MapPin, Shield, CheckCircle, Loader2, Eye, EyeOff, Lock, UserPlus } from 'lucide-react'
+import { AdminCreateAdminTab } from './create-admin'
 
 interface ProfileData {
     id: string
@@ -30,6 +31,7 @@ export function AdminProfileTab() {
     const [errorMsg, setErrorMsg] = useState('')
     const [passwordSuccess, setPasswordSuccess] = useState('')
     const [passwordError, setPasswordError] = useState('')
+    const [showCreateAdmin, setShowCreateAdmin] = useState(false)
 
     const [form, setForm] = useState({
         name: '',
@@ -350,6 +352,20 @@ export function AdminProfileTab() {
                     {savingPassword ? 'Mengubah...' : 'Ubah Password'}
                 </Button>
             </div>
+
+            {/* Toggle Tambah Admin */}
+            <div className="bg-white rounded-xl border p-6">
+                <Button
+                    variant="outline"
+                    onClick={() => setShowCreateAdmin(p => !p)}
+                    className="w-full border-teal-200 text-teal-700 hover:bg-teal-50"
+                >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    {showCreateAdmin ? 'Sembunyikan' : 'Tambah Akun Admin'}
+                </Button>
+            </div>
+
+            {showCreateAdmin && <AdminCreateAdminTab />}
 
         </div>
     )

@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Plus, Printer, Loader2, ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react'
-import type { FundUsage } from '@/components/polines/types'
+import { Plus, Printer, Loader2, ChevronLeft, ChevronRight, Pencil, Trash2, PackageCheck } from 'lucide-react'
+import type { FundUsage, Donation } from '@/components/polines/types'
 import { formatRupiah, formatDate, getCategoryColor } from '@/components/polines/types'
 import type { LaporanCampaign } from './tab-laporan'
 import { FundUsageModal, type FundUsageSubmitPayload } from './fund-usage-modal'
@@ -20,6 +20,9 @@ type FundUsageWithProof = FundUsage & { documentUrl?: string | null }
 interface LaporanDetailViewProps {
   campaign: LaporanCampaign
   fundUsages: FundUsageWithProof[]
+  /** Semua donasi (barang & uang) untuk campaign ini - dipakai buat nampilin
+   *  ringkasan "Barang Diterima dari Donatur" (cuma yang type=barang & approved). */
+  donations: Donation[]
   onAddFundUsage: (campaignId: string, payload: FundUsageSubmitPayload) => void | Promise<void>
   onEditFundUsage: (fundUsageId: string, payload: FundUsageSubmitPayload) => void | Promise<void>
   onDeleteFundUsage: (fundUsageId: string) => void | Promise<void>
@@ -27,40 +30,58 @@ interface LaporanDetailViewProps {
 
 const ROWS_PER_PAGE = 7
 
+const EMPTY_FORM: FundUsageSubmitPayload = {
+  type: 'uang', date: '', description: '', amount: '', itemName: '', itemQuantity: '', proofFile: null,
+}
+
 export function LaporanDetailView({
-  campaign, fundUsages, onAddFundUsage, onEditFundUsage, onDeleteFundUsage,
+  campaign, fundUsages, donations, onAddFundUsage, onEditFundUsage, onDeleteFundUsage,
 }: LaporanDetailViewProps) {
   const [modalOpen, setModalOpen] = useState(false)
-  const [form, setForm] = useState<FundUsageSubmitPayload>({ date: '', description: '', amount: '', proofFile: null })
+  const [form, setForm] = useState<FundUsageSubmitPayload>(EMPTY_FORM)
   const [submitting, setSubmitting] = useState(false)
   const [page, setPage] = useState(1)
   const [generatingPdf, setGeneratingPdf] = useState(false)
 
   // ── Edit state ──
   const [editTarget, setEditTarget] = useState<FundUsageWithProof | null>(null)
-  const [editForm, setEditForm] = useState<FundUsageSubmitPayload>({ date: '', description: '', amount: '', proofFile: null })
+  const [editForm, setEditForm] = useState<FundUsageSubmitPayload>(EMPTY_FORM)
   const [editSubmitting, setEditSubmitting] = useState(false)
 
   // ── Delete state ──
   const [deleteTarget, setDeleteTarget] = useState<FundUsageWithProof | null>(null)
   const [deleting, setDeleting] = useState(false)
 
-  const totalUsed = (fundUsages || []).reduce((sum, f) => sum + f.amount, 0)
+  // totalUsed HANYA menjumlahkan entri bertipe "uang" - entri "barang"
+  // tidak punya nilai Rupiah yang applicable.
+  const totalUsed = (fundUsages || []).reduce(
+    (sum, f) => (f.type === 'uang' ? sum + (f.amount ?? 0) : sum),
+    0
+  )
 
-  // Sisa dana berjalan: total terkumpul dikurangi akumulasi nominal s.d. baris itu
+  // Sisa dana berjalan: cuma entri "uang" yang mengurangi saldo Rupiah.
+  // Entri "barang" tidak mempengaruhi saldo - baris itu cuma "numpang" di
+  // timeline yang sama, saldo dibawa apa adanya dari baris sebelumnya.
   const rowsWithBalance = (fundUsages || []).reduce<Array<FundUsageWithProof & { sisaDana: number }>>((acc, f) => {
     const prevBalance = acc.length > 0 ? acc[acc.length - 1].sisaDana : campaign.collectedAmount
-    return [...acc, { ...f, sisaDana: prevBalance - f.amount }]
+    const sisaDana = f.type === 'uang' ? prevBalance - (f.amount ?? 0) : prevBalance
+    return [...acc, { ...f, sisaDana }]
   }, [])
 
   const totalPages = Math.max(1, Math.ceil(rowsWithBalance.length / ROWS_PER_PAGE))
   const pagedRows = rowsWithBalance.slice((page - 1) * ROWS_PER_PAGE, page * ROWS_PER_PAGE)
 
+  // Barang yang DITERIMA dari donatur (bukan yang disalurkan). Ini cuma log
+  // sederhana - satu baris per donasi barang approved, tanpa hitung stok/sisa,
+  // karena satu donasi bisa berisi beberapa jenis barang sekaligus (itemName
+  // sudah berupa deskripsi gabungan, mis. "buku (1), baju (1)").
+  const barangDiterima = (donations || []).filter(d => d.type === 'barang' && d.status === 'approved')
+
   const handleSubmit = async () => {
     setSubmitting(true)
     try {
       await onAddFundUsage(campaign.id, form)
-      setForm({ date: '', description: '', amount: '', proofFile: null })
+      setForm(EMPTY_FORM)
       setModalOpen(false)
       setPage(1)
     } finally {
@@ -71,10 +92,13 @@ export function LaporanDetailView({
   const openEditModal = (f: FundUsageWithProof) => {
     setEditTarget(f)
     setEditForm({
+      type: (f.type as 'uang' | 'barang') ?? 'uang',
       // f.date dari API biasanya ISO string lengkap; input type="date" butuh format YYYY-MM-DD
       date: f.date ? new Date(f.date).toISOString().slice(0, 10) : '',
       description: f.description,
-      amount: String(f.amount),
+      amount: f.amount != null ? String(f.amount) : '',
+      itemName: f.itemName ?? '',
+      itemQuantity: f.itemQuantity != null ? String(f.itemQuantity) : '',
       proofFile: null,
     })
   }
@@ -130,6 +154,46 @@ export function LaporanDetailView({
         ))}
       </div>
 
+      {/* Barang Diterima dari Donatur */}
+      <Card className="shadow-sm border-gray-100">
+        <CardHeader className="flex flex-row items-center gap-2">
+          <PackageCheck className="h-4 w-4 text-teal-600" />
+          <CardTitle className="text-base font-bold">Barang Diterima dari Donatur</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {barangDiterima.length === 0 ? (
+            <p className="text-center text-muted-foreground py-6 text-sm">
+              Belum ada donasi barang yang diterima untuk campaign ini.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Tanggal</TableHead>
+                    <TableHead>Donatur</TableHead>
+                    <TableHead>Jenis Barang</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {barangDiterima.map(d => (
+                    <TableRow key={d.id}>
+                      <TableCell className="text-sm text-gray-700">{formatDate(d.createdAt)}</TableCell>
+                      <TableCell className="text-sm">{d.donorName}</TableCell>
+                      <TableCell className="text-sm">{d.itemName || '—'}</TableCell>
+                      <TableCell className="text-right text-sm font-medium text-orange-600">
+                        {d.itemQuantity ?? d.amount} pcs
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <Card className="shadow-sm border-gray-100">
         <CardHeader>
           <CardTitle className="text-base font-bold">Detail Campaign</CardTitle>
@@ -160,7 +224,7 @@ export function LaporanDetailView({
 
       <Card className="shadow-sm border-gray-100">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base font-bold">Riwayat Laporan</CardTitle>
+          <CardTitle className="text-base font-bold">Riwayat Laporan Penggunaan / Penyaluran</CardTitle>
           <div className="flex items-center gap-2">
             <Button className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm" onClick={() => setModalOpen(true)}>
               <Plus className="h-4 w-4 mr-1" /> Tambah
@@ -191,7 +255,7 @@ export function LaporanDetailView({
                     <TableRow className="bg-teal-600 hover:bg-teal-600">
                       <TableHead className="text-white font-semibold">Tanggal</TableHead>
                       <TableHead className="text-white font-semibold">Keterangan</TableHead>
-                      <TableHead className="text-white font-semibold">Nominal</TableHead>
+                      <TableHead className="text-white font-semibold">Nominal / Jumlah</TableHead>
                       <TableHead className="text-white font-semibold">Sisa Dana</TableHead>
                       <TableHead className="text-white font-semibold">Bukti</TableHead>
                       <TableHead className="text-white font-semibold text-right">Aksi</TableHead>
@@ -202,8 +266,22 @@ export function LaporanDetailView({
                       <TableRow key={f.id}>
                         <TableCell className="text-sm text-gray-700">{formatDate(f.date)}</TableCell>
                         <TableCell className="font-medium">{f.description}</TableCell>
-                        <TableCell>{formatRupiah(f.amount)}</TableCell>
-                        <TableCell>{formatRupiah(f.sisaDana)}</TableCell>
+                        <TableCell>
+                          {f.type === 'barang' ? (
+                            <span className="text-orange-600 font-medium">
+                              {f.itemQuantity} {f.itemName}
+                            </span>
+                          ) : (
+                            formatRupiah(f.amount ?? 0)
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {f.type === 'barang' ? (
+                            <span className="text-gray-400">—</span>
+                          ) : (
+                            formatRupiah(f.sisaDana)
+                          )}
+                        </TableCell>
                         <TableCell>
                           {f.documentUrl ? (
                             <a href={f.documentUrl} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:underline">

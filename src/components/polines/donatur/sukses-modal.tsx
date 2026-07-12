@@ -39,7 +39,7 @@ export function SuksesModal({ open, onClose, donationForm, campaigns, session, u
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose() }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>🎉 Donasi Berhasil!</DialogTitle>
           <DialogDescription>Terima kasih atas kebaikan Anda</DialogDescription>

@@ -10,6 +10,15 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search");
     const isUrgent = searchParams.get("urgent");
 
+    // ⬅ TAMBAHAN: auto-complete campaign yang tanggal berakhirnya sudah lewat
+    await db.campaign.updateMany({
+      where: {
+        status: "active",
+        endDate: { lt: new Date() },
+      },
+      data: { status: "completed", isPublic: false },
+    });
+
     const where: Record<string, unknown> = {};
     if (category && category !== "all") where.category = category;
     if (status && status !== "all") where.status = status;
@@ -70,7 +79,7 @@ export async function POST(request: NextRequest) {
       title, description, category, targetAmount,
       startDate, endDate, isUrgent, isPublic,
       paymentMethods, uniqueCode, images, location,
-      dropOffLocation,
+      dropOffLocation, qrisImageUrl,
     } = body;
 
     if (!title || !description || !category || !targetAmount || !startDate || !endDate)
@@ -117,6 +126,7 @@ export async function POST(request: NextRequest) {
         paymentMethods: Array.isArray(paymentMethods) && paymentMethods.length > 0
           ? JSON.stringify(paymentMethods)
           : null,
+        qrisImageUrl: qrisImageUrl || null,
         createdBy: (session.user as { id: string }).id,
       },
     });

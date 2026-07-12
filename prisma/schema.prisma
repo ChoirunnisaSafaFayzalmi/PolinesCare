@@ -7,9 +7,15 @@ generator client {
 //  url      = env("DATABASE_URL")
 // }
 
+// datasource db {
+//  provider = "postgresql"
+//  url      = env("DATABASE_URL")
+// }
+
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -55,6 +61,7 @@ model Campaign {
   endDate         DateTime
   images    String?  // JSON array URL, contoh: '["url1","url2"]'
   paymentMethods  String?
+  qrisImageUrl    String?
   isPublic  Boolean  @default(true)
   location        String?  // lokasi campaign
   status          String   @default("active") // active, closed, completed
@@ -100,14 +107,17 @@ model Donation {
 }
 
 model FundUsage {
-  id          String   @id @default(cuid())
-  campaignId  String
-  description String
-  amount      Int
-  date        DateTime @default(now())
-  documentUrl String?
-  createdBy   String
-  createdAt   DateTime @default(now())
+  id           String   @id @default(cuid())
+  campaignId   String
+  type         String   @default("uang") // uang, barang
+  description  String
+  amount       Int?     // wajib kalau type = uang
+  itemName     String?  // wajib kalau type = barang
+  itemQuantity Int?     // wajib kalau type = barang
+  date         DateTime @default(now())
+  documentUrl  String?
+  createdBy    String
+  createdAt    DateTime @default(now())
 
   campaign Campaign @relation(fields: [campaignId], references: [id])
 }

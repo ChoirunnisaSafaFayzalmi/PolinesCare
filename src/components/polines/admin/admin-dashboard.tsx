@@ -20,9 +20,12 @@ import { AdminProfileTab } from './admin-profile'
 type SubView = 'campaign-form' | 'donasi-detail' | 'laporan-detail' | 'ajuan-detail' | null
 
 interface FundUsageSubmitPayload {
+  type: 'uang' | 'barang'
   date: string
   description: string
   amount: string
+  itemName: string
+  itemQuantity: string
   proofFile: File | null
 }
 
@@ -67,6 +70,7 @@ interface AdminDashboardProps {
     isUrgent: boolean
     isPublic: boolean
     paymentMethods: PaymentMethod[]  // ← pakai type dari types.ts, bukan inline
+    qrisImageUrl?: string
     uniqueCode: string
     images?: string[]
     dropOffLocation?: string   // ⬅ tambah
@@ -76,7 +80,7 @@ interface AdminDashboardProps {
   editingCampaign: Campaign | null
   setEditingCampaign: (c: Campaign | null) => void
   // submitCampaign: () => void
-  submitCampaign: (imageFiles?: File[]) => void
+  submitCampaign: (imageFiles?: File[], qrisFile?: File) => void
   submitting: boolean
   donations: Donation[]
   fundUsageForm: { campaignId: string; date: string; description: string; amount: string; proofFile: File | null }
@@ -172,7 +176,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
       startDate: '', endDate: '', isUrgent: false, isPublic: true,
       paymentMethods: [], uniqueCode: '',
       images: [], location: '',
-      dropOffLocation: '',
+      dropOffLocation: '', qrisImageUrl: '',
     })
     setSubView('campaign-form')
 
@@ -214,6 +218,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
         accountNumber: pm.accountNumber,
         isVisible: pm.isVisible ?? true,
       })),
+      qrisImageUrl: c.qrisImageUrl ?? '',
       uniqueCode: String(c.uniqueCode ?? 0),
       images: Array.isArray(c.images)
         ? c.images
@@ -239,6 +244,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
       dropOffLocation: c.dropOffLocation ?? '',
       images: Array.isArray(c.images) ? c.images : (c.images ? JSON.parse(c.images) : []),
       mode: 'complete-from-proposal',
+      qrisImageUrl: c.qrisImageUrl ?? '',
     })
     setSubView('campaign-form')
 
@@ -261,16 +267,16 @@ export function AdminDashboard(props: AdminDashboardProps) {
     })()
   }
 
-  const handleSaveCampaign = (imageFiles?: File[]) => {
-    // Sync status berdasarkan isPublic sebelum submit
-    setCampaignForm((prev: typeof campaignForm) => ({
-      ...prev,
-      status: prev.isPublic ? 'active' : 'closed',
-    }))
-    submitCampaign(imageFiles)
-    setSubView(null)
-    setEditingCampaign(null)
-  }
+  const handleSaveCampaign = async (imageFiles?: File[], qrisFile?: File) => {
+  // Sync status berdasarkan isPublic sebelum submit
+  setCampaignForm((prev: typeof campaignForm) => ({
+    ...prev,
+    status: prev.isPublic ? 'active' : 'closed',
+  }))
+  await submitCampaign(imageFiles, qrisFile)
+  setSubView(null)
+  setEditingCampaign(null)
+}
 
   // ── Handler: Laporan
   // PENTING: payload dikirim LANGSUNG ke submitFundUsage(fullPayload), bukan
@@ -282,9 +288,12 @@ export function AdminDashboard(props: AdminDashboardProps) {
   const handleAddFundUsage = (campaignId: string, payload: FundUsageSubmitPayload) => {
     const fullPayload = {
       campaignId,
+      type: payload.type,
       date: payload.date,
       description: payload.description,
       amount: payload.amount,
+      itemName: payload.itemName,
+      itemQuantity: payload.itemQuantity,
       proofFile: payload.proofFile,
     }
     // Tetap sinkronkan state form (opsional, untuk konsistensi tampilan/debug)
@@ -366,6 +375,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
         <LaporanDetailView
           campaign={selectedLaporanCampaign}
           fundUsages={fundUsages.filter(f => f.campaignId === selectedLaporanCampaign.id)}
+          donations={donations.filter(d => d.campaignId === selectedLaporanCampaign.id)}
           onAddFundUsage={handleAddFundUsage}
           onEditFundUsage={handleEditFundUsage}
           onDeleteFundUsage={handleDeleteFundUsage}
