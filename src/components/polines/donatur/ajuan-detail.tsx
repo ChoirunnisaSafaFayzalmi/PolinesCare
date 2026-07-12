@@ -91,9 +91,10 @@ function DokumenPreview({ url }: { url: string }) {
   const isPdf = isPdfUrl(url)
 
   useEffect(() => {
-    let active = true
-    setStatus('checking')
-
+  let active = true
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- reset status tiap url berubah, aman
+  setStatus('checking')
+  
     fetch(url, { method: 'HEAD' })
       .then(res => {
         if (!active) return
@@ -193,8 +194,8 @@ export function DetailAjuanPage({
   const foto = fotoFromArray.length > 0
     ? fotoFromArray
     : proposal.photoUrl
-    ? [proposal.photoUrl]
-    : []
+      ? [proposal.photoUrl]
+      : []
 
   return (
     <div className="w-full space-y-5">
@@ -217,14 +218,14 @@ export function DetailAjuanPage({
         </div>
       )}
       {status === 'ditolak' && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg space-y-1">
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg space-y-1.5">
           <div className="flex items-center gap-2">
             <XCircle className="h-4 w-4 text-red-600 shrink-0" />
             <p className="text-sm text-red-700 font-medium">Ajuan ditolak</p>
           </div>
-          {proposal.rejectionReason && (
-            <p className="text-xs text-red-600 pl-6">Catatan admin: {proposal.rejectionReason}</p>
-          )}
+          <p className="text-sm text-red-700 leading-relaxed whitespace-pre-line">
+            {proposal.rejectionReason || 'Admin belum mencantumkan catatan alasan penolakan.'}
+          </p>
         </div>
       )}
       {status === 'menunggu' && (

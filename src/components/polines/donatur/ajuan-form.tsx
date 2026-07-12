@@ -14,6 +14,7 @@ import {
   ShieldCheck, Info, Camera, Megaphone, FileCheck, AlertCircle,
 } from 'lucide-react'
 import { CATEGORIES, formatRupiah } from '../types'
+import type { ProposalAPI } from './tab-ajuan'
 
 // ============================================================
 // TYPES
@@ -304,19 +305,51 @@ function SuksesView({
 // ============================================================
 // MAIN: AjuanFormPage
 // ============================================================
+// helper kecil buat ambil nama file dari URL
+function extractFileName(url: string) {
+  try {
+    const clean = url.split('?')[0]
+    return decodeURIComponent(clean.substring(clean.lastIndexOf('/') + 1)) || 'Dokumen'
+  } catch {
+    return 'Dokumen'
+  }
+}
+
 interface AjuanFormPageProps {
   session: any
   resubmitFromId?: string | null
+  resubmitProposal?: ProposalAPI | null
   onBack: () => void
   onSuccess: () => void
 }
 
-export function AjuanFormPage({ session, resubmitFromId, onBack, onSuccess }: AjuanFormPageProps) {
+export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBack, onSuccess }: AjuanFormPageProps) {
   const [step, setStep] = useState(1)
-  const [form, setForm] = useState<AjuanForm>({
-    ...INITIAL_FORM,
-    nama: session?.user?.name ?? '',
-    email: session?.user?.email ?? '',
+  const [form, setForm] = useState<AjuanForm>(() => {
+    if (resubmitProposal) {
+      return {
+        nama: resubmitProposal.proposerName ?? session?.user?.name ?? '',
+        email: resubmitProposal.proposerEmail ?? session?.user?.email ?? '',
+        telp: resubmitProposal.proposerPhone ?? '',
+        alamatPengaju: resubmitProposal.proposerAddress ?? '',
+        judul: resubmitProposal.title,
+        deskripsi: resubmitProposal.description,
+        kategori: resubmitProposal.category,
+        targetDana: String(resubmitProposal.targetAmount),
+        tanggalBuka: resubmitProposal.startDate?.slice(0, 10) ?? '',
+        tanggalTutup: resubmitProposal.endDate?.slice(0, 10) ?? '',
+        alamatCampaign: resubmitProposal.campaignLocation,
+        fotoBukti: resubmitProposal.photoUrls ?? (resubmitProposal.photoUrl ? [resubmitProposal.photoUrl] : []),
+        suratPernyataan: resubmitProposal.officialDocUrl ?? '',
+        suratPernyataanName: resubmitProposal.officialDocUrl ? extractFileName(resubmitProposal.officialDocUrl) : '',
+        pernyataan: [false, false, false, false],
+      }
+    }
+    return {
+      ...INITIAL_FORM,
+      nama: session?.user?.name ?? '',
+      email: session?.user?.email ?? '',
+    }
   })
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -413,11 +446,22 @@ export function AjuanFormPage({ session, resubmitFromId, onBack, onSuccess }: Aj
 
       {/* Banner resubmit */}
       {resubmitFromId && (
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2">
-          <Info className="h-4 w-4 text-amber-600 shrink-0" />
-          <p className="text-xs text-amber-700">
-            Anda sedang mengajukan ulang proposal yang ditolak. Pastikan data sudah diperbaiki sesuai catatan admin.
-          </p>
+        <div className="space-y-2">
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2">
+            <Info className="h-4 w-4 text-amber-600 shrink-0" />
+            <p className="text-xs text-amber-700">
+              Anda sedang mengajukan ulang proposal yang ditolak. Data sebelumnya sudah dimuat — perbaiki sesuai catatan admin di bawah.
+            </p>
+          </div>
+          {resubmitProposal?.rejectionReason && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-xs font-semibold text-red-700">Alasan penolakan sebelumnya:</p>
+                <p className="text-xs text-red-600 mt-0.5">{resubmitProposal.rejectionReason}</p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

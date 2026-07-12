@@ -27,7 +27,7 @@ export async function GET(
     const totalAmount = campaign.donations
       .filter((d) => d.status === "approved")
       .reduce((sum, d) => sum + d.amount, 0);
-    const totalFundUsage = campaign.fundUsages.reduce((sum, f) => sum + f.amount, 0);
+    const totalFundUsage = campaign.fundUsages.reduce((sum, f) => sum + (f.amount ?? 0), 0);
 
     return NextResponse.json({
       campaign: {

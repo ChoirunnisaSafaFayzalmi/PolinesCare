@@ -39,6 +39,7 @@ export async function POST(
       description,
       category,
       targetAmount,
+      proposerName,
       proposerEmail,
       proposerPhone,
       proposerAddress,
@@ -56,14 +57,15 @@ export async function POST(
       );
     }
 
-    // Buat proposal baru sebagai pengajuan ulang
-    const newProposal = await db.proposal.create({
+    // Update record yang sama — bukan bikin proposal baru
+    const updatedProposal = await db.proposal.update({
+      where: { id },
       data: {
         title: title || oldProposal.title,
         description: description || oldProposal.description,
         category: category || oldProposal.category,
         targetAmount: targetAmount ? Number(targetAmount) : oldProposal.targetAmount,
-        proposedBy: userId,
+        proposerName: proposerName || oldProposal.proposerName,
         proposerEmail: proposerEmail || oldProposal.proposerEmail,
         proposerPhone: proposerPhone || oldProposal.proposerPhone,
         proposerAddress: proposerAddress || oldProposal.proposerAddress,
@@ -73,11 +75,11 @@ export async function POST(
         officialDocUrl,
         photoUrls: photoUrls ? JSON.stringify(photoUrls) : oldProposal.photoUrls ?? null,
         status: "pending",
-        resubmittedFrom: id, // referensi ke proposal lama
+        rejectionReason: null, // catatan penolakan lama di-clear karena sudah direvisi
       },
     });
 
-    return NextResponse.json({ proposal: newProposal }, { status: 201 });
+    return NextResponse.json({ proposal: updatedProposal }, { status: 200 });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Terjadi kesalahan";
     return NextResponse.json({ error: message }, { status: 500 });

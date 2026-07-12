@@ -229,24 +229,28 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
 
   // 1. Initial Load: Fetch all stable data on mount
   useEffect(() => {
-    fetchAllCampaigns(); 
-    fetchCampaigns(); 
-    fetchProposals(); 
-    fetchDonations(); 
-    fetchNotifications();
-    fetchAllFundUsages();
-  }, [fetchAllCampaigns, fetchCampaigns, fetchProposals, fetchDonations, fetchNotifications, fetchAllFundUsages]);
+  /* eslint-disable react-hooks/set-state-in-effect -- fetch-on-mount pattern, aman */
+  fetchAllCampaigns();
+  fetchCampaigns();
+  fetchProposals();
+  fetchDonations();
+  fetchNotifications();
+  fetchAllFundUsages();
+  /* eslint-enable react-hooks/set-state-in-effect */
+}, [fetchAllCampaigns, fetchCampaigns, fetchProposals, fetchDonations, fetchNotifications, fetchAllFundUsages]);
 
   // 2. Stats Load: Fetch dynamically based on selected month
   useEffect(() => {
-    fetchStats(statsMonth);
-  }, [statsMonth, fetchStats]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount pattern, aman
+  fetchStats(statsMonth);
+}, [statsMonth, fetchStats]);
 
   useEffect(() => {
-    if (reportCampaignId) {
-      fetchFundUsages(reportCampaignId)
-    }
-  }, [reportCampaignId, fetchFundUsages])
+  if (reportCampaignId) {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount pattern, aman
+    fetchFundUsages(reportCampaignId)
+  }
+}, [reportCampaignId, fetchFundUsages])
 
   // ============================================================
   // AUTH HANDLERS

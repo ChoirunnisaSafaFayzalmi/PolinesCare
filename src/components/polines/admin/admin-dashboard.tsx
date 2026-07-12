@@ -75,6 +75,10 @@ interface AdminDashboardProps {
     images?: string[]
     dropOffLocation?: string   // ⬅ tambah
     mode?: 'create' | 'complete-from-proposal'
+    proposerName?: string
+    proposerEmail?: string
+    proposerPhone?: string
+    proposerAddress?: string
   }
   setCampaignForm: (form: any) => void
   editingCampaign: Campaign | null
@@ -245,38 +249,42 @@ export function AdminDashboard(props: AdminDashboardProps) {
       images: Array.isArray(c.images) ? c.images : (c.images ? JSON.parse(c.images) : []),
       mode: 'complete-from-proposal',
       qrisImageUrl: c.qrisImageUrl ?? '',
+      proposerName: c.creator?.name ?? '',
+      proposerEmail: c.creator?.email ?? '',
+      proposerPhone: c.creator?.phone ?? '',
+      proposerAddress: c.creator?.address ?? '',
     })
     setSubView('campaign-form')
 
-    // Sama seperti handleNewCampaign — auto-isi kode unik yang aman
-    ;(async () => {
-      try {
-        const res = await fetch('/api/campaigns/next-unique-code')
-        if (res.ok) {
-          const data = await res.json()
-          if (typeof data.uniqueCode === 'number') {
-            setCampaignForm((prev: typeof campaignForm) => ({
-              ...prev,
-              uniqueCode: String(data.uniqueCode),
-            }))
+      // Sama seperti handleNewCampaign — auto-isi kode unik yang aman
+      ; (async () => {
+        try {
+          const res = await fetch('/api/campaigns/next-unique-code')
+          if (res.ok) {
+            const data = await res.json()
+            if (typeof data.uniqueCode === 'number') {
+              setCampaignForm((prev: typeof campaignForm) => ({
+                ...prev,
+                uniqueCode: String(data.uniqueCode),
+              }))
+            }
           }
+        } catch {
+          // Silent fallback
         }
-      } catch {
-        // Silent fallback
-      }
-    })()
+      })()
   }
 
   const handleSaveCampaign = async (imageFiles?: File[], qrisFile?: File) => {
-  // Sync status berdasarkan isPublic sebelum submit
-  setCampaignForm((prev: typeof campaignForm) => ({
-    ...prev,
-    status: prev.isPublic ? 'active' : 'closed',
-  }))
-  await submitCampaign(imageFiles, qrisFile)
-  setSubView(null)
-  setEditingCampaign(null)
-}
+    // Sync status berdasarkan isPublic sebelum submit
+    setCampaignForm((prev: typeof campaignForm) => ({
+      ...prev,
+      status: prev.isPublic ? 'active' : 'closed',
+    }))
+    await submitCampaign(imageFiles, qrisFile)
+    setSubView(null)
+    setEditingCampaign(null)
+  }
 
   // ── Handler: Laporan
   // PENTING: payload dikirim LANGSUNG ke submitFundUsage(fullPayload), bukan

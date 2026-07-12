@@ -58,8 +58,8 @@ export function mapProposalToRiwayat(p: ProposalAPI): RiwayatAjuan {
     tanggalAjuan: p.createdAt,
     status:
       p.status === 'approved' ? 'disetujui'
-      : p.status === 'rejected' ? 'ditolak'
-      : 'menunggu',
+        : p.status === 'rejected' ? 'ditolak'
+          : 'menunggu',
     catatan: p.rejectionReason ?? undefined,
   }
 }
@@ -81,7 +81,7 @@ export function useProposals(session?: any) {
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
       }
-      
+
       if (session?.accessToken) {
         headers['Authorization'] = `Bearer ${session.accessToken}`
       }
@@ -96,11 +96,11 @@ export function useProposals(session?: any) {
       }
 
       const data = await response.json()
-      
+
       // Fleksibilitas membaca response json: 
       // Mengantisipasi jika backend mengembalikan { proposals: [...] } ATAU langsung array [...]
       const proposalsData = data.proposals || data;
-      
+
       if (Array.isArray(proposalsData)) {
         setProposals(proposalsData)
       } else {
@@ -250,7 +250,15 @@ const ITEMS_PER_PAGE = 5
 export function TabAjuan({ session }: TabAjuanProps) {
   // Meneruskan session ke hook untuk antisipasi autentikasi token API
   const { proposals, loading, error, refetch } = useProposals(session)
-  const riwayat = proposals.map(mapProposalToRiwayat)
+
+  // Sembunyikan proposal lama yang sudah digantikan oleh hasil resubmit
+  // (data legacy dari sebelum resubmit pakai update-in-place; proposal baru
+  // menyimpan resubmittedFrom = id proposal lama, jadi id itu kita filter keluar)
+  const supersededIds = new Set(
+    proposals.map(p => p.resubmittedFrom).filter((id): id is string => !!id)
+  )
+  const visibleProposals = proposals.filter(p => !supersededIds.has(p.id))
+  const riwayat = visibleProposals.map(mapProposalToRiwayat)
 
   const [view, setView] = useState<View>('list')
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -258,8 +266,7 @@ export function TabAjuan({ session }: TabAjuanProps) {
   const [filterStatus, setFilterStatus] = useState<StatusFilter>('semua')
   const [currentPage, setCurrentPage] = useState(1)
 
-  const selectedProposal = proposals.find(p => p.id === selectedId) ?? null
-
+  const selectedProposal = visibleProposals.find(p => p.id === selectedId) ?? null
   const goToForm = (resubmitId?: string) => {
     setResubmitFromId(resubmitId ?? null)
     setView('form')
@@ -279,10 +286,15 @@ export function TabAjuan({ session }: TabAjuanProps) {
 
   // ── Form view ──
   if (view === 'form') {
+    const resubmitProposal = resubmitFromId
+      ? proposals.find(p => p.id === resubmitFromId) ?? null
+      : null
+
     return (
       <AjuanFormPage
         session={session}
         resubmitFromId={resubmitFromId}
+        resubmitProposal={resubmitProposal}
         onBack={goToList}
         onSuccess={goToList}
       />
@@ -455,10 +467,10 @@ export function TabAjuan({ session }: TabAjuanProps) {
                         <span>•</span>
                         <span>Diajukan {formatDate(r.tanggalAjuan)}</span>
                       </div>
-                      {r.status === 'ditolak' && r.catatan && (
+                      {r.status === 'ditolak' && (
                         <div className="mt-2 p-2.5 bg-red-50 border border-red-100 rounded-lg">
                           <p className="text-xs text-red-600">
-                            <span className="font-semibold">Catatan admin:</span> {r.catatan}
+                            {r.catatan || 'Admin belum mencantumkan catatan alasan penolakan.'}
                           </p>
                         </div>
                       )}
