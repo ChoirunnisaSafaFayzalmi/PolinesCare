@@ -62,7 +62,7 @@ function Toggle({ checked, onChange, label, description }: {
       <button
         type="button"
         onClick={onChange}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer flex-shrink-0 ${checked ? 'bg-teal-500' : 'bg-gray-300'
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer shrink-0 ${checked ? 'bg-teal-500' : 'bg-gray-300'
           }`}
       >
         <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${checked ? 'translate-x-6' : 'translate-x-1'
@@ -238,6 +238,31 @@ export function CampaignFormView({
     })
   }
 
+  // ⬅ FIX: sebelumnya field Target Dana pakai <Input type="number">. Masalahnya,
+  // format number bawaan HTML SELALU pakai titik (.) sebagai tanda DESIMAL,
+  // bukan pemisah ribuan seperti kebiasaan Indonesia. Akibatnya waktu admin
+  // mengetik "300.000" (maksudnya 300 ribu), browser membacanya sebagai
+  // "300 koma nol-nol-nol" = tersimpan sebagai 300 saja — jauh dari yang
+  // dimaksud, dan tidak ada error apapun yang terlihat karena secara teknis
+  // itu input number yang valid.
+  //
+  // Fix: ganti jadi <Input type="text"> biasa yang diformat manual:
+  // - Yang ditampilkan ke admin: angka dengan pemisah ribuan gaya Indonesia
+  //   (titik), misal "300.000"
+  // - Yang disimpan di state (campaignForm.targetAmount): angka murni tanpa
+  //   titik, misal "300000" — ini yang akan dikirim ke API dan di-Number()-kan
+  //   di submitCampaign(), jadi tidak perlu ubah apapun di sisi page.tsx
+  const formatThousands = (rawDigits: string) => {
+    if (!rawDigits) return ''
+    return Number(rawDigits).toLocaleString('id-ID')
+  }
+
+  const handleTargetAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Buang semua karakter selain digit (termasuk titik yang mungkin diketik user)
+    const rawDigits = e.target.value.replace(/\D/g, '')
+    setCampaignForm({ ...campaignForm, targetAmount: rawDigits })
+  }
+
   return (
     <>
       {showAddModal && (
@@ -276,15 +301,26 @@ export function CampaignFormView({
         <CardContent className="space-y-8">
 
           {/* Section 1: Informasi Pembuat */}
+          {/* ⬅ FIX: sebelumnya section ini SELALU menampilkan data dari `session`
+              (admin yang sedang login sekarang), bahkan saat mode EDIT campaign
+              yang dibuat oleh admin lain. Karena admin di aplikasi ini tidak
+              cuma 1 orang, ini salah — info yang tampil harus menunjukkan siapa
+              yang BENERAN membuat campaign tersebut, bukan siapa yang sedang
+              membukanya sekarang.
+              Fix: kalau sedang edit (editingCampaign ada isinya), ambil data
+              dari editingCampaign.creator (data pembuat asli, dari database).
+              Kalau sedang buat campaign baru (editingCampaign null), baru pakai
+              data session — karena di kasus itu, yang login SEKARANG memang
+              yang akan jadi pembuatnya. */}
           <section>
             <SectionTitle>Informasi Pembuat</SectionTitle>
             <div className="bg-gray-50 rounded-xl border border-gray-100 p-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                  { label: 'Nama', value: session?.user?.name },
-                  { label: 'Email', value: session?.user?.email },
-                  { label: 'No Telp', value: session?.user?.phone },
-                  { label: 'Alamat', value: session?.user?.address },
+                  { label: 'Nama', value: editingCampaign?.creator?.name ?? session?.user?.name },
+                  { label: 'Email', value: editingCampaign?.creator?.email ?? session?.user?.email },
+                  { label: 'No Telp', value: editingCampaign?.creator?.phone ?? session?.user?.phone },
+                  { label: 'Alamat', value: editingCampaign?.creator?.address ?? session?.user?.address },
                 ].map(({ label, value }) => (
                   <div key={label} className="space-y-1">
                     <p className="text-xs text-gray-400 font-medium">{label}</p>
@@ -295,8 +331,10 @@ export function CampaignFormView({
                 ))}
               </div>
               <p className="text-xs text-gray-400 mt-4 flex items-center gap-1">
-                <span className="inline-block w-3 h-3 rounded-full bg-teal-400 flex-shrink-0" />
-                Data diambil dari profil akun admin yang sedang login. Ubah di halaman Profil.
+                <span className="inline-block w-3 h-3 rounded-full bg-teal-400 shrink-0" />
+                {editingCampaign
+                  ? 'Data diambil dari profil pembuat campaign ini (admin atau donatur pengaju proposal).'
+                  : 'Data diambil dari profil akun admin yang sedang login. Ubah di halaman Profil.'}
               </p>
             </div>
           </section>
@@ -355,14 +393,21 @@ export function CampaignFormView({
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">Target Dana</Label>
-                  <Input
-                    type="number"
-                    value={campaignForm.targetAmount}
-                    onChange={(e) => setCampaignForm({ ...campaignForm, targetAmount: e.target.value })}
-                    placeholder="Ketik di sini"
-                    className={inputCls}
-                    disabled={isLocked}
-                  />
+                  {/* ⬅ FIX: type="text" + format pemisah ribuan manual, lihat handleTargetAmountChange di atas */}
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 pointer-events-none">
+                      Rp
+                    </span>
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      value={formatThousands(campaignForm.targetAmount)}
+                      onChange={handleTargetAmountChange}
+                      placeholder="Contoh: 300.000"
+                      className={`${inputCls} pl-9`}
+                      disabled={isLocked}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -491,7 +536,7 @@ export function CampaignFormView({
                       <button
                         type="button"
                         onClick={() => handleRemovePayment(method.key)}
-                        className="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center transition-colors flex-shrink-0"
+                        className="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center transition-colors shrink-0"
                         title="Hapus metode ini"
                       >
                         <Trash2 className="h-3.5 w-3.5 text-red-400" />
@@ -509,7 +554,7 @@ export function CampaignFormView({
                       onClick={() => handleToggleVisible(method.key)}
                       className="flex items-center gap-2 pt-1 group"
                     >
-                      <span className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${method.isVisible
+                      <span className={`shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${method.isVisible
                         ? 'bg-teal-600 border-teal-600'
                         : 'border-gray-300 bg-white'
                         }`}>
@@ -533,7 +578,7 @@ export function CampaignFormView({
                   onClick={() => setShowAddModal(true)}
                   className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 hover:border-teal-400 hover:bg-teal-50/50 transition-all py-3 cursor-pointer group"
                 >
-                  <div className="w-5 h-5 rounded-full bg-gray-100 group-hover:bg-teal-100 flex items-center justify-center transition-colors flex-shrink-0">
+                  <div className="w-5 h-5 rounded-full bg-gray-100 group-hover:bg-teal-100 flex items-center justify-center transition-colors shrink-0">
                     <Plus className="h-3 w-3 text-gray-400 group-hover:text-teal-600" />
                   </div>
                   <span className="text-sm text-gray-400 group-hover:text-teal-600 transition-colors">

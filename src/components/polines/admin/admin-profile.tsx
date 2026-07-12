@@ -220,7 +220,7 @@ export function AdminProfileTab() {
 
                 {successMsg && (
                     <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-                        <CheckCircle className="h-4 w-4 flex-shrink-0" /> {successMsg}
+                        <CheckCircle className="h-4 w-4 shrink-0" /> {successMsg}
                     </div>
                 )}
                 {errorMsg && (
@@ -295,7 +295,7 @@ export function AdminProfileTab() {
 
                 {passwordSuccess && (
                     <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-                        <CheckCircle className="h-4 w-4 flex-shrink-0" /> {passwordSuccess}
+                        <CheckCircle className="h-4 w-4 shrink-0" /> {passwordSuccess}
                     </div>
                 )}
                 {passwordError && (

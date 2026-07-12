@@ -21,10 +21,15 @@ export async function GET(request: NextRequest) {
       ];
     }
 
+    // ⬅ FIX: sebelumnya select creator cuma { id, name, avatar } — tidak cukup
+    // untuk menampilkan email/no telp/alamat pembuat campaign yang sebenarnya
+    // di form Edit Campaign (sebelumnya form itu fallback ke data admin yang
+    // sedang login, padahal admin bisa lebih dari 1 orang). Tambahkan email,
+    // phone, address ke select supaya data pembuat asli ikut terkirim ke frontend.
     const campaigns = await db.campaign.findMany({
       where,
       include: {
-        creator: { select: { id: true, name: true, avatar: true } },
+        creator: { select: { id: true, name: true, email: true, phone: true, address: true, avatar: true } },
         _count: { select: { donations: true } },
       },
       orderBy: [{ isUrgent: "desc" }, { createdAt: "desc" }],
@@ -43,6 +48,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+// Status campaign yang dianggap "masih berjalan" — kode uniknya tidak boleh
+// bentrok satu sama lain karena masih dipakai untuk mencocokkan transfer masuk.
+// Campaign yang sudah "completed"/"closed" boleh berbagi kode yang sama karena
+// sudah tidak menerima donasi baru.
+const ACTIVE_STATUSES = ["active", "awaiting_completion"];
 
 export async function POST(request: NextRequest) {
   try {
@@ -65,6 +76,30 @@ export async function POST(request: NextRequest) {
     if (!title || !description || !category || !targetAmount || !startDate || !endDate)
       return NextResponse.json({ error: "Semua field wajib diisi" }, { status: 400 });
 
+    // ⬅ FIX: sebelumnya uniqueCode hanya di-clamp ke rentang 0-999 tanpa
+    // pengecekan apakah kode itu sudah dipakai campaign lain yang masih aktif.
+    // Ini berisiko: dua campaign aktif dengan kode unik sama akan membuat
+    // sistem salah mencocokkan transfer donasi ke campaign yang salah.
+    // Fix: cek dulu ke database sebelum membuat campaign baru.
+    const normalizedCode = Math.min(999, Math.max(0, Number(uniqueCode) || 0));
+
+    const existingWithSameCode = await db.campaign.findFirst({
+      where: {
+        uniqueCode: normalizedCode,
+        status: { in: ACTIVE_STATUSES },
+      },
+      select: { id: true, title: true },
+    });
+
+    if (existingWithSameCode) {
+      return NextResponse.json(
+        {
+          error: `Kode unik ${String(normalizedCode).padStart(3, "0")} sudah dipakai oleh campaign aktif "${existingWithSameCode.title}". Silakan pilih kode lain.`,
+        },
+        { status: 409 }
+      );
+    }
+
     const campaign = await db.campaign.create({
       data: {
         title,
@@ -77,7 +112,7 @@ export async function POST(request: NextRequest) {
         endDate: new Date(endDate),
         isUrgent: isUrgent || false,
         isPublic: isPublic ?? true,
-        uniqueCode: Math.min(999, Math.max(0, Number(uniqueCode) || 0)),
+        uniqueCode: normalizedCode,
         images: Array.isArray(images) && images.length > 0 ? JSON.stringify(images) : null,
         paymentMethods: Array.isArray(paymentMethods) && paymentMethods.length > 0
           ? JSON.stringify(paymentMethods)

@@ -78,34 +78,41 @@ export async function PUT(
 
     // Jika approved → buat Campaign otomatis
     if (status === 'approved') {
-      const adminId = (session.user as { id?: string }).id;
-      let createdBy = adminId || '';
-      if (!createdBy) {
-        const adminUser = await db.user.findFirst({ where: { role: 'admin' } });
-        createdBy = adminUser?.id || '';
-      }
+      // ⬅ FIX: sebelumnya `createdBy` campaign hasil approval di-set ke ID
+      // ADMIN yang melakukan approve (adminId dari session, dengan fallback
+      // ke admin pertama yang ditemukan di database). Ini salah secara
+      // konsep — campaign ini pada dasarnya "diusulkan" oleh donatur yang
+      // mengajukan proposal, admin hanya menyetujui dan nanti melengkapi
+      // data pembayaran. Akibatnya section "Informasi Pembuat" di form
+      // "Lengkapi & Publikasikan Campaign" selalu menampilkan data admin
+      // yang approve (atau kosong), BUKAN data donatur yang sebelumnya
+      // mengisi form pengajuan proposal — padahal donatur itu sudah mengisi
+      // nama/email/telepon/alamat lengkap saat submit proposal.
+      // Fix: createdBy sekarang diarahkan ke existingProposal.proposedBy
+      // (ID donatur pengaju asli), bukan admin yang approve.
+      const proposerId = existingProposal.proposedBy;
 
       await db.campaign.create({
-  data: {
-    title: existingProposal.title,
-    description: existingProposal.description,
-    category: existingProposal.category,
-    targetAmount: existingProposal.targetAmount ?? 0,
-    collectedAmount: 0,
-    startDate: existingProposal.startDate ?? new Date(),
-    endDate: existingProposal.endDate ?? new Date(),
-    status: 'awaiting_completion',   // ⬅ ubah dari 'active'
-    isPublic: false,                 // ⬅ ubah dari true
-    isUrgent: false,
-    location: existingProposal.campaignLocation ?? '',
-    images: existingProposal.photoUrls ?? null,
-    paymentMethods: null,
-    uniqueCode: 0,                   // ⬅ ubah dari random, biar admin isi manual
-    dropOffLocation: null,
-    createdBy,
-    proposalId: existingProposal.id,
-  },
-})
+        data: {
+          title: existingProposal.title,
+          description: existingProposal.description,
+          category: existingProposal.category,
+          targetAmount: existingProposal.targetAmount ?? 0,
+          collectedAmount: 0,
+          startDate: existingProposal.startDate ?? new Date(),
+          endDate: existingProposal.endDate ?? new Date(),
+          status: 'awaiting_completion',
+          isPublic: false,
+          isUrgent: false,
+          location: existingProposal.campaignLocation ?? '',
+          images: existingProposal.photoUrls ?? null,
+          paymentMethods: null,
+          uniqueCode: 0,
+          dropOffLocation: null,
+          createdBy: proposerId,
+          proposalId: existingProposal.id,
+        },
+      })
     }
 
     // Notifikasi ke pengaju

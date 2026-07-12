@@ -11,9 +11,27 @@ interface NotifikasiTabProps {
   unreadCount: number
   onMarkRead: (id: string) => void
   onMarkAllRead: () => void
+  // ⬅ FIX: prop baru — dipanggil saat notifikasi yang punya relatedType +
+  // relatedId diklik, supaya admin langsung diarahkan ke detail item terkait
+  // (donasi/proposal), bukan cuma menandai notifikasi sebagai "dibaca".
+  onNavigate?: (relatedType: string, relatedId: string) => void
 }
 
-export function NotifikasiTab({ notifications, unreadCount, onMarkRead, onMarkAllRead }: NotifikasiTabProps) {
+export function NotifikasiTab({ notifications, unreadCount, onMarkRead, onMarkAllRead, onNavigate }: NotifikasiTabProps) {
+  // ⬅ FIX: sebelumnya klik notifikasi hanya memanggil onMarkRead(n.id).
+  // Sekarang, kalau notifikasi ini punya relatedType & relatedId (dibuat oleh
+  // backend saat ada donasi/proposal baru — lihat donations/route.ts dan
+  // proposals/route.ts), klik juga memicu onNavigate supaya admin langsung
+  // diarahkan ke detail item yang dimaksud. Notifikasi lama/generik tanpa
+  // relatedType (misal notifikasi bawaan seed) tetap cuma menandai "dibaca"
+  // seperti biasa — tidak ada navigasi yang dipaksakan kalau tidak ada target.
+  const handleClick = (n: AppNotification) => {
+    onMarkRead(n.id)
+    if (n.relatedType && n.relatedId && onNavigate) {
+      onNavigate(n.relatedType, n.relatedId)
+    }
+  }
+
   return (
     <Card className="shadow-sm border-gray-100">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -28,30 +46,34 @@ export function NotifikasiTab({ notifications, unreadCount, onMarkRead, onMarkAl
         {notifications.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">Tidak ada notifikasi</p>
         ) : (
-          <div className="space-y-2 max-h-[600px] overflow-y-auto">
-            {notifications.map(n => (
-              <div
-                key={n.id}
-                onClick={() => onMarkRead(n.id)}
-                className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                  !n.isRead
-                    ? 'bg-teal-50/50 border-teal-100 hover:bg-teal-50'
-                    : 'border-gray-100 hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-gray-800">{n.title}</p>
-                      {!n.isRead && <span className="w-2 h-2 rounded-full bg-teal-500 flex-shrink-0" />}
+          <div className="space-y-2 max-h-150 overflow-y-auto">
+            {notifications.map(n => {
+              const isClickable = Boolean(n.relatedType && n.relatedId)
+              return (
+                <div
+                  key={n.id}
+                  onClick={() => handleClick(n)}
+                  className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                    !n.isRead
+                      ? 'bg-teal-50/50 border-teal-100 hover:bg-teal-50'
+                      : 'border-gray-100 hover:bg-gray-50'
+                  }`}
+                  title={isClickable ? 'Klik untuk lihat detail' : undefined}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-gray-800">{n.title}</p>
+                        {!n.isRead && <span className="w-2 h-2 rounded-full bg-teal-500 shrink-0" />}
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">{n.message}</p>
+                      <p className="text-xs text-gray-400 mt-1.5">{formatDate(n.createdAt)}</p>
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">{n.message}</p>
-                    <p className="text-xs text-gray-400 mt-1.5">{formatDate(n.createdAt)}</p>
+                    <Badge variant="outline" className="text-xs shrink-0">{n.type}</Badge>
                   </div>
-                  <Badge variant="outline" className="text-xs flex-shrink-0">{n.type}</Badge>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </CardContent>

@@ -120,6 +120,11 @@ export async function POST(request: NextRequest) {
     });
 
     // ── Kirim notifikasi ke semua admin ──
+    // ⬅ FIX: sebelumnya notifikasi ini tidak menyimpan ID donasi terkait,
+    // jadi klik notifikasi di daftar Notifikasi hanya bisa menandai "dibaca"
+    // tanpa bisa mengarahkan admin langsung ke detail donasi yang dimaksud.
+    // Sekarang disisipkan relatedType: "donation" dan relatedId: donation.id,
+    // supaya frontend bisa langsung membuka detail donasi ini saat diklik.
     const admins = await db.user.findMany({
       where: { role: "admin" },
       select: { id: true },
@@ -133,6 +138,8 @@ export async function POST(request: NextRequest) {
           title: "Donasi Baru Masuk",
           message: `${name} mengirim donasi ${donationTypeLabel} untuk "${campaign.title}". Segera verifikasi.`,
           type: "info",
+          relatedType: "donation",
+          relatedId: donation.id,
         })),
       });
     }

@@ -5,6 +5,22 @@ import * as path from "path";
 
 const prisma = new PrismaClient();
 
+// ⬅ FIX: `item.Waktu` di donasi.json berformat ANGKA SERIAL EXCEL (jumlah hari
+// sejak 30 Desember 1899), BUKAN timestamp JavaScript biasa. Sebelumnya kode
+// langsung memanggil `new Date(item.Waktu)` — JavaScript membaca angka itu
+// sebagai MILIDETIK sejak 1 Januari 1970, sehingga semua donasi tersimpan
+// dengan tanggal mendekati 1 Januari 1970 (bukan tanggal aslinya di
+// 2024-2026). Ini yang menyebabkan filter bulan di dashboard "kelihatan tidak
+// berfungsi" — datanya memang tidak akan pernah cocok dengan bulan manapun
+// yang dipilih di dropdown, karena semuanya nyangkut di tahun 1970.
+//
+// Rumus konversi serial Excel -> JS Date yang benar (standar dipakai library
+// seperti SheetJS/xlsx): 25569 adalah jumlah hari antara epoch Excel
+// (30 Des 1899) dan epoch JavaScript (1 Jan 1970).
+function excelSerialToDate(serial: number): Date {
+  return new Date((serial - 25569) * 86400 * 1000);
+}
+
 async function main() {
   console.log("🌱 Seeding Polines Care database...\n");
 
@@ -222,8 +238,16 @@ async function main() {
   // ============================================================
   console.log("🚀 Memeriksa dan menyuntikkan riwayat transaksi dari Excel...");
   let countDonation = 0;
+  let countFixedDate = 0;
 
-  // PERBAIKAN LOOPING DONATION: Menambahkan pengecekan findUnique untuk mencegah error Unique Constraint
+  // ⬅ FIX: sebelumnya pakai pola "findUnique lalu skip kalau sudah ada", yang
+  // artinya kalau kamu re-run seed setelah bug tanggal ini diperbaiki, data
+  // yang SUDAH TERLANJUR tersimpan dengan tanggal salah (1970) tidak akan
+  // pernah ter-update — script akan terus men-skip-nya karena ID-nya sudah ada.
+  // Diganti jadi upsert: kalau donasi sudah ada, HANYA field createdAt yang
+  // di-update ke tanggal yang benar (tidak menambah collectedAmount lagi,
+  // supaya tidak dobel-hitung). Kalau donasi belum ada (baru), baru dibuat
+  // dengan create seperti biasa dan collectedAmount di-increment.
   for (let i = 0; i < dataset.length; i++) {
     const item = dataset[i];
     const userObj = userMap[item.User];
@@ -231,14 +255,14 @@ async function main() {
 
     if (userObj && campaignId) {
       const donationId = `excel-don-${i}`;
+      const correctedDate = excelSerialToDate(Number(item.Waktu));
 
-      // Periksa apakah record donasi dengan ID ini sudah tersimpan
       const existingDonation = await prisma.donation.findUnique({
         where: { id: donationId },
       });
 
-      // Jika data belum ada, eksekusi pembuatan data baru dan naikkan agregasi collectedAmount
       if (!existingDonation) {
+        // Donasi baru: buat seperti biasa + naikkan collectedAmount
         await prisma.donation.create({
           data: {
             id: donationId,
@@ -252,11 +276,10 @@ async function main() {
             paymentMethod: "transfer",
             status: "approved",
             message: "Donasi riwayat lampau dari dataset.",
-            createdAt: new Date(item.Waktu),
+            createdAt: correctedDate,
           },
         });
 
-        // Akumulasikan nilai collectedAmount di tabel Campaign
         await prisma.campaign.update({
           where: { id: campaignId },
           data: {
@@ -264,10 +287,18 @@ async function main() {
           },
         });
         countDonation++;
+      } else if (existingDonation.createdAt.getFullYear() === 1970) {
+        // Donasi sudah ada TAPI tanggalnya masih kena bug lama (1970) —
+        // perbaiki tanggalnya saja, jangan sentuh collectedAmount lagi
+        await prisma.donation.update({
+          where: { id: donationId },
+          data: { createdAt: correctedDate },
+        });
+        countFixedDate++;
       }
     }
   }
-  console.log(`✅ Selesai! Berhasil memproses pengisian ${countDonation} riwayat transaksi baru (transaksi yang sudah ada otomatis dilewati).`);
+  console.log(`✅ Selesai! ${countDonation} riwayat transaksi baru ditambahkan, ${countFixedDate} tanggal donasi lama (bug 1970) berhasil diperbaiki.`);
 
   // ============================================================
   // 4. PROPOSALS (Tetap dipertahankan)
@@ -331,14 +362,22 @@ async function main() {
     });
   }
 
+  // ⬅ FIX: bug pre-existing (bukan dari perbaikan tanggal di atas) — sebelumnya
+  // pakai .create() polos, jadi kalau seed dijalankan lebih dari sekali, baris
+  // ini gagal dengan "Unique constraint failed" karena record dengan id yang
+  // sama sudah ada dari run sebelumnya. Diganti jadi upsert (pola yang sama
+  // seperti section lain di file ini) supaya aman dijalankan berulang kali.
   const fundUsagesData = [
-    { campaignId: completedCampaign.id, description: "Pembelian 5 ekor kambing qurban", amount: 15000000, createdBy: admin.id },
-    { campaignId: completedCampaign.id, description: "Biaya potong dan distribusi daging", amount: 3000000, createdBy: admin.id },
+    { id: "seed-fund-pembelian-5-ekor-k", campaignId: completedCampaign.id, description: "Pembelian 5 ekor kambing qurban", amount: 15000000, createdBy: admin.id },
+    { id: "seed-fund-biaya-potong-dan-di", campaignId: completedCampaign.id, description: "Biaya potong dan distribusi daging", amount: 3000000, createdBy: admin.id },
   ];
 
   for (const f of fundUsagesData) {
-    await prisma.fundUsage.create({
-      data: { id: `seed-fund-${f.description.slice(0, 15).replace(/\s+/g, "-")}`, ...f },
+    const { id, ...rest } = f;
+    await prisma.fundUsage.upsert({
+      where: { id },
+      update: {},
+      create: { id, ...rest },
     });
   }
 

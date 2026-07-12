@@ -29,7 +29,13 @@ export interface Campaign {
   isPublic: boolean
   uniqueCode: number
   createdBy: string
-  creator?: { name: string }
+  // ⬅ FIX: sebelumnya creator cuma punya { name }, sehingga form Edit Campaign
+  // tidak bisa menampilkan email/no telp/alamat pembuat asli campaign — cuma
+  // bisa fallback ke data admin yang sedang login (salah, karena admin bisa
+  // lebih dari 1 orang). Field ini diperluas supaya data pembuat asli bisa
+  // ditampilkan dengan benar. Field API (campaigns/route.ts dan
+  // campaigns/[id]/route.ts) juga perlu di-update agar meng-select field ini.
+  creator?: { name: string; email?: string; phone?: string; address?: string; avatar?: string }
   _count?: { donations: number }
   paymentMethods: PaymentMethod[]
 }
@@ -96,6 +102,10 @@ export interface Proposal {
 
 export interface AppNotification {
   id: string; title: string; message: string; type: string; isRead: boolean; createdAt: string;
+  // ⬅ FIX: field baru untuk navigasi saat notifikasi diklik — lihat catatan di
+  // schema.prisma model Notification untuk penjelasan lengkap.
+  relatedType?: string | null;
+  relatedId?: string | null;
 }
 
 export interface RecommendedCampaign extends Campaign {

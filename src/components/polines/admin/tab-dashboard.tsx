@@ -69,10 +69,21 @@ export function DashboardTab({ stats, allCampaigns, onNavigateCampaign, selected
     { label: 'Transaksi', value: stats?.totalDonations ?? 0, icon: CreditCard, color: 'from-teal-800 to-teal-700' },
   ]
 
-  // selectedMonth = "2026-06" -> ambil bagian bulan "06"
+  // =======================================================================
+  // 1. PISAHKAN STATE TAHUN DAN BULAN (DARI FORMAT "YYYY-MM")
+  // =======================================================================
   const safeMonth = selectedMonth || new Date().toISOString().slice(0, 7) // default: bulan ini
-  const currentMonthValue = safeMonth.split('-')[1]
   const currentYear = safeMonth.split('-')[0]
+  const currentMonthValue = safeMonth.split('-')[1]
+
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onChangeMonth(`${currentYear}-${e.target.value}`)
+  }
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onChangeMonth(`${e.target.value}-${currentMonthValue}`)
+  }
+  // =======================================================================
 
   return (
     <div className="space-y-6">
@@ -81,7 +92,7 @@ export function DashboardTab({ stats, allCampaigns, onNavigateCampaign, selected
         {statsCards.map((s, i) => {
           const Icon = s.icon
           return (
-            <div key={i} className={`bg-gradient-to-br ${s.color} rounded-xl p-5 text-white shadow-md`}>
+            <div key={i} className={`bg-linear-to-br ${s.color} rounded-xl p-5 text-white shadow-md`}>
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm font-medium text-white/80">{s.label}</p>
                 <div className="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center">
@@ -100,16 +111,33 @@ export function DashboardTab({ stats, allCampaigns, onNavigateCampaign, selected
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-bold">Donasi per Kategori</CardTitle>
-              {/* Dropdown pilih bulan, menggantikan badge statis "6 Bulan" */}
-              <select
-                value={currentMonthValue}
-                onChange={(e) => onChangeMonth(`${currentYear}-${e.target.value}`)}
-                className="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-teal-500"
-              >
-                {MONTH_OPTIONS.map((m) => (
-                  <option key={m.value} value={m.value}>{m.label}</option>
-                ))}
-              </select>
+              
+              {/* =======================================================================
+                  2. BUAT DROPDOWN TAHUN DAN BULAN DI UI BERDAMPINGAN
+                  ======================================================================= */}
+              <div className="flex items-center gap-2">
+                <select
+                  value={currentMonthValue}
+                  onChange={handleMonthChange}
+                  className="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-teal-500"
+                >
+                  {MONTH_OPTIONS.map((m) => (
+                    <option key={m.value} value={m.value}>{m.label}</option>
+                  ))}
+                </select>
+
+                <select
+                  value={currentYear}
+                  onChange={handleYearChange}
+                  className="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-teal-500"
+                >
+                  <option value="2024">2024</option>
+                  <option value="2025">2025</option>
+                  <option value="2026">2026</option>
+                </select>
+              </div>
+              {/* ======================================================================= */}
+              
             </div>
           </CardHeader>
           <CardContent>
@@ -126,7 +154,7 @@ export function DashboardTab({ stats, allCampaigns, onNavigateCampaign, selected
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[280px] flex items-center justify-center text-muted-foreground">Belum ada data di bulan ini</div>
+              <div className="h-70 flex items-center justify-center text-muted-foreground">Belum ada data di bulan ini</div>
             )}
           </CardContent>
         </Card>
@@ -153,7 +181,7 @@ export function DashboardTab({ stats, allCampaigns, onNavigateCampaign, selected
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[280px] flex items-center justify-center text-muted-foreground">Belum ada data</div>
+              <div className="h-70 flex items-center justify-center text-muted-foreground">Belum ada data</div>
             )}
           </CardContent>
         </Card>
@@ -177,7 +205,7 @@ export function DashboardTab({ stats, allCampaigns, onNavigateCampaign, selected
               const pct = c.targetAmount > 0 ? Math.min((c.collectedAmount / c.targetAmount) * 100, 100) : 0
               return (
                 <div key={c.id} className="flex items-center gap-4">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${i === 0 ? 'bg-amber-100 text-amber-700' : i === 1 ? 'bg-gray-100 text-gray-600' : i === 2 ? 'bg-orange-100 text-orange-700' : 'bg-gray-50 text-gray-400'
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${i === 0 ? 'bg-amber-100 text-amber-700' : i === 1 ? 'bg-gray-100 text-gray-600' : i === 2 ? 'bg-orange-100 text-orange-700' : 'bg-gray-50 text-gray-400'
                     }`}>
                     {i + 1}
                   </div>

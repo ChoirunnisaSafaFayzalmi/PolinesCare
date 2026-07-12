@@ -90,6 +90,10 @@ export async function POST(request: NextRequest) {
     });
 
     // ── Kirim notifikasi ke semua admin ──
+    // ⬅ FIX: sama seperti di donations/route.ts — sekarang notifikasi ini
+    // menyimpan relatedType: "proposal" dan relatedId: proposal.id, supaya
+    // klik notifikasi ini bisa langsung membuka detail proposal terkait,
+    // bukan cuma menandai "dibaca".
     const admins = await db.user.findMany({
       where: { role: "admin" },
       select: { id: true },
@@ -102,6 +106,8 @@ export async function POST(request: NextRequest) {
           title: "Pengajuan Proposal Baru",
           message: `${proposerName || "Seseorang"} mengajukan proposal "${title}". Segera tinjau untuk verifikasi.`,
           type: "info",
+          relatedType: "proposal",
+          relatedId: proposal.id,
         })),
       });
     }

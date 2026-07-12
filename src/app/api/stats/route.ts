@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
     const startOfMonth = new Date(year, monthIndex, 1, 0, 0, 0, 0);
     const startOfNextMonth = new Date(year, monthIndex + 1, 1, 0, 0, 0, 0);
 
+    // 1. Tambahkan filter ke Promise.all
     const [
       totalCampaigns,
       totalDonationsCount,
@@ -33,12 +34,28 @@ export async function GET(request: NextRequest) {
       pendingProposals,
       approvedProposals,
     ] = await Promise.all([
-      db.campaign.count(),
-      db.donation.count(),
-      db.user.count(),
-      db.proposal.count(),
-      db.proposal.count({ where: { status: "pending" } }),
-      db.proposal.count({ where: { status: "approved" } }),
+      db.campaign.count({
+        where: { createdAt: { gte: startOfMonth, lt: startOfNextMonth } }
+      }),
+      db.donation.count({
+        where: { createdAt: { gte: startOfMonth, lt: startOfNextMonth } }
+      }),
+      db.user.count(), // Tetap all-time (tidak difilter) agar tahu total pendaftar keseluruhan
+      db.proposal.count({
+        where: { createdAt: { gte: startOfMonth, lt: startOfNextMonth } }
+      }),
+      db.proposal.count({ 
+        where: { 
+          status: "pending",
+          createdAt: { gte: startOfMonth, lt: startOfNextMonth }
+        } 
+      }),
+      db.proposal.count({ 
+        where: { 
+          status: "approved",
+          createdAt: { gte: startOfMonth, lt: startOfNextMonth }
+        } 
+      }),
     ]);
 
     // Donasi approved, DIBATASI ke bulan yang dipilih, sekaligus join category campaign
@@ -60,7 +77,11 @@ export async function GET(request: NextRequest) {
       .filter((d) => d.type === "uang")
       .reduce((sum, d) => sum + d.amount, 0);
 
+    // 2. Tambahkan filter ke distinctDonors
     const distinctDonors = await db.donation.findMany({
+      where: {
+        createdAt: { gte: startOfMonth, lt: startOfNextMonth }
+      },
       distinct: ["userId"],
       select: { userId: true },
     });

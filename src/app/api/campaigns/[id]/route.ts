@@ -8,10 +8,14 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    // ⬅ FIX: sama seperti di campaigns/route.ts — select creator diperluas
+    // agar menyertakan email, phone, address (bukan cuma id/name/avatar),
+    // supaya form Edit Campaign bisa menampilkan data pembuat asli campaign,
+    // bukan fallback ke data admin yang sedang login.
     const campaign = await db.campaign.findUnique({
       where: { id },
       include: {
-        creator: { select: { id: true, name: true, avatar: true } },
+        creator: { select: { id: true, name: true, email: true, phone: true, address: true, avatar: true } },
         donations: { select: { id: true, amount: true, status: true, createdAt: true } },
         fundUsages: { orderBy: { date: "desc" } },
       },
@@ -43,6 +47,10 @@ export async function GET(
   }
 }
 
+// Status campaign yang dianggap "masih berjalan" — kode uniknya tidak boleh
+// bentrok satu sama lain karena masih dipakai untuk mencocokkan transfer masuk.
+const ACTIVE_STATUSES = ["active", "awaiting_completion"];
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -68,6 +76,35 @@ export async function PUT(
     if (!existing)
       return NextResponse.json({ error: "Kampanye tidak ditemukan" }, { status: 404 });
 
+    // ⬅ FIX: sebelumnya uniqueCode hanya di-clamp ke rentang 0-999 tanpa
+    // pengecekan apakah kode itu sudah dipakai campaign lain yang masih aktif.
+    // Fix: cek dulu ke database, tapi KECUALIKAN campaign yang sedang di-edit
+    // ini sendiri (id tidak sama dengan `id` yang sedang diupdate) — supaya
+    // admin tetap bisa menyimpan ulang campaign yang sama tanpa dianggap
+    // "bentrok dengan dirinya sendiri".
+    let normalizedCode: number | undefined;
+    if (uniqueCode !== undefined) {
+      normalizedCode = Math.min(999, Math.max(0, Number(uniqueCode) || 0));
+
+      const existingWithSameCode = await db.campaign.findFirst({
+        where: {
+          uniqueCode: normalizedCode,
+          status: { in: ACTIVE_STATUSES },
+          id: { not: id },
+        },
+        select: { id: true, title: true },
+      });
+
+      if (existingWithSameCode) {
+        return NextResponse.json(
+          {
+            error: `Kode unik ${String(normalizedCode).padStart(3, "0")} sudah dipakai oleh campaign aktif "${existingWithSameCode.title}". Silakan pilih kode lain.`,
+          },
+          { status: 409 }
+        );
+      }
+    }
+
     const campaign = await db.campaign.update({
       where: { id },
       data: {
@@ -82,9 +119,7 @@ export async function PUT(
         ...(status && { status }),
         ...(isUrgent !== undefined && { isUrgent }),
         ...(isPublic !== undefined && { isPublic }),
-        ...(uniqueCode !== undefined && {
-          uniqueCode: Math.min(999, Math.max(0, Number(uniqueCode) || 0)),
-        }),
+        ...(normalizedCode !== undefined && { uniqueCode: normalizedCode }),
         // Selalu update images & paymentMethods (even if empty array = clear)
         images: Array.isArray(images) && images.length > 0 ? JSON.stringify(images) : null,
         paymentMethods: Array.isArray(paymentMethods) && paymentMethods.length > 0

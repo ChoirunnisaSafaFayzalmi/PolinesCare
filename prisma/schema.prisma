@@ -119,6 +119,13 @@ model Notification {
   message   String
   type      String   @default("info") // info, success, warning
   isRead    Boolean  @default(false)
+  // ⬅ FIX: ditambahkan supaya klik notifikasi bisa langsung mengarahkan admin
+  // ke detail item terkait (donasi/proposal), bukan cuma menandai "dibaca".
+  // relatedType: 'donation' | 'proposal' | null — nentuin jenis entitas terkait
+  // relatedId: ID dari entitas itu (Donation.id atau Proposal.id) — null kalau
+  // notifikasi ini generik/tidak terkait ke item spesifik (misal notifikasi seed)
+  relatedType String?
+  relatedId   String?
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])

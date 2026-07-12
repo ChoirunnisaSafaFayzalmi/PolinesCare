@@ -155,7 +155,17 @@ export function AdminDashboard(props: AdminDashboardProps) {
   const pageTitle = menuItems.find(m => m.id === adminTab)?.label ?? extraLabels[adminTab] ?? 'Dashboard'
 
   // ── Handlers: Campaign
-  const handleNewCampaign = () => {
+  // ⬅ FIX/Enhancement: sebelumnya uniqueCode di-set ke string kosong ('')
+  // saat form "Buat Campaign Baru" dibuka, sehingga admin harus menebak
+  // sendiri angka 3 digit yang belum dipakai campaign lain — rawan
+  // duplikat/collision yang baru ketahuan setelah submit ditolak backend.
+  // Fix: begitu form dibuka, panggil endpoint /api/campaigns/next-unique-code
+  // untuk mendapatkan angka yang sudah dipastikan belum terpakai, lalu
+  // isi otomatis sebagai default. Admin tetap bisa mengganti manual di form
+  // kalau mau; validasi keras di backend (POST /api/campaigns) tetap jadi
+  // jaring pengaman terakhir kalau ada race condition (dua admin buka form
+  // bersamaan, dsb).
+  const handleNewCampaign = async () => {
     setEditingCampaign(null)
     setCampaignForm({
       title: '', description: '', category: 'Sosial', targetAmount: '',
@@ -165,6 +175,24 @@ export function AdminDashboard(props: AdminDashboardProps) {
       dropOffLocation: '',
     })
     setSubView('campaign-form')
+
+    // Fetch kode unik yang aman secara async — tidak memblokir form untuk
+    // langsung terbuka. Kalau gagal (network error, dsb), admin tetap bisa
+    // mengisi manual seperti biasa (fallback graceful, bukan error keras).
+    try {
+      const res = await fetch('/api/campaigns/next-unique-code')
+      if (res.ok) {
+        const data = await res.json()
+        if (typeof data.uniqueCode === 'number') {
+          setCampaignForm((prev: typeof campaignForm) => ({
+            ...prev,
+            uniqueCode: String(data.uniqueCode),
+          }))
+        }
+      }
+    } catch {
+      // Silent fallback — field uniqueCode tetap kosong, admin isi manual
+    }
   }
 
   const handleEditCampaign = (c: Campaign) => {
@@ -213,6 +241,24 @@ export function AdminDashboard(props: AdminDashboardProps) {
       mode: 'complete-from-proposal',
     })
     setSubView('campaign-form')
+
+    // Sama seperti handleNewCampaign — auto-isi kode unik yang aman
+    ;(async () => {
+      try {
+        const res = await fetch('/api/campaigns/next-unique-code')
+        if (res.ok) {
+          const data = await res.json()
+          if (typeof data.uniqueCode === 'number') {
+            setCampaignForm((prev: typeof campaignForm) => ({
+              ...prev,
+              uniqueCode: String(data.uniqueCode),
+            }))
+          }
+        }
+      } catch {
+        // Silent fallback
+      }
+    })()
   }
 
   const handleSaveCampaign = (imageFiles?: File[]) => {
@@ -261,6 +307,31 @@ export function AdminDashboard(props: AdminDashboardProps) {
     setSelectedDonation(null)
     setSelectedLaporanCampaign(null)
     setSelectedProposal(null)
+  }
+
+  // ⬅ FIX: handler baru untuk navigasi saat notifikasi diklik. Berdasarkan
+  // relatedType (dari notifikasi yang dibuat di donations/route.ts atau
+  // proposals/route.ts), cari item terkait di data yang sudah tersedia
+  // (donations / proposals prop), lalu pindah tab + buka detail-nya langsung.
+  // Kalau item terkait ternyata tidak ditemukan (misal sudah dihapus), fungsi
+  // ini diam saja tanpa navigasi — tidak melempar error ke user.
+  const handleNotificationNavigate = (relatedType: string, relatedId: string) => {
+    if (relatedType === 'donation') {
+      const donation = donations.find(d => d.id === relatedId)
+      if (donation) {
+        setAdminTab('donasi')
+        setSelectedDonation(donation)
+        setSubView('donasi-detail')
+      }
+    } else if (relatedType === 'proposal') {
+      const proposal = proposals.find(p => p.id === relatedId)
+      if (proposal) {
+        setCampaignSubTab('ajuan')
+        setAdminTab('campaign')
+        setSelectedProposal(proposal)
+        setSubView('ajuan-detail')
+      }
+    }
   }
 
   // ── Render content
@@ -385,6 +456,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
             unreadCount={unreadCount}
             onMarkRead={markNotificationRead}
             onMarkAllRead={markAllNotificationsRead}
+            onNavigate={handleNotificationNavigate}
           />
         )
 
@@ -409,7 +481,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
         setCollapsed={setSidebarCollapsed}
       />
 
-      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-[72px]' : 'ml-[260px]'}`}>
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-18' : 'ml-65'}`}>
         <main className="p-6">
           {/* Page Header */}
           <div className="mb-6">
