@@ -4,6 +4,12 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
 import { Providers } from "@/components/providers";
+import { Sora, Inter } from 'next/font/google'
+
+const sora = Sora({ subsets: ['latin'], variable: '--font-display', weight: ['600','700','800'] })
+const inter = Inter({ subsets: ['latin'], variable: '--font-body' })
+
+// di <html className={`${sora.variable} ${inter.variable}`}>
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,7 +27,7 @@ export const metadata: Metadata = {
   keywords: ["Polines Care", "Donasi Kampus", "Politeknik Negeri Semarang", "Sosial", "Bencana", "Ramadhan"],
   authors: [{ name: "Polines Care Team" }],
   icons: {
-    icon: "",
+    icon: "/Logo_PolinesCare.png",
   },
   openGraph: {
     title: "Polines Care - Sistem Informasi Donasi Kampus",

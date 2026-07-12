@@ -41,6 +41,16 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* ── Polines Care design tokens ── */
+  --color-pc-teal-deep: var(--pc-teal-deep);
+  --color-pc-teal: var(--pc-teal);
+  --color-pc-emerald: var(--pc-emerald);
+  --color-pc-coral: var(--pc-coral);
+  --color-pc-sand: var(--pc-sand);
+  --color-pc-gold: var(--pc-gold);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
 }
 
 :root {
@@ -76,6 +86,14 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* ── Polines Care palette ── */
+  --pc-teal-deep: #0B4F4A;
+  --pc-teal: #0D9488;
+  --pc-emerald: #10B981;
+  --pc-coral: #F9714E;
+  --pc-sand: #FAF7F1;
+  --pc-gold: #FBBF24;
 }
 
 .dark {
@@ -125,3 +143,50 @@
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: oklch(0.7 0 0); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: oklch(0.5 0 0); }
+
+/* ══════════════ Polines Care — animasi custom ══════════════ */
+@keyframes pc-ripple {
+  0%   { transform: scale(0.6); opacity: 0.5; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+@keyframes pc-blob-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(20px, -15px) scale(1.05); }
+  66%      { transform: translate(-15px, 10px) scale(0.97); }
+}
+
+@keyframes pc-fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pc-glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249, 113, 78, 0.45); }
+  50%      { box-shadow: 0 0 0 10px rgba(249, 113, 78, 0); }
+}
+
+.pc-ripple-ring {
+  position: absolute;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 9999px;
+  animation: pc-ripple 4s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+}
+
+.pc-blob {
+  animation: pc-blob-drift 12s ease-in-out infinite;
+}
+
+.pc-fade-up {
+  animation: pc-fade-up 0.7s ease-out both;
+}
+
+.pc-cta-glow:hover {
+  animation: pc-glow-pulse 1.4s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-ripple-ring, .pc-blob, .pc-fade-up, .pc-cta-glow:hover {
+    animation: none !important;
+  }
+}
