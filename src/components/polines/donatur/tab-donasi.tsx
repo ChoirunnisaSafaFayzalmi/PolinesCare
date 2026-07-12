@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Search, Eye, AlertTriangle, Heart } from 'lucide-react'
+import { Search, Eye, AlertTriangle, Heart, Users, Clock } from 'lucide-react'
 import { HandHeart } from 'lucide-react'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { Campaign } from '@/components/polines/types'
-import { formatRupiah, getCategoryColor, CATEGORIES } from '@/components/polines/types'
+import { formatRupiah, formatDate, getCategoryColor, CATEGORIES } from '@/components/polines/types'
 
 interface TabDonasiProps {
   campaigns: Campaign[]
@@ -28,12 +28,12 @@ export function TabDonasi({
 }: TabDonasiProps) {
 
   const filtered = campaigns.filter(c => {
-  const matchSearch = c.title.toLowerCase().includes(search.toLowerCase()) ||
-    c.description.toLowerCase().includes(search.toLowerCase())
-  const matchCategory = category === 'all' || c.category === category
-  const isVisible = c.isPublic === true && c.status === 'active'
-  return matchSearch && matchCategory && isVisible
-})
+    const matchSearch = c.title.toLowerCase().includes(search.toLowerCase()) ||
+      c.description.toLowerCase().includes(search.toLowerCase())
+    const matchCategory = category === 'all' || c.category === category
+    const isVisible = c.isPublic === true && c.status === 'active'
+    return matchSearch && matchCategory && isVisible
+  })
 
   const renderProgress = (collected: number, target: number) => {
     const pct = target > 0 ? Math.min((collected / target) * 100, 100) : 0
@@ -100,6 +100,16 @@ export function TabDonasi({
                 <h3 className="font-semibold mb-1 line-clamp-1">{campaign.title}</h3>
                 <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{campaign.description}</p>
                 {renderProgress(campaign.collectedAmount, campaign.targetAmount)}
+
+                {/* Tambahan: info donatur & tanggal berakhir */}
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 mt-1 border-t border-gray-100">
+                  <span className="flex items-center gap-1">
+                    <Users className="h-3 w-3" /> {campaign._count?.donations ?? 0} donatur
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" /> {formatDate(campaign.endDate)}
+                  </span>
+                </div>
               </CardContent>
               <CardFooter className="px-4 pb-4 pt-0 flex gap-2">
                 <Button variant="outline" size="sm" className="flex-1"

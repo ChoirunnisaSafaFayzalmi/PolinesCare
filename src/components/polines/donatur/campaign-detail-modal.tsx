@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { Calendar, HandHeart, AlertTriangle, MapPin, Tag, Target, Heart } from 'lucide-react'
+import { Calendar, HandHeart, AlertTriangle, MapPin, Tag, Target, Heart, Users } from 'lucide-react'
 import type { Campaign, Donation } from '../types'
 import { formatRupiah, formatDate, getCategoryColor, getStatusColor } from '../types'
 
@@ -197,41 +197,51 @@ export function CampaignDetailModal({
               <p className="text-sm font-medium">{formatDate(campaign.endDate)}</p>
             </div>
 
-            {/* Alamat */}
+            {/* Donatur — TAMBAHAN BARU */}
             <div className="bg-gray-50 rounded-lg p-3 space-y-1">
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5" /> Lokasi
+                <Users className="h-3.5 w-3.5" /> Donatur
               </div>
-              <p className="text-sm font-medium leading-snug">{campaign.location}</p>
+              <p className="text-sm font-medium">
+                {campaign._count?.donations ?? campaignDonations.length ?? 0} orang
+              </p>
             </div>
 
+          {/* Alamat */}
+          <div className="bg-gray-50 rounded-lg p-3 space-y-1">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5" /> Lokasi
+            </div>
+            <p className="text-sm font-medium leading-snug">{campaign.location}</p>
           </div>
-
-          {/* ── 3. Progress Dana Terkumpul ── */}
-          <div className="bg-teal-50/60 rounded-lg p-4 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Terkumpul</span>
-              <span className="font-bold text-teal-600">
-                {formatRupiah(campaign.collectedAmount)}
-              </span>
-            </div>
-            <Progress value={progressPct} className="h-3 [&>div]:bg-teal-500" />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>dari {formatRupiah(campaign.targetAmount)}</span>
-              <span>{Math.round(progressPct)}%</span>
-            </div>
-          </div>
-
-          {/* ── 4. Tombol Donasi ── */}
-          <Button
-            className="w-full bg-teal-600 hover:bg-teal-700 text-white"
-            onClick={() => { onClose(); onDonate() }}
-          >
-            <HandHeart className="h-4 w-4 mr-1" /> Donasi Sekarang
-          </Button>
 
         </div>
-      </DialogContent>
-    </Dialog>
+
+        {/* ── 3. Progress Dana Terkumpul ── */}
+        <div className="bg-teal-50/60 rounded-lg p-4 space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Terkumpul</span>
+            <span className="font-bold text-teal-600">
+              {formatRupiah(campaign.collectedAmount)}
+            </span>
+          </div>
+          <Progress value={progressPct} className="h-3 [&>div]:bg-teal-500" />
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>dari {formatRupiah(campaign.targetAmount)}</span>
+            <span>{Math.round(progressPct)}%</span>
+          </div>
+        </div>
+
+        {/* ── 4. Tombol Donasi ── */}
+        <Button
+          className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+          onClick={() => { onClose(); onDonate() }}
+        >
+          <HandHeart className="h-4 w-4 mr-1" /> Donasi Sekarang
+        </Button>
+
+      </div>
+    </DialogContent>
+    </Dialog >
   )
 }
