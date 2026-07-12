@@ -19,7 +19,6 @@ type FundUsageSubmitPayload = {
 
 // Components
 import { AdminDashboard } from '@/components/polines/admin/admin-dashboard'
-import { CampaignFormModal } from '@/components/polines/admin/campaign-form-modal'
 import { FundUsageModal } from '@/components/polines/admin/fund-usage-modal'
 
 // Workaround: some modal prop types differ; cast to any to avoid TS error here
@@ -556,11 +555,6 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
       />
 
       {/* Modals */}
-      <CampaignFormModal
-        open={campaignFormModalOpen} onClose={() => { setCampaignFormModalOpen(false); setEditingCampaign(null) }}
-        editingCampaign={editingCampaign} campaignForm={campaignForm}
-        setCampaignForm={setCampaignForm} submitting={submitting} onSubmit={submitCampaign}
-      />
       <FundUsageModalAny
         open={fundUsageModalOpen} onClose={() => setFundUsageModalOpen(false)}
         fundUsageForm={fundUsageForm} setFundUsageForm={setFundUsageForm}

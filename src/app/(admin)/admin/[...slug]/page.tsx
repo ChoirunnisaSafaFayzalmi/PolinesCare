@@ -8,9 +8,9 @@ import { Card } from '@/components/ui/card'
 
 // Types & Helpers
 import type { Campaign, Donation, Proposal, AppNotification, FundUsage, PlatformStats, PaymentMethod } from '@/components/polines/types'
+import { AdminDashboard } from '@/components/polines/admin/admin-dashboard'
 
 // Components
-import { AdminDashboard } from '@/components/polines/admin/admin-dashboard'
 
 // ============================================================
 // URL → State mapping
