@@ -240,6 +240,7 @@ function Pagination({
 // ============================================================
 interface TabAjuanProps {
   session: any
+  initialProposalId?: string   // ⬅ FIX: buat auto-buka detail dari klik notifikasi
 }
 
 type View = 'list' | 'detail' | 'form'
@@ -247,9 +248,13 @@ type StatusFilter = 'semua' | RiwayatAjuan['status']
 
 const ITEMS_PER_PAGE = 5
 
-export function TabAjuan({ session }: TabAjuanProps) {
+export function TabAjuan({ session, initialProposalId }: TabAjuanProps) {
   // Meneruskan session ke hook untuk antisipasi autentikasi token API
   const { proposals, loading, error, refetch } = useProposals(session)
+
+  // ⬅ FIX: guard supaya auto-buka detail cuma jalan sekali per proposalId,
+  // ga maksa balik ke detail terus kalau user udah klik "back" ke list
+  const appliedInitialIdRef = React.useRef<string | null>(null)
 
   // Sembunyikan proposal lama yang sudah digantikan oleh hasil resubmit
   // (data legacy dari sebelum resubmit pakai update-in-place; proposal baru
@@ -267,6 +272,22 @@ export function TabAjuan({ session }: TabAjuanProps) {
   const [currentPage, setCurrentPage] = useState(1)
 
   const selectedProposal = visibleProposals.find(p => p.id === selectedId) ?? null
+
+  // ⬅ FIX: kalau datang dari klik notifikasi (initialProposalId), otomatis
+  // buka detail proposal itu begitu data selesai dimuat
+  useEffect(() => {
+    if (
+      initialProposalId &&
+      appliedInitialIdRef.current !== initialProposalId &&
+      !loading &&
+      visibleProposals.some(p => p.id === initialProposalId)
+    ) {
+      setSelectedId(initialProposalId)
+      setView('detail')
+      appliedInitialIdRef.current = initialProposalId
+    }
+  }, [initialProposalId, loading, visibleProposals])
+
   const goToForm = (resubmitId?: string) => {
     setResubmitFromId(resubmitId ?? null)
     setView('form')

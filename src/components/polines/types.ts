@@ -13,6 +13,7 @@ export interface PaymentMethod {
 }
 
 export interface Campaign {
+  qrisImageUrl: string;
   id: string
   title: string
   description: string
@@ -38,7 +39,6 @@ export interface Campaign {
   creator?: { name: string; email?: string; phone?: string; address?: string; avatar?: string }
   _count?: { donations: number }
   paymentMethods: PaymentMethod[]
-  qrisImageUrl?: string | null 
 }
 
 export interface Donation {
@@ -116,8 +116,7 @@ export interface RecommendedCampaign extends Campaign {
 }
 
 export interface FundUsage {
-  id: string; campaignId: string; type: string; description: string;
-  amount: number | null; itemName?: string | null; itemQuantity?: number | null;
+  id: string; campaignId: string; description: string; amount: number;
   date: string; documentUrl?: string; campaign?: { title: string };
 }
 
@@ -132,7 +131,11 @@ export interface PlatformStats {
 // ============================================================
 // CONSTANTS & HELPERS
 // ============================================================
-export const ADMIN_WHATSAPP = '6281234567890'
+// ⬅ FIX: sebelumnya nomor ini masih placeholder ('6281234567890' — pola
+// angka urut, jelas bukan nomor asli), jadi tombol "Konfirmasi via WhatsApp"
+// di sukses-modal.tsx selalu membuka chat ke nomor yang tidak valid/tidak
+// terhubung ke siapa pun. Diganti ke nomor testing.
+export const ADMIN_WHATSAPP = '6285865698463'
 export const CATEGORIES = ['Bencana', 'Ramadhan', 'Sosial', 'Donasi Rutin']
 
 export const formatRupiah = (amount: number): string =>
@@ -200,7 +203,7 @@ export const getStatusColor = (status: string): string => {
     case 'rejected':  return 'bg-red-100 text-red-700'
     case 'pending':   return 'bg-yellow-100 text-yellow-700'
     case 'active':    return 'bg-teal-100 text-teal-700'
-    // case 'closed':    return 'bg-gray-100 text-gray-700'
+    case 'closed':    return 'bg-gray-100 text-gray-700'
     case 'completed': return 'bg-blue-100 text-blue-700'
     default:          return 'bg-gray-100 text-gray-700'
   }

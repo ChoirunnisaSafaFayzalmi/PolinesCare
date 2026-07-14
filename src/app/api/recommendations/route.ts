@@ -1,14 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { auth } from "@/lib/auth"; // Pastikan ini sesuai dengan setup NextAuth kamu
+import { auth } from "@/lib/auth";
 
 // ============================================================
 // AI HYBRID RECOMMENDER SYSTEM - Polines Care
-// Algoritma: Weighted Hybrid Recommender System (Skala 0-100)
-// Terdiri dari 3 Engine Utama:
-//   1. Content-Based (30%): Kesesuaian Kategori Minat
-//   2. Collaborative (20%): Perilaku Donatur Serupa (Similar Users)
-//   3. Popularity & Context (50%): Tren Donasi, Urgensi, & Recency
+//
+// Algoritma:
+// Weighted Hybrid Recommender System (Skala 0–100)
+//
+// Sistem menggunakan mekanisme weighted sum untuk menggabungkan
+// tiga sumber sinyal rekomendasi:
+//
+// 1. Content-Based Filtering (maks 30 poin)
+//    → Mencocokkan profil minat pengguna dengan atribut kategori campaign.
+//
+// 2. Neighborhood-Based Collaborative Filtering (maks 20 poin)
+//    → Merekomendasikan campaign berdasarkan perilaku donatur lain
+//      yang memiliki kemiripan kategori donasi.
+//
+// 3. Context-Aware Factors (maks 50 poin)
+//    → Mempertimbangkan popularitas campaign, urgensi,
+//      recency (kebaruan), dan progress penggalangan dana.
+//
+// Referensi konsep:
+// Burke (2002) - Hybrid Recommender Systems:
+// Survey and Experiments.
+//
+// ============================================================
+//
+// Pengelompokan hasil:
+//
+// personalized
+// → Hasil Weighted Hybrid (skor ≥ 50)
+//
+// becauseYouLiked
+// → Hasil Content-Based Filtering
+//
+// collaborative
+// → Hasil Neighborhood-Based Collaborative Filtering
+//
 // ============================================================
 
 interface CampaignData {
@@ -20,8 +50,17 @@ interface CampaignData {
   isUrgent: boolean;
   _count: { donations: number };
 }
-
-// 🧮 FUNGSI PENGHITUNG SKOR HYBRID (AI Engine)
+// ============================================================
+// Weighted Hybrid Scoring Function
+//
+// Menggabungkan skor dari:
+// - Content-Based Filtering
+// - Neighborhood-Based Collaborative Filtering
+// - Context-Aware Factors
+//
+// Seluruh komponen dijumlahkan menggunakan pendekatan
+// weighted sum sehingga menghasilkan skor akhir 0–100.
+// ============================================================
 function calculateHybridScore(
   campaign: CampaignData,
   preferredCategories: string[],
@@ -30,22 +69,55 @@ function calculateHybridScore(
 ): number {
   let score = 0;
 
-  // --- 1. ENGINE CONTENT-BASED (Maks 30 Poin) ---
+// ------------------------------------------------------------
+// 1. Content-Based Filtering
+//
+// Mengukur kesesuaian antara:
+//
+// User Profile
+//     vs
+// Item Profile (kategori campaign)
+//
+// Jika kategori campaign termasuk kategori favorit pengguna,
+// maka campaign memperoleh maksimum 30 poin.
+// ------------------------------------------------------------
   if (preferredCategories.includes(campaign.category)) {
-    score += 30; // Sangat cocok dengan riwayat/minat donatur
+    score += 30;
   }
 
-  // --- 2. ENGINE COLLABORATIVE (Maks 20 Poin) ---
-  // Jika campaign ini juga didonasikan oleh orang-orang yang seleranya mirip
+// ------------------------------------------------------------
+// 2. Neighborhood-Based Collaborative Filtering
+//
+// Campaign memperoleh tambahan skor apabila campaign tersebut
+// pernah didonasikan oleh pengguna lain yang memiliki
+// kemiripan kategori donasi.
+//
+// Similarity dibangun menggunakan implicit similarity
+// berdasarkan overlap kategori donasi.
+// ------------------------------------------------------------
   if (collaborativeCampaignIds.includes(campaign.id)) {
     score += 20;
   }
 
-  // --- 3. ENGINE POPULARITY & CONTEXT (Maks 50 Poin) ---
+// ------------------------------------------------------------
+// 3. Context-Aware Factors
+//
+// Faktor kontekstual yang digunakan:
+//
+// • Popularity
+// • Urgency
+// • Recency
+// • Progress Momentum
+//
+// Total kontribusi maksimum = 50 poin.
+// ------------------------------------------------------------
   const totalDonations = campaign._count.donations;
-  const progress = campaign.targetAmount > 0 ? campaign.collectedAmount / campaign.targetAmount : 0;
+  const progress =
+    campaign.targetAmount > 0
+      ? campaign.collectedAmount / campaign.targetAmount
+      : 0;
 
-  // A. Tren Popularitas (Maks 15 poin) -> 1 donatur = 3 poin
+  // A. Tren Popularitas (Maks 15 poin) — 1 donatur = 3 poin
   score += Math.min(totalDonations * 3, 15);
 
   // B. Urgensi dari Admin (Maks 15 poin)
@@ -61,7 +133,6 @@ function calculateHybridScore(
   }
 
   // D. Momentum / Psikologi FOMO (Maks 10 poin)
-  // Campaign yang hampir selesai (50%-90%) biasanya lebih memicu orang berdonasi
   if (progress >= 0.5 && progress < 0.9) {
     score += 10;
   } else if (progress >= 0.3 && progress < 0.5) {
@@ -87,7 +158,7 @@ export async function GET(request: NextRequest) {
     const mode = searchParams.get("mode");
 
     // ============================================================
-    // MODE PUBLIK (Tanpa Login) - Hanya menggunakan Popularity Engine
+    // MODE PUBLIK (Tanpa Login) — Hanya Popularity Engine
     // ============================================================
     if (mode === "public" || !session?.user) {
       const publicCampaigns = await db.campaign.findMany({
@@ -102,22 +173,21 @@ export async function GET(request: NextRequest) {
       const now = new Date();
       const scoredPublic = publicCampaigns.map((c) => {
         const daysSinceCreation = Math.floor(
-          (now.getTime() - new Date(c.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+          (now.getTime() - new Date(c.createdAt).getTime()) /
+            (1000 * 60 * 60 * 24)
         );
-        // User publik tidak punya data minat, kirim array kosong []
         const score = calculateHybridScore(c, [], [], daysSinceCreation);
         return { ...c, score, reason: getScoreLabel(score) };
       });
 
-      // FIX: .sort() mutates the array in place. Sorting scoredPublic multiple
-      // times for different properties (trending, popular) would overwrite the
-      // score-based order needed for `recommendations`. Each property now sorts
-      // its own copy via [...array] so they stay independent.
+      // Buat copy terpisah untuk tiap sorting agar tidak saling menimpa (array mutation fix)
       const byScore = [...scoredPublic].sort((a, b) => b.score - a.score);
       const byDonationCount = [...scoredPublic]
         .filter((c) => c._count.donations > 0)
         .sort((a, b) => b._count.donations - a._count.donations);
-      const byCollectedAmount = [...scoredPublic].sort((a, b) => b.collectedAmount - a.collectedAmount);
+      const byCollectedAmount = [...scoredPublic].sort(
+        (a, b) => b.collectedAmount - a.collectedAmount
+      );
 
       return NextResponse.json({
         recommendations: byScore.slice(0, 8),
@@ -128,12 +198,26 @@ export async function GET(request: NextRequest) {
     }
 
     // ============================================================
-    // MODE AUTHENTICATED - FULL AI HYBRID RECOMMENDER
+    // MODE AUTHENTICATED — FULL AI HYBRID RECOMMENDER
     // ============================================================
     const userId = (session.user as { id: string }).id;
 
-    // --- TAHAP 1: EKSTRAKSI PROFIL MINAT (Content-Based) ---
-    // FIX: tambahkan campaignId: true agar userDonatedCampaignIds terisi dengan benar
+// -------------------------------------------------------
+// TAHAP 1
+// USER PROFILE CONSTRUCTION
+// (Content-Based Filtering)
+//
+// Membangun profil minat pengguna menggunakan:
+//
+// • Implicit Feedback
+//   Frekuensi histori donasi.
+//
+// • Explicit Feedback
+//   Preferensi kategori pada tabel UserPreference.
+//
+// Hasil akhirnya berupa daftar kategori yang
+// diurutkan berdasarkan tingkat preferensi.
+// -------------------------------------------------------
     const userDonations = await db.donation.findMany({
       where: { userId, status: "approved" },
       select: {
@@ -145,36 +229,53 @@ export async function GET(request: NextRequest) {
 
     const categoryFrequency: Record<string, number> = {};
 
-    // Minat Implisit (dari riwayat transaksi)
+    // Implicit Feedback
+    // Profil dibangun dari frekuensi kategori
+    // berdasarkan histori donasi pengguna.
     userDonations.forEach((d) => {
       const cat = d.campaign.category;
-      categoryFrequency[cat] = (categoryFrequency[cat] || 0) + 1; // Hitung frekuensi, bukan nominalnya agar lebih adil
+      categoryFrequency[cat] = (categoryFrequency[cat] || 0) + 1;
     });
 
-    // Minat Eksplisit (dari UserPreference)
+    // Explicit Feedback
+    // Preferensi yang tersimpan pada UserPreference
+    // diberi bobot lebih besar dibanding implicit feedback.
     const userPrefs = await db.userPreference.findMany({ where: { userId } });
     userPrefs.forEach((p) => {
-      categoryFrequency[p.category] = (categoryFrequency[p.category] || 0) + p.weight * 2; // Preferensi eksplisit diberi bobot ganda
+      categoryFrequency[p.category] =
+        (categoryFrequency[p.category] || 0) + p.weight * 2;
     });
 
-    // Urutkan kategori favorit
+    // Urutkan kategori favorit dari yang paling sering
     const preferredCategories = Object.entries(categoryFrequency)
       .sort(([, a], [, b]) => b - a)
       .map(([cat]) => cat);
 
-    // 🔍 DEBUG: hapus setelah masalah ketemu
-    console.log("[DEBUG] userId:", userId);
-    console.log("[DEBUG] userDonations count:", userDonations.length);
-    console.log("[DEBUG] userDonations raw:", JSON.stringify(userDonations));
-    console.log("[DEBUG] preferredCategories:", preferredCategories);
-
-    // --- TAHAP 2: EKSTRAKSI PERILAKU SOSIAL (Collaborative Filtering) ---
-    // Sekarang campaignId terisi dengan benar (bukan undefined lagi)
+// -------------------------------------------------------
+// TAHAP 2
+// NEIGHBORHOOD-BASED COLLABORATIVE FILTERING
+//
+// Langkah:
+//
+// 1. Menemukan pengguna lain yang memiliki
+//    overlap kategori donasi.
+//
+// 2. Mengambil campaign yang pernah
+//    mereka donasikan.
+//
+// 3. Campaign yang belum pernah didonasikan
+//    oleh target user menjadi kandidat rekomendasi.
+//
+// Similarity dibangun menggunakan implicit
+// category overlap, bukan cosine similarity.
+// -------------------------------------------------------
     const userDonatedCampaignIds = userDonations.map((d) => d.campaignId);
     let collaborativeCampaignIds: string[] = [];
 
     if (preferredCategories.length > 0) {
-      // Cari donatur lain yang mendonasi di kategori yang sama dengan user
+      // Langkah 1
+      // Identifikasi similar users berdasarkan
+    // kesamaan kategori donasi.
       const similarDonations = await db.donation.findMany({
         where: {
           userId: { not: userId },
@@ -188,13 +289,16 @@ export async function GET(request: NextRequest) {
 
       const similarUserIds = similarDonations.map((d) => d.userId);
 
-      // Cari campaign apa saja yang didonasikan oleh 'similar users' tersebut
+    // Langkah 2
+    // Ambil campaign dari similar users
+    // yang belum pernah didonasikan
+    // oleh target user.
       if (similarUserIds.length > 0) {
         const collabDonations = await db.donation.findMany({
           where: {
             userId: { in: similarUserIds },
             status: "approved",
-            campaignId: { notIn: userDonatedCampaignIds }, // Sekarang filter ini benar-benar bekerja
+            campaignId: { notIn: userDonatedCampaignIds },
           },
           select: { campaignId: true },
           distinct: ["campaignId"],
@@ -204,7 +308,19 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // --- TAHAP 3: KALKULASI SKOR HYBRID FINAL ---
+// -------------------------------------------------------
+// TAHAP 3
+// WEIGHTED HYBRID SCORING
+//
+// Seluruh campaign aktif dievaluasi menggunakan:
+//
+// Content-Based Filtering
+// + Collaborative Filtering
+// + Context-Aware Factors
+//
+// sehingga menghasilkan skor akhir
+// pada rentang 0–100.
+// -------------------------------------------------------
     const allActiveCampaigns = await db.campaign.findMany({
       where: { status: "active" },
       include: {
@@ -216,67 +332,111 @@ export async function GET(request: NextRequest) {
     const now = new Date();
     const scoredCampaigns = allActiveCampaigns.map((c) => {
       const daysSinceCreation = Math.floor(
-        (now.getTime() - new Date(c.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+        (now.getTime() - new Date(c.createdAt).getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
+// Hitung skor akhir menggunakan
+// Weighted Hybrid Recommender System.
+//
+// Hybrid Score =
+// Content-Based +
+// Collaborative +
+// Context-Aware Factors
+      let score = calculateHybridScore(
+        c,
+        preferredCategories,
+        collaborativeCampaignIds,
+        daysSinceCreation
       );
 
-      // 🧠 Lempar ke Engine AI
-      let score = calculateHybridScore(c, preferredCategories, collaborativeCampaignIds, daysSinceCreation);
-
-      // Pinalti: Kurangi skor drastis jika user sudah pernah donasi ke sini (biar platform lebih bervariasi)
-      // Sekarang perbandingan ini valid karena userDonatedCampaignIds berisi ID asli, bukan undefined
+      // Penalti: campaign yang sudah pernah didonasikan user tidak direkomendasikan lagi
       if (userDonatedCampaignIds.includes(c.id)) {
         score -= 40;
       }
 
-      score = Math.max(0, Math.min(score, 100)); // Pastikan skor tetap di range 0-100
+      score = Math.max(0, Math.min(score, 100));
 
-      // Generator Alasan Dinamis (Bagus untuk UI)
-      let reason = getScoreLabel(score);
+// Generate explanation
+//
+// Sistem menghasilkan alasan rekomendasi
+// berdasarkan faktor yang benar-benar
+// berkontribusi terhadap skor campaign.
       const reasons: string[] = [];
-
-      if (preferredCategories.includes(c.category)) reasons.push(`Berdasarkan minat Anda (${c.category})`);
-      if (collaborativeCampaignIds.includes(c.id)) reasons.push("Banyak didonasikan oleh pengguna serupa");
+      if (preferredCategories.includes(c.category))
+        reasons.push(`Berdasarkan minat Anda (${c.category})`);
+      if (collaborativeCampaignIds.includes(c.id))
+        reasons.push("Banyak didonasikan oleh pengguna serupa");
       if (c.isUrgent) reasons.push("⚠️ Kebutuhan Mendesak");
       if (c._count.donations > 10) reasons.push("🔥 Sedang Trending");
 
-      if (reasons.length > 0) {
-        reason = reasons.slice(0, 2).join(" • "); // Gabungkan maksimal 2 alasan agar UI rapi
-      }
+      const reason =
+        reasons.length > 0
+          ? reasons.slice(0, 2).join(" • ")
+          : getScoreLabel(score);
 
       return {
         ...c,
         score,
         reason,
-        matchPercentage: score, // Untuk ditampilkan sebagai progress bar di UI
+        matchPercentage: score,
       };
     });
 
-    // --- TAHAP 4: PENGELOMPOKAN HASIL REKOMENDASI ---
+// -------------------------------------------------------
+// TAHAP 4
+// HASIL REKOMENDASI
+//
+// Campaign yang telah diberi skor
+// dikelompokkan menjadi:
+//
+// • Hybrid Recommendation
+//
+// • Content-Based Recommendation
+//
+// • Collaborative Recommendation
+//
+// Pengelompokan ini hanya memengaruhi
+// penyajian pada antarmuka,
+// bukan proses perhitungan skor.
+// -------------------------------------------------------
     scoredCampaigns.sort((a, b) => b.score - a.score);
 
-    // 🔍 DEBUG: hapus setelah masalah ketemu
-    console.log("[DEBUG] all scores:", scoredCampaigns.map((c) => ({ title: c.title, category: c.category, score: c.score })));
+    // 🌟 HYBRID — campaign yang mendapat sinyal dari CBF + CF sekaligus (skor ≥ 50)
+    const personalized = scoredCampaigns
+      .filter((c) => c.score >= 50)
+      .slice(0, 6);
 
-    const personalized = scoredCampaigns.filter((c) => c.score >= 50).slice(0, 6);
-    const trending = scoredCampaigns
-      .filter((c) => c._count.donations > 0)
-      .sort((a, b) => b._count.donations - a._count.donations)
-      .slice(0, 4);
+    // 🏷️ CONTENT-BASED — campaign yang kategorinya cocok histori donasi user
+    // (belum pernah didonasikan, murni dari engine CBF)
     const becauseYouLiked = scoredCampaigns
-      .filter((c) => preferredCategories.includes(c.category) && !userDonatedCampaignIds.includes(c.id))
+      .filter(
+        (c) =>
+          preferredCategories.includes(c.category) &&
+          !userDonatedCampaignIds.includes(c.id)
+      )
+      .slice(0, 4);
+
+    // 👥 COLLABORATIVE FILTERING — campaign dari user lain yang minatnya serupa
+    // (belum pernah didonasikan, murni dari engine CF)
+    const collaborative = scoredCampaigns
+      .filter(
+        (c) =>
+          collaborativeCampaignIds.includes(c.id) &&
+          !userDonatedCampaignIds.includes(c.id)
+      )
       .slice(0, 4);
 
     return NextResponse.json({
       recommendations: scoredCampaigns.slice(0, 10),
-      personalized,
-      trending,
-      becauseYouLiked,
+      personalized,       // → ditampilkan sebagai section "Rekomendasi Personal" (badge: Hybrid)
+      becauseYouLiked,    // → ditampilkan sebagai section "Karena Anda Suka" (badge: Content-Based)
+      collaborative,      // → ditampilkan sebagai section "Pengguna Serupa Juga Donasi" (badge: Collaborative Filtering)
       preferredCategories,
       totalScored: scoredCampaigns.length,
     });
-
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Terjadi kesalahan internal";
+    const message =
+      error instanceof Error ? error.message : "Terjadi kesalahan internal";
     console.error("AI Hybrid Recommender Error:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }

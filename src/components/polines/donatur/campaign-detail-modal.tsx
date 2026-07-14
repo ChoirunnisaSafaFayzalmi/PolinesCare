@@ -23,8 +23,8 @@ const DUMMY: Campaign = {
   title: 'Bantu Korban Banjir Semarang',
   description: 'Banjir besar melanda kota Semarang...',
   category: 'Bencana',
-  targetAmount: 50_000_000,
-  collectedAmount: 32_550_000,
+  targetAmount: 50000000,
+  collectedAmount: 32550000,
   startDate: '2026-01-10',
   endDate: '2026-06-30',
   status: 'active',
@@ -37,6 +37,7 @@ const DUMMY: Campaign = {
   images: [],
   isPublic: true,
   paymentMethods: [],
+  qrisImageUrl: ''
 }
 
 // ── Komponen Carousel terpisah agar useState tidak melanggar Rules of Hooks ──
@@ -52,7 +53,7 @@ function CampaignCarousel({ images = [], title }: CampaignCarouselProps) {
 
   if (images.length === 0) {
     return (
-      <div className="relative mb-4 h-36 rounded-xl bg-gradient-to-br from-teal-100 to-emerald-100 flex items-center justify-center overflow-hidden border border-teal-100">
+      <div className="relative mb-4 h-36 rounded-xl bg-linear-to-br from-teal-100 to-emerald-100 flex items-center justify-center overflow-hidden border border-teal-100">
         <Heart className="h-16 w-16 text-teal-300" />
       </div>
     )
@@ -69,7 +70,7 @@ function CampaignCarousel({ images = [], title }: CampaignCarouselProps) {
         />
         {/* Overlay gelap tipis di bawah untuk dots */}
         {images.length > 1 && (
-          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/30 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-black/30 to-transparent" />
         )}
       </div>
 

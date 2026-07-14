@@ -116,6 +116,14 @@ export async function PUT(
     }
 
     // Notifikasi ke pengaju
+    // ⬅ FIX: sebelumnya notifikasi ini tidak menyimpan relatedType/relatedId,
+    // jadi walau donatur klik notifikasi "Proposal Disetujui 🎉" atau "Proposal
+    // Ditolak" di header.tsx, mereka tidak diarahkan ke detail proposal-nya —
+    // padahal ini justru notifikasi paling penting buat donatur untuk dicek.
+    // Fix: sisipkan relatedType: "proposal" dan relatedId: existingProposal.id,
+    // supaya konsisten dengan pola yang sudah dipasang di header.tsx (yang
+    // sudah siap membaca relatedType === 'proposal' dan redirect ke
+    // /dashboard?tab=ajuan&proposalId=...).
     if (status === 'approved' || status === 'rejected') {
       await db.notification.create({
         data: {
@@ -125,6 +133,8 @@ export async function PUT(
   ? `Proposal "${existingProposal.title}" disetujui! Admin akan melengkapi data pembayaran sebelum campaign tayang ke publik.`
   : `Proposal "${existingProposal.title}" ditolak. Alasan: ${rejectionReason || '-'}. Anda dapat mengajukan ulang setelah memperbaiki proposal.`,
           type: status === 'approved' ? 'success' : 'warning',
+          relatedType: 'proposal',
+          relatedId: existingProposal.id,
         },
       });
     }

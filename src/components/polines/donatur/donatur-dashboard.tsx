@@ -2,16 +2,16 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { LayoutDashboard, HandHeart, ClipboardList, Star, UserCircle, Megaphone } from 'lucide-react'
+import { HandHeart, ClipboardList, Star, UserCircle, Megaphone } from 'lucide-react'
 import type { Campaign, Donation, RecommendedCampaign } from '@/components/polines/types'
 import { TabDashboard } from '@/components/polines/donatur/tab-dashboard'
 import { TabDonasi } from '@/components/polines/donatur/tab-donasi'
 import { TabRiwayat } from '@/components/polines/donatur/tab-riwayat'
 import { TabRekomendasi } from '@/components/polines/donatur/tab-rekomendasi'
-import { AjuanForm } from '@/components/polines/donatur/ajuan-form'
+import { TabAjuan } from '@/components/polines/donatur/tab-ajuan'
 import { ProfilDonatur } from '@/components/polines/donatur/tab-profil'
 import { DonationModal } from '@/components/polines/donatur/donation-modal'
 import { CampaignDetailModal } from '@/components/polines/donatur/campaign-detail-modal'
@@ -23,15 +23,22 @@ interface DonaturDashboardProps {
 export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardProps) {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const urlTab = searchParams.get('tab')
+  const proposalIdFromUrl = searchParams.get('proposalId')
+  const donationIdFromUrl = searchParams.get('donationId')
 
   const [activeTab, setActiveTab] = useState(defaultTab)
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [userDonations, setUserDonations] = useState<Donation[]>([])
+
+  // ── State recommendations: Disesuaikan jadi 3 section utama ──
   const [recommendations, setRecommendations] = useState<{
     personalized: RecommendedCampaign[]
-    trending: RecommendedCampaign[]
     becauseYouLiked: RecommendedCampaign[]
-  }>({ personalized: [], trending: [], becauseYouLiked: [] })
+    collaborative: RecommendedCampaign[]
+  }>({ personalized: [], becauseYouLiked: [], collaborative: [] })
 
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('all')
@@ -46,18 +53,18 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
   const [campaignDonations, setCampaignDonations] = useState<Donation[]>([])
   const [submitting, setSubmitting] = useState(false)
 
-  // ---- Auth Guard ----
+  // ── Auth Guard ──
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/login')
     if (session?.user?.role === 'admin') router.push('/admin/dashboard')
   }, [status, session, router])
 
-  // ---- Sync tab jika defaultTab berubah (navigasi antar URL) ----
+  // ── Sync tab jika defaultTab berubah ──
   useEffect(() => {
-    setActiveTab(defaultTab)
-  }, [defaultTab])
+    setActiveTab(urlTab || defaultTab)
+  }, [defaultTab, urlTab])
 
-  // ---- Fetch ----
+  // ── Fetch Campaigns ──
   const fetchCampaigns = useCallback(async () => {
     try {
       const res = await fetch('/api/campaigns?status=active')
@@ -65,6 +72,7 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
     } catch { /* silent */ }
   }, [])
 
+  // ── Fetch Donasi User ──
   const fetchUserDonations = useCallback(async () => {
     if (!session?.user) return
     try {
@@ -76,6 +84,7 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
     } catch { /* silent */ }
   }, [session?.user])
 
+  // ── Fetch Recommendations ──
   const fetchRecommendations = useCallback(async () => {
     if (!session?.user) return
     try {
@@ -83,9 +92,9 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
       if (res.ok) {
         const d = await res.json()
         setRecommendations({
-          personalized: d.personalized || [],
-          trending: d.trending || [],
+          personalized:    d.personalized    || [],
           becauseYouLiked: d.becauseYouLiked || [],
+          collaborative:   d.collaborative   || [],
         })
       }
     } catch { /* silent */ }
@@ -96,7 +105,7 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
     if (session?.user) { fetchUserDonations(); fetchRecommendations() }
   }, [session?.user, fetchUserDonations, fetchRecommendations])
 
-  // ---- Donation ----
+  // ── Donation ──
   const openDonationModal = (campaign?: Campaign) => {
     setSelectedCampaign(campaign || null)
     setDonationForm({
@@ -117,22 +126,24 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          campaignId: donationForm.campaignId,
-          amount: Number(donationForm.amount),
-          donorName: session.user.name,
-          donorEmail: session.user.email,
-          donorPhone: (session.user as any)?.phone || '-',
-          type: donationForm.type,
+          campaignId:    donationForm.campaignId,
+          amount:        Number(donationForm.amount),
+          donorName:     session.user.name,
+          donorEmail:    session.user.email,
+          donorPhone:    (session.user as any)?.phone || '-',
+          type:          donationForm.type,
           paymentMethod: donationForm.paymentMethod,
-          message: donationForm.message,
-          proofUrl: donationForm.proofUrl || undefined,
-        })
+          message:       donationForm.message,
+          proofUrl:      donationForm.proofUrl || undefined,
+        }),
       })
       if (res.ok) {
-        setDonationStep(3); toast.success('Donasi berhasil dikirim!')
+        setDonationStep(3)
+        toast.success('Donasi berhasil dikirim!')
         fetchCampaigns(); fetchUserDonations(); fetchRecommendations()
       } else {
-        const d = await res.json(); toast.error(d.error || 'Gagal mengirim donasi')
+        const d = await res.json()
+        toast.error(d.error || 'Gagal mengirim donasi')
       }
     } catch { toast.error('Terjadi kesalahan') }
     finally { setSubmitting(false) }
@@ -142,10 +153,10 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
     try {
       const [campRes, donRes] = await Promise.all([
         fetch(`/api/campaigns/${id}`),
-        fetch(`/api/donations?campaignId=${id}`)
+        fetch(`/api/donations?campaignId=${id}`),
       ])
       if (campRes.ok) { const d = await campRes.json(); setSelectedCampaign(d.campaign); setCampaignDetailModalOpen(true) }
-      if (donRes.ok) { const d = await donRes.json(); setCampaignDonations(d.donations || []) }
+      if (donRes.ok)  { const d = await donRes.json();  setCampaignDonations(d.donations || []) }
     } catch { toast.error('Gagal memuat detail campaign') }
   }, [])
 
@@ -185,11 +196,7 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
           </TabsList>
 
           <TabsContent value="dashboard">
-            <TabDashboard
-              session={session}
-              userDonations={userDonations}
-              campaigns={campaigns}
-            />
+            <TabDashboard session={session} userDonations={userDonations} campaigns={campaigns} />
           </TabsContent>
 
           <TabsContent value="donasi">
@@ -203,7 +210,7 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
           </TabsContent>
 
           <TabsContent value="riwayat">
-            <TabRiwayat userDonations={userDonations} />
+            <TabRiwayat userDonations={userDonations} highlightDonationId={donationIdFromUrl ?? undefined} />
           </TabsContent>
 
           <TabsContent value="rekomendasi">
@@ -214,7 +221,7 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
           </TabsContent>
 
           <TabsContent value="ajuan">
-            <AjuanForm session={session} />
+            <TabAjuan session={session} initialProposalId={proposalIdFromUrl ?? undefined} />
           </TabsContent>
 
           <TabsContent value="profil">

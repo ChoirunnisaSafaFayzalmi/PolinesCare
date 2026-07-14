@@ -62,7 +62,7 @@ export function SuksesModal({ open, onClose, donationForm, campaigns, session, u
               <div className="space-y-1.5 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Campaign</span>
-                  <span className="font-medium text-right max-w-[180px] truncate">{campTitle}</span>
+                  <span className="font-medium text-right max-w-45 truncate">{campTitle}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Donatur</span>
@@ -103,7 +103,7 @@ export function SuksesModal({ open, onClose, donationForm, campaigns, session, u
               <div className="space-y-1.5 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Campaign</span>
-                  <span className="font-medium text-right max-w-[180px] truncate">{campTitle}</span>
+                  <span className="font-medium text-right max-w-45 truncate">{campTitle}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Donatur</span>
@@ -111,7 +111,7 @@ export function SuksesModal({ open, onClose, donationForm, campaigns, session, u
                 </div>
                 <div className="flex justify-between items-start">
                   <span className="text-muted-foreground">Barang</span>
-                  <span className="font-medium text-right max-w-[180px]">
+                  <span className="font-medium text-right max-w-45">
                     {barangItems.filter(i => i.name).map(i => `${i.name}${i.qty ? ` (${i.qty})` : ''}`).join(', ')}
                   </span>
                 </div>

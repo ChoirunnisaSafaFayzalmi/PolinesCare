@@ -48,6 +48,27 @@ export function Header() {
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
   }
 
+  // ⬅ FIX: sebelumnya redirect ke /dashboard?tab=riwayat&... dan
+  // /dashboard?tab=ajuan&... — padahal struktur routing project ini pakai
+  // halaman terpisah per tab (src/app/(donatur)/riwayat/page.tsx,
+  // src/app/(donatur)/ajuan/page.tsx, dst), BUKAN satu halaman /dashboard
+  // yang switch tab lewat query param. Akibatnya klik notifikasi selalu
+  // mendarat di halaman ringkasan Dashboard (yang tidak peduli query param
+  // apapun), bukan ke tab Riwayat/Ajuan yang sebenarnya menampilkan detail
+  // yang dimaksud. Fix: redirect ke route yang benar-benar ada, sesuai
+  // struktur folder src/app/(donatur)/.
+  const handleNotificationClick = (n: AppNotification) => {
+    markNotificationRead(n.id)
+    setNotifDropdownOpen(false)
+    if (session?.user?.role !== 'admin' && n.relatedType && n.relatedId) {
+      if (n.relatedType === 'proposal') {
+        router.push(`/ajuan?proposalId=${n.relatedId}`)
+      } else if (n.relatedType === 'donation') {
+        router.push(`/riwayat?donationId=${n.relatedId}`)
+      }
+    }
+  }
+
   const handleSignOut = async () => {
   await signOut({ callbackUrl: '/' })
 }
@@ -100,10 +121,10 @@ export function Header() {
   <>
     {/* Overlay transparan untuk menutup dropdown saat klik di luar */}
     <div
-      className="fixed inset-0 z-[60]"
+      className="fixed inset-0 z-60"
       onClick={() => setNotifDropdownOpen(false)}
     />
-    <div className="absolute right-0 top-12 w-80 rounded-lg border bg-white shadow-2xl z-[70]">
+    <div className="absolute right-0 top-12 w-80 rounded-lg border bg-white shadow-2xl z-70">
       <div className="p-3 border-b flex items-center justify-between">
         <span className="font-semibold text-sm">Notifikasi</span>
         {unreadCount > 0 && (
@@ -120,7 +141,7 @@ export function Header() {
           notifications.slice(0, 5).map((n) => (
             <div key={n.id}
               className={`p-3 border-b cursor-pointer hover:bg-gray-50 transition-colors ${!n.isRead ? 'bg-teal-50/50' : ''}`}
-              onClick={() => markNotificationRead(n.id)}>
+              onClick={() => handleNotificationClick(n)}>
               <p className="text-sm font-medium">{n.title}</p>
               <p className="text-xs text-muted-foreground mt-0.5">{n.message}</p>
               <p className="text-xs text-muted-foreground mt-1">{formatDate(n.createdAt)}</p>

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -16,14 +16,19 @@ const ITEMS_PER_PAGE = 10
 
 interface TabRiwayatProps {
   userDonations: Donation[]
+  highlightDonationId?: string   // ⬅ FIX: buat auto-scroll & highlight dari klik notifikasi
 }
 
-export function TabRiwayat({ userDonations }: TabRiwayatProps) {
+export function TabRiwayat({ userDonations, highlightDonationId }: TabRiwayatProps) {
   const [typeFilter, setTypeFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [methodFilter, setMethodFilter] = useState('all')
   const [dateFilter, setDateFilter] = useState('')
   const [page, setPage] = useState(1)
+
+  // ⬅ FIX: state & ref untuk auto-scroll + highlight baris dari notifikasi
+  const [highlightedId, setHighlightedId] = useState<string | null>(null)
+  const rowRefs = React.useRef<Record<string, HTMLTableRowElement | null>>({})
 
   // State untuk swap tampilan list <-> detail laporan (in-place, tanpa ganti URL)
   const [view, setView] = useState<'list' | 'detail'>('list')
@@ -68,12 +73,34 @@ export function TabRiwayat({ userDonations }: TabRiwayatProps) {
     return matchType && matchStatus && matchMethod && matchDate
   })
 
+  // ⬅ FIX: begitu highlightDonationId & data donasi tersedia, lompat ke
+  // halaman yang berisi donasi itu (filter default masih "all" jadi pasti ketemu)
+  useEffect(() => {
+    if (!highlightDonationId) return
+    const idx = filtered.findIndex(d => d.id === highlightDonationId)
+    if (idx === -1) return
+    setPage(Math.floor(idx / ITEMS_PER_PAGE) + 1)
+    setHighlightedId(highlightDonationId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [highlightDonationId, userDonations])
+
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
   const currentPage = Math.min(page, totalPages)
   const paginated = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   )
+
+  // ⬅ FIX: setelah halaman yang benar ter-render, scroll ke baris & hapus
+  // highlight otomatis setelah beberapa detik
+  useEffect(() => {
+    if (!highlightedId || view !== 'list') return
+    const el = rowRefs.current[highlightedId]
+    if (!el) return
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    const timeout = setTimeout(() => setHighlightedId(null), 3000)
+    return () => clearTimeout(timeout)
+  }, [highlightedId, currentPage, view])
 
   return (
     <Card>
@@ -170,8 +197,10 @@ export function TabRiwayat({ userDonations }: TabRiwayatProps) {
                     const campaignId = d.campaignId
 
                     return (
-                      <TableRow key={d.id}>
-                        <TableCell className="font-medium max-w-[180px] truncate">
+                      <TableRow key={d.id}
+                        ref={(el) => { rowRefs.current[d.id] = el }}
+                        className={d.id === highlightedId ? 'bg-teal-50 ring-2 ring-inset ring-teal-300 transition-colors' : ''}>
+                        <TableCell className="font-medium max-w-45 truncate">
                           {d.campaign?.title}
                         </TableCell>
 

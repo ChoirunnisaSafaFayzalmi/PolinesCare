@@ -156,6 +156,14 @@ export async function PATCH(
             title: notifTitle,
             message: notifMessage,
             type: status === "approved" ? "success" : "warning",
+            // ⬅ FIX: sebelumnya notifikasi ini tidak menyimpan ID donasi terkait,
+            // jadi klik notifikasi di header hanya bisa menandai "dibaca" tanpa
+            // bisa mengarahkan donatur langsung ke baris donasi yang dimaksud
+            // di tab Riwayat. Sekarang disisipkan relatedType: "donation" dan
+            // relatedId: donation.id, supaya frontend bisa langsung scroll &
+            // highlight baris donasi ini saat notifikasinya diklik.
+            relatedType: "donation",
+            relatedId: donation.id,
           },
         });
       }
