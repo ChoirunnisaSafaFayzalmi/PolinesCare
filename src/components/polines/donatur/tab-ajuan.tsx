@@ -65,7 +65,7 @@ export function mapProposalToRiwayat(p: ProposalAPI): RiwayatAjuan {
 }
 
 // ============================================================
-// HOOK (Updated with Real API Fetch)
+// HOOK 
 // ============================================================
 export function useProposals(session?: any) {
   const [proposals, setProposals] = useState<ProposalAPI[]>([])
@@ -240,7 +240,11 @@ function Pagination({
 // ============================================================
 interface TabAjuanProps {
   session: any
-  initialProposalId?: string   // ⬅ FIX: buat auto-buka detail dari klik notifikasi
+  initialProposalId?: string   
+  proposals?: ProposalAPI[]
+  loading?: boolean
+  error?: string | null
+  refetch?: () => void
 }
 
 type View = 'list' | 'detail' | 'form'
@@ -248,9 +252,21 @@ type StatusFilter = 'semua' | RiwayatAjuan['status']
 
 const ITEMS_PER_PAGE = 5
 
-export function TabAjuan({ session, initialProposalId }: TabAjuanProps) {
-  // Meneruskan session ke hook untuk antisipasi autentikasi token API
-  const { proposals, loading, error, refetch } = useProposals(session)
+export function TabAjuan({
+  session,
+  initialProposalId,
+  proposals: proposalsProp,
+  loading: loadingProp,
+  error: errorProp,
+  refetch: refetchProp,
+}: TabAjuanProps) {
+  const internal = useProposals(session)
+
+  const usingExternalData = proposalsProp !== undefined
+  const proposals = usingExternalData ? proposalsProp : internal.proposals
+  const loading = usingExternalData ? (loadingProp ?? false) : internal.loading
+  const error = usingExternalData ? (errorProp ?? null) : internal.error
+  const refetch = usingExternalData ? (refetchProp ?? (() => {})) : internal.refetch
 
   // ⬅ FIX: guard supaya auto-buka detail cuma jalan sekali per proposalId,
   // ga maksa balik ke detail terus kalau user udah klik "back" ke list

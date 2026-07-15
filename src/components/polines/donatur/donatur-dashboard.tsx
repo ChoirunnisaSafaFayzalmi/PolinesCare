@@ -11,7 +11,7 @@ import { TabDashboard } from '@/components/polines/donatur/tab-dashboard'
 import { TabDonasi } from '@/components/polines/donatur/tab-donasi'
 import { TabRiwayat } from '@/components/polines/donatur/tab-riwayat'
 import { TabRekomendasi } from '@/components/polines/donatur/tab-rekomendasi'
-import { TabAjuan } from '@/components/polines/donatur/tab-ajuan'
+import { TabAjuan, useProposals } from '@/components/polines/donatur/tab-ajuan'
 import { ProfilDonatur } from '@/components/polines/donatur/tab-profil'
 import { DonationModal } from '@/components/polines/donatur/donation-modal'
 import { CampaignDetailModal } from '@/components/polines/donatur/campaign-detail-modal'
@@ -29,9 +29,24 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
   const proposalIdFromUrl = searchParams.get('proposalId')
   const donationIdFromUrl = searchParams.get('donationId')
 
-  const [activeTab, setActiveTab] = useState(defaultTab)
+  const tabKey = `${defaultTab}:${urlTab ?? ''}`
+  const [activeTab, setActiveTab] = useState(urlTab || defaultTab)
+  const [prevTabKey, setPrevTabKey] = useState(tabKey)
+  if (tabKey !== prevTabKey) {
+    setPrevTabKey(tabKey)
+    setActiveTab(urlTab || defaultTab)
+  }
+
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [userDonations, setUserDonations] = useState<Donation[]>([])
+
+  // ── Ajuan/Proposal: diangkat ke sini biar TabDashboard & TabAjuan share data yang sama ──
+  const {
+    proposals,
+    loading: proposalsLoading,
+    error: proposalsError,
+    refetch: refetchProposals,
+  } = useProposals(session)
 
   // ── State recommendations: Disesuaikan jadi 3 section utama ──
   const [recommendations, setRecommendations] = useState<{
@@ -59,11 +74,6 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
     if (session?.user?.role === 'admin') router.push('/admin/dashboard')
   }, [status, session, router])
 
-  // ── Sync tab jika defaultTab berubah ──
-  useEffect(() => {
-    setActiveTab(urlTab || defaultTab)
-  }, [defaultTab, urlTab])
-
   // ── Fetch Campaigns ──
   const fetchCampaigns = useCallback(async () => {
     try {
@@ -74,7 +84,7 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
 
   // ── Fetch Donasi User ──
   const fetchUserDonations = useCallback(async () => {
-    if (!session?.user) return
+    if (!session?.user?.id) return
     try {
       const res = await fetch('/api/donations')
       if (res.ok) {
@@ -82,11 +92,11 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
         setUserDonations((d.donations || []).filter((x: Donation) => x.userId === session.user.id))
       }
     } catch { /* silent */ }
-  }, [session?.user])
+  }, [session])
 
   // ── Fetch Recommendations ──
   const fetchRecommendations = useCallback(async () => {
-    if (!session?.user) return
+    if (!session?.user?.id) return
     try {
       const res = await fetch('/api/recommendations')
       if (res.ok) {
@@ -98,11 +108,19 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
         })
       }
     } catch { /* silent */ }
-  }, [session?.user])
+  }, [session?.user?.id])
 
-  useEffect(() => { fetchCampaigns() }, [fetchCampaigns])
   useEffect(() => {
-    if (session?.user) { fetchUserDonations(); fetchRecommendations() }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount pattern, aman
+    fetchCampaigns()
+  }, [fetchCampaigns])
+
+  useEffect(() => {
+    if (session?.user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount pattern, aman
+      fetchUserDonations()
+      fetchRecommendations()
+    }
   }, [session?.user, fetchUserDonations, fetchRecommendations])
 
   // ── Donation ──
@@ -160,6 +178,11 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
     } catch { toast.error('Gagal memuat detail campaign') }
   }, [])
 
+  // ── Navigasi dari Dashboard ke detail ajuan tertentu di tab Ajuan ──
+  const handleViewProposal = (id: string) => {
+    router.push(`?tab=ajuan&proposalId=${id}`)
+  }
+
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -196,7 +219,14 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
           </TabsList>
 
           <TabsContent value="dashboard">
-            <TabDashboard session={session} userDonations={userDonations} campaigns={campaigns} />
+            <TabDashboard
+              session={session}
+              userDonations={userDonations}
+              campaigns={campaigns}
+              proposals={proposals}
+              proposalsLoading={proposalsLoading}
+              onViewProposal={handleViewProposal}
+            />
           </TabsContent>
 
           <TabsContent value="donasi">
@@ -217,11 +247,19 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
             <TabRekomendasi
               recommendations={recommendations}
               openDonationModal={openDonationModal}
+              fetchCampaignDetail={fetchCampaignDetail}
             />
           </TabsContent>
 
           <TabsContent value="ajuan">
-            <TabAjuan session={session} initialProposalId={proposalIdFromUrl ?? undefined} />
+            <TabAjuan
+              session={session}
+              initialProposalId={proposalIdFromUrl ?? undefined}
+              proposals={proposals}
+              loading={proposalsLoading}
+              error={proposalsError}
+              refetch={refetchProposals}
+            />
           </TabsContent>
 
           <TabsContent value="profil">

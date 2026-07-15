@@ -470,64 +470,6 @@ export function ProfilDonatur({ session, userDonations }: ProfilDonaturProps) {
           )}
         </CardContent>
       </Card>
-
-      {/* ── Ringkasan Donasi ── */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Heart className="h-4 w-4 text-teal-600" /> Ringkasan Donasi
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="text-center p-3 rounded-lg bg-teal-50">
-              <p className="text-2xl font-bold text-teal-600">{userDonations.length}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Total Donasi</p>
-            </div>
-            <div className="text-center p-3 rounded-lg bg-emerald-50">
-              <p className="text-2xl font-bold text-emerald-600">{approvedDonations.length}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Disetujui</p>
-            </div>
-            <div className="text-center p-3 rounded-lg bg-amber-50">
-              <p className="text-2xl font-bold text-amber-600">{pendingDonations.length}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Pending</p>
-            </div>
-            <div className="text-center p-3 rounded-lg bg-blue-50">
-              <p className="text-lg font-bold text-blue-600 leading-tight">{formatRupiah(totalNominal)}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Total Nominal</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ── Donasi Terbaru ── */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-teal-500" /> Donasi Terbaru
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {recentDonations.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">Belum ada donasi</p>
-          ) : (
-            <div className="space-y-3">
-              {recentDonations.map(d => (
-                <div key={d.id} className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{d.campaign?.title ?? '-'}</p>
-                    <p className="text-xs text-muted-foreground">{formatDate(d.createdAt)}</p>
-                  </div>
-                  <span className="text-sm font-semibold text-teal-600 shrink-0">
-                    {d.type === 'barang' ? `${d.amount} pcs` : formatRupiah(Number(d.amount))}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
     </div>
   )
 }

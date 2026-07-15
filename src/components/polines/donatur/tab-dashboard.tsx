@@ -1,30 +1,50 @@
 'use client'
 
 import React from 'react'
-import { HandHeart, ClipboardList, Clock, CheckCircle } from 'lucide-react'
+import { HandHeart, ClipboardList, Clock, CheckCircle, Megaphone } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import type { Donation, Campaign } from '@/components/polines/types'
 import { formatRupiah, formatDate, getStatusColor } from '@/components/polines/types'
+import { type ProposalAPI, mapProposalToRiwayat, StatusBadge, useProposals } from '@/components/polines/donatur/tab-ajuan'
 
 interface TabDashboardProps {
   session: any
   userDonations: Donation[]
   campaigns: Campaign[]
+  proposals?: ProposalAPI[]
+  proposalsLoading?: boolean
+  onViewProposal?: (id: string) => void
 }
 
-export function TabDashboard({ session, userDonations, campaigns }: TabDashboardProps) {
+export function TabDashboard({
+  session,
+  userDonations,
+  proposals: proposalsProp,
+  proposalsLoading: proposalsLoadingProp,
+}: TabDashboardProps) {
+  const internal = useProposals(session)
+  const usingExternalData = proposalsProp !== undefined
+  const proposals = usingExternalData ? proposalsProp : internal.proposals
+  const proposalsLoading = usingExternalData ? (proposalsLoadingProp ?? false) : internal.loading
+
   const approved = userDonations.filter(d => d.status === 'approved')
   const pending = userDonations.filter(d => d.status === 'pending')
   const totalNominal = approved.reduce((s, d) => s + d.amount, 0)
 
-  // Campaign yang pernah didonasi user
-  const donatedCampaignIds = [...new Set(approved.map(d => d.campaignId))]
-  const activeCampaigns = campaigns.filter(c => donatedCampaignIds.includes(c.id))
-
   // 5 donasi terakhir
   const recentDonations = [...userDonations]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5)
+
+  // ── Riwayat Ajuan: 5 ajuan campaign terbaru milik user ──
+  // Sembunyikan proposal lama yang sudah digantikan hasil resubmit (sama seperti di TabAjuan)
+  const supersededIds = new Set(
+    proposals.map(p => p.resubmittedFrom).filter((id): id is string => !!id)
+  )
+  const recentProposals = [...proposals]
+    .filter(p => !supersededIds.has(p.id))
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5)
 
@@ -79,27 +99,32 @@ export function TabDashboard({ session, userDonations, campaigns }: TabDashboard
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Campaign yang diikuti */}
+        {/* Riwayat Ajuan (pengajuan campaign) */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Campaign yang Kamu Ikuti</CardTitle>
+            <CardTitle className="text-base">Riwayat Ajuan</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {activeCampaigns.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                Belum ada campaign yang diikuti
-              </p>
+          <CardContent className="space-y-3">
+            {proposalsLoading ? (
+              <p className="text-sm text-muted-foreground text-center py-4">Memuat...</p>
+            ) : recentProposals.length === 0 ? (
+              <div className="text-center py-4 space-y-1">
+                <Megaphone className="h-6 w-6 text-muted-foreground mx-auto" />
+                <p className="text-sm text-muted-foreground">Belum ada ajuan campaign</p>
+              </div>
             ) : (
-              activeCampaigns.slice(0, 4).map(c => {
-                const pct = c.targetAmount > 0
-                  ? Math.min((c.collectedAmount / c.targetAmount) * 100, 100) : 0
+              recentProposals.map(p => {
+                const r = mapProposalToRiwayat(p)
                 return (
-                  <div key={c.id} className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span className="font-medium line-clamp-1 flex-1">{c.title}</span>
-                      <span className="text-teal-600 ml-2 shrink-0">{Math.round(pct)}%</span>
+                  <div
+                    key={p.id}
+                    className="flex items-center justify-between gap-2"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{r.judul}</p>
+                      <p className="text-xs text-muted-foreground">{formatDate(r.tanggalAjuan)}</p>
                     </div>
-                    <Progress value={pct} className="h-1.5 [&>div]:bg-teal-500" />
+                    <StatusBadge status={r.status} />
                   </div>
                 )
               })
