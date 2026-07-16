@@ -16,6 +16,7 @@ export default function RekomendasiPage() {
     personalized: [] as RecommendedCampaign[],
     trending: [] as RecommendedCampaign[],
     becauseYouLiked: [] as RecommendedCampaign[],
+    collaborative: [] as RecommendedCampaign[],
   })
 
   // ── TAMBAHAN: data campaign lengkap, dipakai khusus untuk DonationModal ──
@@ -37,11 +38,13 @@ export default function RekomendasiPage() {
 
   useEffect(() => {
     if (!session?.user) return
-    fetch('/api/recommendations').then(r => r.json()).then(d =>
+    fetch('/api/recommendations').then(r => r.json())
+    .then(d =>
       setRecommendations({
         personalized: d.personalized || [],
         trending: d.trending || [],
         becauseYouLiked: d.becauseYouLiked || [],
+        collaborative: d.collaborative || [],
       })
     )
   }, [session])
@@ -91,13 +94,16 @@ export default function RekomendasiPage() {
       })
       if (res.ok) {
         setDonationStep(3); toast.success('Donasi berhasil dikirim!')
-        fetch('/api/recommendations').then(r => r.json()).then(d =>
+        fetch('/api/recommendations').then(r => r.json())
+        .then(d => {
+          console.log("API RESPONSE", d)
           setRecommendations({
             personalized: d.personalized || [],
             trending: d.trending || [],
             becauseYouLiked: d.becauseYouLiked || [],
+            collaborative: d.collaborative || [],
           })
-        )
+        })
         fetch('/api/campaigns?status=active').then(r => r.json()).then(d => setCampaigns(d.campaigns || []))
       } else { const d = await res.json(); toast.error(d.error || 'Gagal') }
     } catch { toast.error('Terjadi kesalahan') }

@@ -40,6 +40,7 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [userDonations, setUserDonations] = useState<Donation[]>([])
 
+
   // ── Ajuan/Proposal: diangkat ke sini biar TabDashboard & TabAjuan share data yang sama ──
   const {
     proposals,
@@ -49,6 +50,9 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
   } = useProposals(session)
 
   // ── State recommendations: Disesuaikan jadi 3 section utama ──
+
+  // ── State recommendations: 3 section utama ──
+
   const [recommendations, setRecommendations] = useState<{
     personalized: RecommendedCampaign[]
     becauseYouLiked: RecommendedCampaign[]
@@ -74,6 +78,12 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
     if (session?.user?.role === 'admin') router.push('/admin/dashboard')
   }, [status, session, router])
 
+
+  // ── Sync tab jika defaultTab atau urlTab berubah ──
+  useEffect(() => {
+    setActiveTab(urlTab || defaultTab)
+  }, [defaultTab, urlTab])
+
   // ── Fetch Campaigns ──
   const fetchCampaigns = useCallback(async () => {
     try {
@@ -94,13 +104,13 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
     } catch { /* silent */ }
   }, [session])
 
-  // ── Fetch Recommendations ──
   const fetchRecommendations = useCallback(async () => {
     if (!session?.user?.id) return
     try {
       const res = await fetch('/api/recommendations')
       if (res.ok) {
         const d = await res.json()
+        console.log('[DEBUG] full API response:', JSON.stringify(d, null, 2)) // ← tambah ini
         setRecommendations({
           personalized:    d.personalized    || [],
           becauseYouLiked: d.becauseYouLiked || [],
@@ -124,17 +134,7 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
   }, [session?.user, fetchUserDonations, fetchRecommendations])
 
   // ── Donation ──
-  const openDonationModal = (campaign?: Campaign) => {
-    setSelectedCampaign(campaign || null)
-    setDonationForm({
-      campaignId: campaign?.id || '',
-      type: 'uang', amount: '', paymentMethod: 'transfer', message: '', proofUrl: ''
-    })
-    setDonationStep(1)
-    setDonationModalOpen(true)
-  }
-
-  const submitDonation = async () => {
+  const openDonationModal = async (campaign?: Campaign) => {
     if (!session?.user) { toast.error('Silakan masuk terlebih dahulu'); return }
     if (!donationForm.campaignId) { toast.error('Pilih campaign terlebih dahulu'); return }
     if (!donationForm.amount || Number(donationForm.amount) <= 0) { toast.error('Masukkan nominal yang valid'); return }
@@ -189,6 +189,10 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
         <div className="w-10 h-10 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin" />
       </div>
     )
+  }
+
+  function submitDonation(overrides?: { amount?: number | undefined; itemName?: string | undefined; itemQuantity?: number | undefined; senderAddress?: string | undefined } | undefined): void {
+    throw new Error('Function not implemented.')
   }
 
   return (
@@ -282,6 +286,8 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
         selectedCampaign={selectedCampaign}
         campaignDonations={campaignDonations}
         onDonate={() => { if (selectedCampaign) openDonationModal(selectedCampaign) }}
+
+        
       />
     </div>
   )

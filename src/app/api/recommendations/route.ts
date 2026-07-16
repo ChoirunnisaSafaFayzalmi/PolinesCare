@@ -28,16 +28,28 @@ import { auth } from "@/lib/auth";
 //
 // ============================================================
 //
-// Pengelompokan hasil:
+// Pengelompokan hasil (3 section independen):
 //
 // personalized
 // → Hasil Weighted Hybrid (skor ≥ 50)
+//   Menampilkan campaign terbaik dari gabungan semua engine.
 //
 // becauseYouLiked
 // → Hasil Content-Based Filtering
+//   Menampilkan campaign sesuai kategori minat user,
+//   terlepas dari apakah campaign sudah tampil di personalized.
 //
 // collaborative
 // → Hasil Neighborhood-Based Collaborative Filtering
+//   Menampilkan campaign dari similar users,
+//   terlepas dari apakah campaign sudah tampil di personalized.
+//
+// Catatan desain:
+// Tiap section beroperasi secara independen untuk memastikan
+// hasil engine CBF dan CF selalu terlihat oleh pengguna,
+// meskipun campaign yang sama mungkin muncul di lebih dari
+// satu section. Hal ini disengaja agar kontribusi masing-masing
+// engine dapat teridentifikasi secara jelas pada antarmuka.
 //
 // ============================================================
 
@@ -50,6 +62,7 @@ interface CampaignData {
   isUrgent: boolean;
   _count: { donations: number };
 }
+
 // ============================================================
 // Weighted Hybrid Scoring Function
 //
@@ -180,7 +193,7 @@ export async function GET(request: NextRequest) {
         return { ...c, score, reason: getScoreLabel(score) };
       });
 
-      // Buat copy terpisah untuk tiap sorting agar tidak saling menimpa (array mutation fix)
+      // Buat copy terpisah untuk tiap sorting agar tidak saling menimpa
       const byScore = [...scoredPublic].sort((a, b) => b.score - a.score);
       const byDonationCount = [...scoredPublic]
         .filter((c) => c._count.donations > 0)
@@ -275,7 +288,7 @@ export async function GET(request: NextRequest) {
     if (preferredCategories.length > 0) {
       // Langkah 1
       // Identifikasi similar users berdasarkan
-    // kesamaan kategori donasi.
+      // kesamaan kategori donasi.
       const similarDonations = await db.donation.findMany({
         where: {
           userId: { not: userId },
@@ -289,10 +302,10 @@ export async function GET(request: NextRequest) {
 
       const similarUserIds = similarDonations.map((d) => d.userId);
 
-    // Langkah 2
-    // Ambil campaign dari similar users
-    // yang belum pernah didonasikan
-    // oleh target user.
+      // Langkah 2
+      // Ambil campaign dari similar users
+      // yang belum pernah didonasikan
+      // oleh target user.
       if (similarUserIds.length > 0) {
         const collabDonations = await db.donation.findMany({
           where: {
@@ -335,13 +348,14 @@ export async function GET(request: NextRequest) {
         (now.getTime() - new Date(c.createdAt).getTime()) /
           (1000 * 60 * 60 * 24)
       );
-// Hitung skor akhir menggunakan
-// Weighted Hybrid Recommender System.
-//
-// Hybrid Score =
-// Content-Based +
-// Collaborative +
-// Context-Aware Factors
+
+      // Hitung skor akhir menggunakan
+      // Weighted Hybrid Recommender System.
+      //
+      // Hybrid Score =
+      // Content-Based +
+      // Collaborative +
+      // Context-Aware Factors
       let score = calculateHybridScore(
         c,
         preferredCategories,
@@ -356,11 +370,11 @@ export async function GET(request: NextRequest) {
 
       score = Math.max(0, Math.min(score, 100));
 
-// Generate explanation
-//
-// Sistem menghasilkan alasan rekomendasi
-// berdasarkan faktor yang benar-benar
-// berkontribusi terhadap skor campaign.
+      // Generate explanation
+      //
+      // Sistem menghasilkan alasan rekomendasi
+      // berdasarkan faktor yang benar-benar
+      // berkontribusi terhadap skor campaign.
       const reasons: string[] = [];
       if (preferredCategories.includes(c.category))
         reasons.push(`Berdasarkan minat Anda (${c.category})`);
@@ -384,30 +398,34 @@ export async function GET(request: NextRequest) {
 
 // -------------------------------------------------------
 // TAHAP 4
-// HASIL REKOMENDASI
+// PENGELOMPOKAN HASIL REKOMENDASI
 //
-// Campaign yang telah diberi skor
-// dikelompokkan menjadi:
+// Tiga section bersifat INDEPENDEN satu sama lain.
 //
-// • Hybrid Recommendation
+// Campaign yang sama dapat muncul di lebih dari satu
+// section karena tiap section merepresentasikan
+// output dari engine yang berbeda:
 //
-// • Content-Based Recommendation
+// • personalized   → Weighted Hybrid (skor ≥ 50)
+// • becauseYouLiked → Content-Based Filtering
+// • collaborative  → Neighborhood-Based CF
 //
-// • Collaborative Recommendation
-//
-// Pengelompokan ini hanya memengaruhi
-// penyajian pada antarmuka,
-// bukan proses perhitungan skor.
+// Desain ini disengaja agar kontribusi engine CBF
+// dan CF selalu dapat teridentifikasi secara eksplisit
+// pada antarmuka, terlepas dari hasil Hybrid.
 // -------------------------------------------------------
     scoredCampaigns.sort((a, b) => b.score - a.score);
 
-    // 🌟 HYBRID — campaign yang mendapat sinyal dari CBF + CF sekaligus (skor ≥ 50)
+    // 🌟 HYBRID
+    // Campaign dengan skor ≥ 50 dari weighted sum
+    // CBF + CF + Context-Aware Factors.
     const personalized = scoredCampaigns
       .filter((c) => c.score >= 50)
       .slice(0, 6);
 
-    // 🏷️ CONTENT-BASED — campaign yang kategorinya cocok histori donasi user
-    // (belum pernah didonasikan, murni dari engine CBF)
+    // 🏷️ CONTENT-BASED FILTERING
+    // Campaign yang kategorinya sesuai profil minat user.
+    // Independen dari personalized — tidak ada exclusion filter.
     const becauseYouLiked = scoredCampaigns
       .filter(
         (c) =>
@@ -416,8 +434,9 @@ export async function GET(request: NextRequest) {
       )
       .slice(0, 4);
 
-    // 👥 COLLABORATIVE FILTERING — campaign dari user lain yang minatnya serupa
-    // (belum pernah didonasikan, murni dari engine CF)
+    // 👥 NEIGHBORHOOD-BASED COLLABORATIVE FILTERING
+    // Campaign dari similar users yang belum pernah didonasikan user.
+    // Independen dari personalized — tidak ada exclusion filter.
     const collaborative = scoredCampaigns
       .filter(
         (c) =>
@@ -427,10 +446,9 @@ export async function GET(request: NextRequest) {
       .slice(0, 4);
 
     return NextResponse.json({
-      recommendations: scoredCampaigns.slice(0, 10),
-      personalized,       // → ditampilkan sebagai section "Rekomendasi Personal" (badge: Hybrid)
-      becauseYouLiked,    // → ditampilkan sebagai section "Karena Anda Suka" (badge: Content-Based)
-      collaborative,      // → ditampilkan sebagai section "Pengguna Serupa Juga Donasi" (badge: Collaborative Filtering)
+      personalized,       // → section "Rekomendasi Personal" (badge: Hybrid)
+      becauseYouLiked,    // → section "Karena Anda Suka" (badge: Content-Based)
+      collaborative,      // → section "Pengguna Serupa Juga Donasi" (badge: Collaborative Filtering)
       preferredCategories,
       totalScored: scoredCampaigns.length,
     });
