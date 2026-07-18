@@ -7,6 +7,11 @@ import crypto from 'crypto'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+// Selama domain belum diverifikasi di Resend, WAJIB pakai onboarding@resend.dev. 
+// Setelah domain diverifikasi, isi RESEND_FROM_EMAIL di env production (mis. "Polines Care <noreply@domainkamu.ac.id>").
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Polines Care <onboarding@resend.dev>'
+const DEV_TEST_EMAIL = process.env.RESEND_DEV_TEST_EMAIL
+
 export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json()
@@ -44,12 +49,12 @@ export async function POST(request: NextRequest) {
     })
 
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`
+    const recipient = DEV_TEST_EMAIL || user.email
 
     // Kirim email via Resend
     await resend.emails.send({
-      from: 'Polines Care <onboarding@resend.dev>', // ganti dengan domain terverifikasi di Resend
-      // to: user.email,
-      to: 'nurlita.33423119@mhs.polines.ac.id',
+      from: FROM_EMAIL,
+      to: recipient,
       subject: 'Reset Password - Polines Care',
       html: `
         <!DOCTYPE html>
@@ -60,7 +65,7 @@ export async function POST(request: NextRequest) {
           </head>
           <body style="font-family: sans-serif; background: #f9fafb; padding: 32px 0; margin: 0;">
             <div style="max-width: 480px; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
-              
+
               <!-- Header -->
               <div style="background: linear-gradient(135deg, #0d9488, #059669); padding: 28px 32px; text-align: center;">
                 <h1 style="color: #fff; margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;">

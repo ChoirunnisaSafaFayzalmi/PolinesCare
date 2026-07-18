@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import {
+  ACTIVE_STATUSES,
+  resolveUniqueCodeOnActivate,
+  getNextAvailableCode,
+  isUniqueCodeConflict,
+  MAX_RETRY,
+} from "@/lib/code";
 
 export async function GET(
   request: NextRequest,
@@ -8,10 +15,6 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    // ⬅ FIX: sama seperti di campaigns/route.ts — select creator diperluas
-    // agar menyertakan email, phone, address (bukan cuma id/name/avatar),
-    // supaya form Edit Campaign bisa menampilkan data pembuat asli campaign,
-    // bukan fallback ke data admin yang sedang login.
     const campaign = await db.campaign.findUnique({
       where: { id },
       include: {
@@ -47,10 +50,6 @@ export async function GET(
   }
 }
 
-// Status campaign yang dianggap "masih berjalan" — kode uniknya tidak boleh
-// bentrok satu sama lain karena masih dipakai untuk mencocokkan transfer masuk.
-const ACTIVE_STATUSES = ["active", "awaiting_completion"];
-
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -69,65 +68,77 @@ export async function PUT(
     const {
       title, description, category, targetAmount,
       startDate, endDate, isUrgent, isPublic,
-      paymentMethods, uniqueCode, images, status, location, dropOffLocation, qrisImageUrl,
+      paymentMethods, images, status, location, dropOffLocation, qrisImageUrl,
+      // ⬅ uniqueCode SENGAJA tidak lagi dibaca dari body sama sekali.
+      // Kode di-generate/dijaga otomatis oleh server (lihat lib/code.ts).
+      // Kalau body tetap mengirim uniqueCode (form lama), nilai itu
+      // diabaikan sepenuhnya di endpoint ini.
     } = body;
 
     const existing = await db.campaign.findUnique({ where: { id } });
     if (!existing)
       return NextResponse.json({ error: "Kampanye tidak ditemukan" }, { status: 404 });
 
-    // ⬅ FIX: sebelumnya uniqueCode hanya di-clamp ke rentang 0-999 tanpa
-    // pengecekan apakah kode itu sudah dipakai campaign lain yang masih aktif.
-    // Fix: cek dulu ke database, tapi KECUALIKAN campaign yang sedang di-edit
-    // ini sendiri (id tidak sama dengan `id` yang sedang diupdate) — supaya
-    // admin tetap bisa menyimpan ulang campaign yang sama tanpa dianggap
-    // "bentrok dengan dirinya sendiri".
-    let normalizedCode: number | undefined;
-    if (uniqueCode !== undefined) {
-      normalizedCode = Math.min(999, Math.max(0, Number(uniqueCode) || 0));
+    const nextStatus = status ?? existing.status;
 
-      const existingWithSameCode = await db.campaign.findFirst({
-        where: {
-          uniqueCode: normalizedCode,
-          status: { in: ACTIVE_STATUSES },
-          id: { not: id },
-        },
-        select: { id: true, title: true },
-      });
+    // ⬅ FIX: kode HANYA dicek ulang saat campaign bertransisi dari status
+    // NON-aktif ke status AKTIF (mis. completed → active). Di luar kasus
+    // itu, kode tetap immutable seperti desain awal — supaya donatur yang
+    // sudah dikasih instruksi kode lama tidak dirugikan tanpa alasan.
+    //
+    // Kenapa perlu dicek ulang khusus saat reactivate: kode milik campaign
+    // yang completed dianggap "bebas" dan boleh dipakai campaign aktif lain
+    // (lihat getNextAvailableCode di lib/code.ts, hanya scan status aktif).
+    // Jadi begitu campaign lama ini diaktifkan lagi, kodenya mungkin sudah
+    // tidak "miliknya" lagi.
+    let uniqueCode = existing.uniqueCode;
+    const isReactivating =
+      ACTIVE_STATUSES.includes(nextStatus) && !ACTIVE_STATUSES.includes(existing.status);
 
-      if (existingWithSameCode) {
-        return NextResponse.json(
-          {
-            error: `Kode unik ${String(normalizedCode).padStart(3, "0")} sudah dipakai oleh campaign aktif "${existingWithSameCode.title}". Silakan pilih kode lain.`,
-          },
-          { status: 409 }
-        );
-      }
+    if (isReactivating) {
+      uniqueCode = await resolveUniqueCodeOnActivate(id, existing.uniqueCode);
     }
 
-    const campaign = await db.campaign.update({
-      where: { id },
-      data: {
-        ...(title && { title }),
-        ...(description && { description }),
-        location: location ?? null,
-        dropOffLocation: dropOffLocation ?? null,
-        ...(category && { category }),
-        ...(targetAmount !== undefined && { targetAmount: Number(targetAmount) }),
-        ...(startDate && { startDate: new Date(startDate) }),
-        ...(endDate && { endDate: new Date(endDate) }),
-        ...(status && { status }),
-        ...(isUrgent !== undefined && { isUrgent }),
-        ...(isPublic !== undefined && { isPublic }),
-        ...(normalizedCode !== undefined && { uniqueCode: normalizedCode }),
-        // Selalu update images & paymentMethods (even if empty array = clear)
-        images: Array.isArray(images) && images.length > 0 ? JSON.stringify(images) : null,
-        paymentMethods: Array.isArray(paymentMethods) && paymentMethods.length > 0
-          ? JSON.stringify(paymentMethods)
-          : null,
-        qrisImageUrl: qrisImageUrl || null,
-      },
-    });
+    let campaign;
+    let attempt = 0;
+    while (true) {
+      try {
+        campaign = await db.campaign.update({
+          where: { id },
+          data: {
+            ...(title && { title }),
+            ...(description && { description }),
+            location: location ?? null,
+            dropOffLocation: dropOffLocation ?? null,
+            ...(category && { category }),
+            ...(targetAmount !== undefined && { targetAmount: Number(targetAmount) }),
+            ...(startDate && { startDate: new Date(startDate) }),
+            ...(endDate && { endDate: new Date(endDate) }),
+            ...(status && { status }),
+            ...(isUrgent !== undefined && { isUrgent }),
+            ...(isPublic !== undefined && { isPublic }),
+            uniqueCode,
+            images: Array.isArray(images) && images.length > 0 ? JSON.stringify(images) : null,
+            paymentMethods: Array.isArray(paymentMethods) && paymentMethods.length > 0
+              ? JSON.stringify(paymentMethods)
+              : null,
+            qrisImageUrl: qrisImageUrl || null,
+          },
+        });
+        break;
+      } catch (err) {
+        // Race condition: campaign lain keburu ambil kode yang sama persis
+        // sebelum update ini commit (dijaga partial unique index di DB).
+        // Hanya relevan saat reactivate; kalau bukan reactivate, uniqueCode
+        // tidak berubah jadi tidak mungkin memicu konflik ini.
+        if (isReactivating && isUniqueCodeConflict(err) && attempt < MAX_RETRY - 1) {
+          attempt++;
+          uniqueCode = await getNextAvailableCode(id);
+          continue;
+        }
+        throw err;
+      }
+    }
 
     return NextResponse.json({
       campaign: {

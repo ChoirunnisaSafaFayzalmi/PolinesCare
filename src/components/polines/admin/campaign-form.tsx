@@ -26,6 +26,10 @@ interface CampaignFormViewProps {
     startDate: string; endDate: string; isUrgent: boolean; isPublic: boolean
     paymentMethods: PaymentMethod[]
     qrisImageUrl?: string
+    // ⬅ FIX: uniqueCode sekarang HANYA dipakai untuk DITAMPILKAN (read-only),
+    // bukan diinput admin. Nilainya datang dari data campaign yang sudah ada
+    // (editingCampaign?.uniqueCode) — server yang men-generate ini otomatis,
+    // form tidak pernah mengirim field ini saat create/update.
     uniqueCode: string
     images?: string[]
     location?: string
@@ -307,6 +311,18 @@ export function CampaignFormView({
     const rawDigits = e.target.value.replace(/\D/g, '')
     setCampaignForm({ ...campaignForm, targetAmount: rawDigits })
   }
+
+  // ⬅ FIX: kode unik sekarang murni read-only, tidak pernah diinput admin.
+  // - Campaign baru (belum tersimpan sama sekali, editingCampaign null &
+  //   bukan mode complete-from-proposal): kode belum ada, karena baru akan
+  //   di-generate server SETELAH disimpan.
+  // - Campaign yang sudah ada (sedang diedit, atau hasil approval proposal
+  //   yang sedang dilengkapi): kode sudah di-assign otomatis oleh server
+  //   sejak dibuat, tinggal ditampilkan apa adanya.
+  const hasAssignedCode = Boolean(editingCampaign) || isLocked
+  const displayCode = campaignForm.uniqueCode
+    ? String(campaignForm.uniqueCode).padStart(3, '0')
+    : '000'
 
   return (
     <>
@@ -669,25 +685,31 @@ export function CampaignFormView({
                 />
               </div>
 
-              {/* Kode Unik */}
+              {/* Kode Unik — FIX: read-only, tidak lagi bisa diinput admin.
+                  Server yang men-generate & menjamin keunikannya (lihat
+                  src/lib/campaign-code.ts). Field ini hanya sebagai referensi
+                  visual, tidak pernah dikirim balik ke server saat submit. */}
               <div className="space-y-2 pt-2">
-                <Label className="text-sm font-medium text-gray-700">Kode Unik Transfer (3 digit)</Label>
-                <div className="flex items-center gap-3">
-                  <Input
-                    type="number"
-                    min={0}
-                    max={999}
-                    value={campaignForm.uniqueCode}
-                    onChange={(e) => setCampaignForm({ ...campaignForm, uniqueCode: e.target.value })}
-                    placeholder="000"
-                    className={`${inputCls} w-32`}
-                  />
-                  <p className="text-xs text-gray-500 leading-relaxed">
-                    Kode unik 3 digit untuk identifikasi transfer. Contoh: kode{' '}
-                    <span className="font-semibold text-violet-600">010</span>, donasi 200.000 → transfer{' '}
-                    <span className="font-semibold text-violet-600">200.010</span>
-                  </p>
-                </div>
+                <Label className="text-sm font-medium text-gray-700">Kode Unik Transfer</Label>
+                {hasAssignedCode ? (
+                  <div className="flex items-center gap-3">
+                    <div className={`${inputCls} w-32 flex items-center justify-center bg-gray-50 text-gray-700 font-mono font-semibold text-sm py-2 border`}>
+                      {displayCode}
+                    </div>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      Dibuat otomatis oleh sistem saat campaign ini dibuat, tidak dapat diubah.
+                      Contoh instruksi ke donatur: donasi 200.000 → transfer{' '}
+                      <span className="font-semibold text-violet-600">200.{displayCode}</span>
+                    </p>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/50 px-4 py-3">
+                    <p className="text-xs text-gray-500">
+                      Kode unik akan dibuat otomatis oleh sistem setelah campaign ini disimpan.
+                      Kamu tidak perlu mengisinya secara manual.
+                    </p>
+                  </div>
+                )}
               </div>
 
             </div>

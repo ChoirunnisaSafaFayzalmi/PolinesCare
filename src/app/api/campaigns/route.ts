@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { createCampaignWithAutoCode } from "@/lib/code";
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search");
     const isUrgent = searchParams.get("urgent");
 
-    // ⬅ TAMBAHAN: auto-complete campaign yang tanggal berakhirnya sudah lewat
+    // Auto-complete campaign yang tanggal berakhirnya sudah lewat
     await db.campaign.updateMany({
       where: {
         status: "active",
@@ -30,11 +31,6 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // ⬅ FIX: sebelumnya select creator cuma { id, name, avatar } — tidak cukup
-    // untuk menampilkan email/no telp/alamat pembuat campaign yang sebenarnya
-    // di form Edit Campaign (sebelumnya form itu fallback ke data admin yang
-    // sedang login, padahal admin bisa lebih dari 1 orang). Tambahkan email,
-    // phone, address ke select supaya data pembuat asli ikut terkirim ke frontend.
     const campaigns = await db.campaign.findMany({
       where,
       include: {
@@ -44,7 +40,6 @@ export async function GET(request: NextRequest) {
       orderBy: [{ isUrgent: "desc" }, { createdAt: "desc" }],
     });
 
-    // Parse JSON fields sebelum dikirim ke client
     const parsed = campaigns.map((c) => ({
       ...c,
       images: c.images ? JSON.parse(c.images) : [],
@@ -57,12 +52,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-
-// Status campaign yang dianggap "masih berjalan" — kode uniknya tidak boleh
-// bentrok satu sama lain karena masih dipakai untuk mencocokkan transfer masuk.
-// Campaign yang sudah "completed"/"closed" boleh berbagi kode yang sama karena
-// sudah tidak menerima donasi baru.
-const ACTIVE_STATUSES = ["active", "awaiting_completion"];
 
 export async function POST(request: NextRequest) {
   try {
@@ -78,57 +67,34 @@ export async function POST(request: NextRequest) {
     const {
       title, description, category, targetAmount,
       startDate, endDate, isUrgent, isPublic,
-      paymentMethods, uniqueCode, images, location,
+      paymentMethods, images, location,
       dropOffLocation, qrisImageUrl,
+      // ⬅ FIX: uniqueCode SENGAJA tidak lagi diambil dari body. Kalau client
+      // (form lama/tool eksternal) tetap mengirimkannya, nilainya akan
+      // diabaikan sepenuhnya — kode selalu di-generate otomatis di server
+      // lewat createCampaignWithAutoCode(). Admin tidak lagi mengisi kode ini.
     } = body;
 
     if (!title || !description || !category || !targetAmount || !startDate || !endDate)
       return NextResponse.json({ error: "Semua field wajib diisi" }, { status: 400 });
 
-    // ⬅ FIX: sebelumnya uniqueCode hanya di-clamp ke rentang 0-999 tanpa
-    // pengecekan apakah kode itu sudah dipakai campaign lain yang masih aktif.
-    // Ini berisiko: dua campaign aktif dengan kode unik sama akan membuat
-    // sistem salah mencocokkan transfer donasi ke campaign yang salah.
-    // Fix: cek dulu ke database sebelum membuat campaign baru.
-    const normalizedCode = Math.min(999, Math.max(0, Number(uniqueCode) || 0));
-
-    const existingWithSameCode = await db.campaign.findFirst({
-      where: {
-        uniqueCode: normalizedCode,
-        status: { in: ACTIVE_STATUSES },
-      },
-      select: { id: true, title: true },
-    });
-
-    if (existingWithSameCode) {
-      return NextResponse.json(
-        {
-          error: `Kode unik ${String(normalizedCode).padStart(3, "0")} sudah dipakai oleh campaign aktif "${existingWithSameCode.title}". Silakan pilih kode lain.`,
-        },
-        { status: 409 }
-      );
-    }
-
-    const campaign = await db.campaign.create({
-      data: {
-        title,
-        description,
-        category,
-        location: location || null,
-        dropOffLocation: dropOffLocation || null,
-        targetAmount: Number(targetAmount),
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        isUrgent: isUrgent || false,
-        isPublic: isPublic ?? true,
-        uniqueCode: normalizedCode,
-        images: Array.isArray(images) && images.length > 0 ? JSON.stringify(images) : null,
-        paymentMethods: Array.isArray(paymentMethods) && paymentMethods.length > 0
-          ? JSON.stringify(paymentMethods)
-          : null,
-        qrisImageUrl: qrisImageUrl || null,
-        createdBy: (session.user as { id: string }).id,
-      },
+    const campaign = await createCampaignWithAutoCode({
+      title,
+      description,
+      category,
+      location: location || null,
+      dropOffLocation: dropOffLocation || null,
+      targetAmount: Number(targetAmount),
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      isUrgent: isUrgent || false,
+      isPublic: isPublic ?? true,
+      images: Array.isArray(images) && images.length > 0 ? JSON.stringify(images) : null,
+      paymentMethods: Array.isArray(paymentMethods) && paymentMethods.length > 0
+        ? JSON.stringify(paymentMethods)
+        : null,
+      qrisImageUrl: qrisImageUrl || null,
+      creator: { connect: { id: (session.user as { id: string }).id } },
     });
 
     return NextResponse.json({

@@ -81,6 +81,7 @@ export function DonaturDashboard({ defaultTab = 'dashboard' }: DonaturDashboardP
 
   // ── Sync tab jika defaultTab atau urlTab berubah ──
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount pattern, aman
     setActiveTab(urlTab || defaultTab)
   }, [defaultTab, urlTab])
 

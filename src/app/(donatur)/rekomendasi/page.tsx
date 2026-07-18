@@ -12,14 +12,15 @@ import type { Campaign, Donation, RecommendedCampaign } from '@/components/polin
 export default function RekomendasiPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+
+  // ── FIX: tambahkan collaborative, hapus trending (tidak dipakai TabRekomendasi) ──
   const [recommendations, setRecommendations] = useState({
     personalized: [] as RecommendedCampaign[],
-    trending: [] as RecommendedCampaign[],
     becauseYouLiked: [] as RecommendedCampaign[],
     collaborative: [] as RecommendedCampaign[],
   })
 
-  // ── TAMBAHAN: data campaign lengkap, dipakai khusus untuk DonationModal ──
+  // ── data campaign lengkap, dipakai khusus untuk DonationModal ──
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
 
   const [donationModalOpen, setDonationModalOpen] = useState(false)
@@ -36,20 +37,23 @@ export default function RekomendasiPage() {
     if (status === 'unauthenticated') router.push('/login')
   }, [status])
 
-  useEffect(() => {
-    if (!session?.user) return
-    fetch('/api/recommendations').then(r => r.json())
-    .then(d =>
+  // ── FIX: ambil d.collaborative dari response API ──
+  const fetchRecommendations = useCallback(() => {
+    fetch('/api/recommendations').then(r => r.json()).then(d =>
       setRecommendations({
         personalized: d.personalized || [],
-        trending: d.trending || [],
         becauseYouLiked: d.becauseYouLiked || [],
         collaborative: d.collaborative || [],
       })
     )
-  }, [session])
+  }, [])
 
-  // ── TAMBAHAN: fetch data campaign lengkap, sama persis kayak di donasi/page.tsx ──
+  useEffect(() => {
+    if (!session?.user) return
+    fetchRecommendations()
+  }, [session, fetchRecommendations])
+
+  // ── fetch data campaign lengkap, sama persis kayak di donasi/page.tsx ──
   useEffect(() => {
     if (!session?.user) return
     fetch('/api/campaigns?status=active')
@@ -94,16 +98,8 @@ export default function RekomendasiPage() {
       })
       if (res.ok) {
         setDonationStep(3); toast.success('Donasi berhasil dikirim!')
-        fetch('/api/recommendations').then(r => r.json())
-        .then(d => {
-          console.log("API RESPONSE", d)
-          setRecommendations({
-            personalized: d.personalized || [],
-            trending: d.trending || [],
-            becauseYouLiked: d.becauseYouLiked || [],
-            collaborative: d.collaborative || [],
-          })
-        })
+        // ── FIX: pakai fetchRecommendations yang sudah include collaborative ──
+        fetchRecommendations()
         fetch('/api/campaigns?status=active').then(r => r.json()).then(d => setCampaigns(d.campaigns || []))
       } else { const d = await res.json(); toast.error(d.error || 'Gagal') }
     } catch { toast.error('Terjadi kesalahan') }
@@ -122,7 +118,7 @@ export default function RekomendasiPage() {
     <div className="container mx-auto px-4 py-6">
       <DonaturNav />
       <TabRekomendasi
-        recommendations={recommendations as any}
+        recommendations={recommendations}
         openDonationModal={openDonationModal}
         fetchCampaignDetail={fetchCampaignDetail}
       />

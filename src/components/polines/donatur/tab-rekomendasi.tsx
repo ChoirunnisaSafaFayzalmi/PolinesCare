@@ -1,13 +1,13 @@
 'use client'
 
-import React from 'react'
-import { Heart, Star, Sparkles, AlertTriangle, HandHeart, Users } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
+import React, { useRef } from 'react'
+import { Heart, Star, Sparkles, AlertTriangle, HandHeart, Users, Eye, Clock, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import type { RecommendedCampaign, Campaign } from '@/components/polines/types'
-import { formatRupiah, getCategoryColor } from '@/components/polines/types'
+import { formatRupiah, formatDate, getCategoryColor, parseImages } from '@/components/polines/types'
 
 interface TabRekomendasiProps {
   recommendations: {
@@ -15,99 +15,187 @@ interface TabRekomendasiProps {
     becauseYouLiked: RecommendedCampaign[]
     collaborative: RecommendedCampaign[]
   }
+  meta?: {
+    hasDonationHistory: boolean
+    hasNeighbors: boolean
+  }
   openDonationModal: (campaign: Campaign) => void
   fetchCampaignDetail: (id: string) => void
 }
 
-export function TabRekomendasi({ recommendations, openDonationModal, fetchCampaignDetail }: TabRekomendasiProps) {
+// ── Horizontal scroll row (ala Vidio) ──────────────────────
+// Dipisah jadi komponen sendiri supaya tiap section (Hybrid,
+// Content-Based, Collaborative) punya scroll & tombol panah
+// masing-masing, independen satu sama lain.
+function ScrollRow({ children }: { children: React.ReactNode }) {
+  const rowRef = useRef<HTMLDivElement>(null)
 
-  const renderMiniProgress = (c: RecommendedCampaign) => {
-    const pct = c.targetAmount > 0 ? Math.min((c.collectedAmount / c.targetAmount) * 100, 100) : 0
+  const scroll = (dir: 'left' | 'right') => {
+    const el = rowRef.current
+    if (!el) return
+    const amount = el.clientWidth * 0.8
+    el.scrollBy({ left: dir === 'left' ? -amount : amount, behavior: 'smooth' })
+  }
+
+  return (
+    <div className="relative group/row">
+      {/* Tombol kiri */}
+      <button
+        onClick={() => scroll('left')}
+        className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 items-center justify-center
+                   w-9 h-9 rounded-full bg-white shadow-md border border-gray-200
+                   opacity-0 group-hover/row:opacity-100 transition-opacity -translate-x-3
+                   hover:bg-gray-50"
+        aria-label="Geser ke kiri"
+      >
+        <ChevronLeft className="h-5 w-5 text-gray-700" />
+      </button>
+
+      {/* Row scrollable */}
+      <div
+        ref={rowRef}
+        className="flex gap-4 overflow-x-auto scroll-smooth pb-2
+                   [scrollbar-width:none] [-ms-overflow-style:none]
+                   [&::-webkit-scrollbar]:hidden"
+      >
+        {children}
+      </div>
+
+      {/* Tombol kanan */}
+      <button
+        onClick={() => scroll('right')}
+        className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 items-center justify-center
+                   w-9 h-9 rounded-full bg-white shadow-md border border-gray-200
+                   opacity-0 group-hover/row:opacity-100 transition-opacity translate-x-3
+                   hover:bg-gray-50"
+        aria-label="Geser ke kanan"
+      >
+        <ChevronRight className="h-5 w-5 text-gray-700" />
+      </button>
+    </div>
+  )
+}
+
+export function TabRekomendasi({ recommendations, meta, openDonationModal, fetchCampaignDetail }: TabRekomendasiProps) {
+
+  const renderProgress = (collected: number, target: number) => {
+    const pct = target > 0 ? Math.min((collected / target) * 100, 100) : 0
     return (
-      <>
-        <Progress value={pct} className="h-1.5 mb-1 [&>div]:bg-teal-500" />
-        <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-          <span>{formatRupiah(c.collectedAmount)} / {formatRupiah(c.targetAmount)}</span>
-          <span>{c._count?.donations || 0} donatur</span>
+      <div className="space-y-1.5">
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Terkumpul</span>
+          <span className="font-semibold text-teal-600">{formatRupiah(collected)}</span>
         </div>
-      </>
+        <Progress value={pct} className="h-2 [&>div]:bg-teal-500" />
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>{formatRupiah(target)}</span>
+          <span>{target > 0 ? Math.round(pct) : 0}%</span>
+        </div>
+      </div>
     )
   }
 
   const renderMatchBadge = (match: number | undefined) => {
     if (match === undefined) return null
     const colorClass =
-      match >= 70 ? 'bg-emerald-100 text-emerald-700'
-      : match >= 40 ? 'bg-amber-100 text-amber-700'
-      : 'bg-gray-100 text-gray-600'
+      match >= 70 ? 'bg-emerald-500'
+      : match >= 40 ? 'bg-amber-500'
+      : 'bg-gray-400'
     return (
-      <Badge className={`absolute bottom-2 right-2 text-xs font-bold ${colorClass}`}>
+      <Badge className={`absolute bottom-3 right-3 text-white text-xs font-bold ${colorClass}`}>
         {match}% cocok
       </Badge>
     )
   }
 
-  const renderUrgencyBadge = (isUrgent: boolean) => {
-    if (!isUrgent) return null
+  const getImages = (c: RecommendedCampaign): string[] => {
+    if (Array.isArray(c.images)) return c.images
+    if (typeof c.images === 'string') return parseImages(c.images)
+    return []
+  }
+
+  const RekomCard = ({ c }: { c: RecommendedCampaign }) => {
+    const imgs = getImages(c)
     return (
-      <Badge className="absolute top-2 left-2 bg-red-500 text-white text-xs">
-        <AlertTriangle className="h-3 w-3 mr-1" /> Mendesak
-      </Badge>
+      // ⬅ Card lebar tetap (bukan full-width grid) supaya bisa disusun
+      // menyamping dalam ScrollRow. Sesuaikan w-* kalau mau lebih
+      // lebar/sempit.
+      <Card className="overflow-hidden hover:shadow-lg transition-shadow group p-0 flex-shrink-0 w-64 sm:w-72">
+        <div className="relative">
+          {imgs.length > 0 ? (
+            <img
+              src={imgs[0]}
+              alt={c.title}
+              className="w-full h-40 object-cover"
+            />
+          ) : (
+            <div className="h-40 bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center">
+              <Star className="h-12 w-12 text-purple-300 group-hover:scale-110 transition-transform" />
+            </div>
+          )}
+          {c.isUrgent && (
+            <Badge className="absolute top-3 left-3 bg-red-500 text-white text-xs">
+              <AlertTriangle className="h-3 w-3 mr-1" /> Mendesak
+            </Badge>
+          )}
+          <Badge className={`absolute top-3 right-3 text-xs ${getCategoryColor(c.category)}`}>
+            {c.category}
+          </Badge>
+          {renderMatchBadge(c.matchPercentage)}
+        </div>
+        <CardContent className="px-4 pt-4">
+          <h3 className="font-semibold mb-1 line-clamp-1">{c.title}</h3>
+          {c.reason && (
+            <p className="text-xs text-teal-600 bg-teal-50 rounded px-2 py-1 mb-2 inline-block line-clamp-1">
+              {c.reason}
+            </p>
+          )}
+          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{c.description}</p>
+          {renderProgress(c.collectedAmount, c.targetAmount)}
+
+          <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 mt-1 border-t border-gray-100">
+            <span className="flex items-center gap-1">
+              <Users className="h-3 w-3" /> {c._count?.donations ?? 0} donatur
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" /> {formatDate(c.endDate)}
+            </span>
+          </div>
+        </CardContent>
+        <CardFooter className="px-4 pb-4 pt-0 flex gap-2">
+          <Button variant="outline" size="sm" className="flex-1"
+            onClick={() => fetchCampaignDetail(c.id)}>
+            <Eye className="h-4 w-4 mr-1" /> Detail
+          </Button>
+          <Button size="sm" className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
+            onClick={() => openDonationModal(c as unknown as Campaign)}>
+            <HandHeart className="h-4 w-4 mr-1" /> Donasi
+          </Button>
+        </CardFooter>
+      </Card>
     )
   }
 
-  const RekomCard = ({
-    c,
-    gradient,
-    icon,
-  }: {
-    c: RecommendedCampaign
-    gradient: string
-    icon: React.ReactNode
-  }) => (
-    <Card
-      className="overflow-hidden hover:shadow-md transition-shadow p-0 cursor-pointer"
-      onClick={() => fetchCampaignDetail(c.id)}
-    >
-      <div
-        className={`h-28 relative overflow-hidden${
-          !(c as any).image ? ` ${gradient} flex items-center justify-center` : ''
-        }`}
-      >
-        {(c as any).image ? (
-          <img
-            src={(c as any).image}
-            alt={c.title}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          icon
-        )}
-        <Badge className={`absolute top-2 right-2 text-xs ${getCategoryColor(c.category)}`}>
-          {c.category}
-        </Badge>
-        {renderUrgencyBadge(c.isUrgent)}
-        {renderMatchBadge(c.matchPercentage)}
-      </div>
-      <CardContent className="p-4">
-        <h4 className="font-semibold mb-1 line-clamp-1">{c.title}</h4>
-        {c.reason && (
-          <p className="text-xs text-teal-600 bg-teal-50 rounded px-2 py-1 mb-2">{c.reason}</p>
-        )}
-        {renderMiniProgress(c)}
-        <Button
-          size="sm"
-          className="w-full bg-teal-600 hover:bg-teal-700 text-white"
-          onClick={(e) => {
-            e.stopPropagation()
-            openDonationModal(c as unknown as Campaign)
-          }}
-        >
-          <HandHeart className="h-4 w-4 mr-1" /> Donasi
-        </Button>
-      </CardContent>
-    </Card>
-  )
+  const renderPersonalizedEmptyState = () => {
+    const hasDonationHistory = meta?.hasDonationHistory ?? false
+    const hasNeighbors = meta?.hasNeighbors ?? false
+
+    let message = 'Mulai berdonasi untuk mendapatkan rekomendasi personal'
+    if (hasDonationHistory && !hasNeighbors) {
+      message =
+        'Rekomendasi hybrid muncul saat ada donatur lain dengan minat kategori serupa dengan Anda. Untuk sekarang, cek rekomendasi berdasarkan kategori favorit Anda di bawah ini.'
+    } else if (hasDonationHistory && hasNeighbors) {
+      message =
+        'Belum ada campaign baru yang cocok dengan pola donasi Anda dan donatur serupa saat ini. Cek rekomendasi lain di bawah ini.'
+    }
+
+    return (
+      <Card className="p-8 text-center">
+        <Sparkles className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+        <p className="text-muted-foreground">{message}</p>
+      </Card>
+    )
+  }
 
   return (
     <div className="space-y-8">
@@ -140,22 +228,13 @@ export function TabRekomendasi({ recommendations, openDonationModal, fetchCampai
           Gabungan preferensi kategori Anda dan pola donatur dengan minat serupa
         </p>
         {(!recommendations?.personalized || recommendations.personalized.length === 0) ? (
-          <Card className="p-8 text-center">
-            <Sparkles className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">
-              Mulai berdonasi untuk mendapatkan rekomendasi personal
-            </p>
-          </Card>
+          renderPersonalizedEmptyState()
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(recommendations?.personalized || []).map(c => (
-              <RekomCard
-                key={c.id} c={c}
-                gradient="bg-gradient-to-br from-purple-50 to-indigo-50"
-                icon={<Star className="h-10 w-10 text-purple-300" />}
-              />
+          <ScrollRow>
+            {recommendations.personalized.map(c => (
+              <RekomCard key={c.id} c={c} />
             ))}
-          </div>
+          </ScrollRow>
         )}
       </div>
 
@@ -171,15 +250,11 @@ export function TabRekomendasi({ recommendations, openDonationModal, fetchCampai
           <p className="text-sm text-muted-foreground mb-4">
             Campaign sesuai kategori minat Anda berdasarkan riwayat donasi
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(recommendations?.becauseYouLiked || []).map(c => (
-              <RekomCard
-                key={c.id} c={c}
-                gradient="bg-gradient-to-br from-pink-50 to-rose-50"
-                icon={<Heart className="h-10 w-10 text-pink-300" />}
-              />
+          <ScrollRow>
+            {recommendations.becauseYouLiked.map(c => (
+              <RekomCard key={c.id} c={c} />
             ))}
-          </div>
+          </ScrollRow>
         </div>
       )}
 
@@ -195,15 +270,11 @@ export function TabRekomendasi({ recommendations, openDonationModal, fetchCampai
           <p className="text-sm text-muted-foreground mb-4">
             Campaign yang populer di antara donatur dengan kebiasaan donasi mirip Anda
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(recommendations?.collaborative || []).map(c => (
-              <RekomCard
-                key={c.id} c={c}
-                gradient="bg-gradient-to-br from-blue-50 to-cyan-50"
-                icon={<Users className="h-10 w-10 text-blue-300" />}
-              />
+          <ScrollRow>
+            {recommendations.collaborative.map(c => (
+              <RekomCard key={c.id} c={c} />
             ))}
-          </div>
+          </ScrollRow>
         </div>
       )}
 

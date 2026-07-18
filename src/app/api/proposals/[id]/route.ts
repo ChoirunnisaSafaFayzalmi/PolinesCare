@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { createCampaignWithAutoCode } from "@/lib/code";
 
 export async function GET(
   request: NextRequest,
@@ -12,7 +13,6 @@ export async function GET(
       where: { id },
       include: {
         proposer: {
-          // ✅ Fix — tambah email, phone, address
           select: { id: true, name: true, avatar: true, email: true, phone: true, address: true },
         },
         votes: {
@@ -56,7 +56,6 @@ export async function PUT(
     const existingProposal = await db.proposal.findUnique({
       where: { id },
       include: {
-        // ✅ Fix — include field lengkap untuk dipakai buat Campaign
         proposer: { select: { id: true, name: true, email: true, phone: true, address: true } },
       },
     });
@@ -78,52 +77,36 @@ export async function PUT(
 
     // Jika approved → buat Campaign otomatis
     if (status === 'approved') {
-      // ⬅ FIX: sebelumnya `createdBy` campaign hasil approval di-set ke ID
-      // ADMIN yang melakukan approve (adminId dari session, dengan fallback
-      // ke admin pertama yang ditemukan di database). Ini salah secara
-      // konsep — campaign ini pada dasarnya "diusulkan" oleh donatur yang
-      // mengajukan proposal, admin hanya menyetujui dan nanti melengkapi
-      // data pembayaran. Akibatnya section "Informasi Pembuat" di form
-      // "Lengkapi & Publikasikan Campaign" selalu menampilkan data admin
-      // yang approve (atau kosong), BUKAN data donatur yang sebelumnya
-      // mengisi form pengajuan proposal — padahal donatur itu sudah mengisi
-      // nama/email/telepon/alamat lengkap saat submit proposal.
-      // Fix: createdBy sekarang diarahkan ke existingProposal.proposedBy
-      // (ID donatur pengaju asli), bukan admin yang approve.
       const proposerId = existingProposal.proposedBy;
 
-      await db.campaign.create({
-        data: {
-          title: existingProposal.title,
-          description: existingProposal.description,
-          category: existingProposal.category,
-          targetAmount: existingProposal.targetAmount ?? 0,
-          collectedAmount: 0,
-          startDate: existingProposal.startDate ?? new Date(),
-          endDate: existingProposal.endDate ?? new Date(),
-          status: 'awaiting_completion',
-          isPublic: false,
-          isUrgent: false,
-          location: existingProposal.campaignLocation ?? '',
-          images: existingProposal.photoUrls ?? null,
-          paymentMethods: null,
-          uniqueCode: 0,
-          dropOffLocation: null,
-          createdBy: proposerId,
-          proposalId: existingProposal.id,
-        },
-      })
+      // ⬅ FIX (BUG UTAMA): sebelumnya uniqueCode di-hardcode ke 0 di sini,
+      // jadi SETIAP proposal yang di-approve otomatis dapat kode "000" —
+      // ini sumber duplikat kode yang terlihat di daftar campaign admin.
+      // Fix: pakai createCampaignWithAutoCode() supaya kode di-generate
+      // otomatis & dijamin unik di antara campaign aktif (termasuk yang
+      // berstatus 'awaiting_completion' seperti campaign hasil approval ini),
+      // sama seperti jalur "Buat Campaign Baru" manual di POST /api/campaigns.
+      await createCampaignWithAutoCode({
+        title: existingProposal.title,
+        description: existingProposal.description,
+        category: existingProposal.category,
+        targetAmount: existingProposal.targetAmount ?? 0,
+        collectedAmount: 0,
+        startDate: existingProposal.startDate ?? new Date(),
+        endDate: existingProposal.endDate ?? new Date(),
+        status: 'awaiting_completion',
+        isPublic: false,
+        isUrgent: false,
+        location: existingProposal.campaignLocation ?? '',
+        images: existingProposal.photoUrls ?? null,
+        paymentMethods: null,
+        dropOffLocation: null,
+        creator: { connect: { id: proposerId } },
+        proposal: { connect: { id: existingProposal.id } },
+      });
     }
 
     // Notifikasi ke pengaju
-    // ⬅ FIX: sebelumnya notifikasi ini tidak menyimpan relatedType/relatedId,
-    // jadi walau donatur klik notifikasi "Proposal Disetujui 🎉" atau "Proposal
-    // Ditolak" di header.tsx, mereka tidak diarahkan ke detail proposal-nya —
-    // padahal ini justru notifikasi paling penting buat donatur untuk dicek.
-    // Fix: sisipkan relatedType: "proposal" dan relatedId: existingProposal.id,
-    // supaya konsisten dengan pola yang sudah dipasang di header.tsx (yang
-    // sudah siap membaca relatedType === 'proposal' dan redirect ke
-    // /dashboard?tab=ajuan&proposalId=...).
     if (status === 'approved' || status === 'rejected') {
       await db.notification.create({
         data: {
