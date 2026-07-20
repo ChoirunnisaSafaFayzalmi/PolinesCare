@@ -1,9 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs";
 import * as fs from "fs";
 import * as path from "path";
 
-const prisma = new PrismaClient();
 
 // ⬅ FIX: `item.Waktu` di donasi.json berformat ANGKA SERIAL EXCEL (jumlah hari
 // sejak 30 Desember 1899), BUKAN timestamp JavaScript biasa. Sebelumnya kode
