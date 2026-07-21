@@ -181,22 +181,24 @@ export function DonasiTab({ donations, allCampaigns, onSelectDonation }: DonasiT
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-1 mt-4">
-            <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-lg"
-              onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-              <Button key={p} variant={p === page ? 'default' : 'outline'} size="sm"
-                className={`h-8 w-8 p-0 rounded-lg ${p === page ? 'bg-teal-600 hover:bg-teal-700 text-white' : ''}`}
-                onClick={() => setPage(p)}>
-                {p}
+          <div className="mt-4 -mx-6 px-6 overflow-x-auto">
+            <div className="flex items-center justify-center sm:justify-center gap-1 w-max mx-auto min-w-full">
+              <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-lg shrink-0"
+                onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
+                <ChevronLeft className="h-4 w-4" />
               </Button>
-            ))}
-            <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-lg"
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                <Button key={p} variant={p === page ? 'default' : 'outline'} size="sm"
+                  className={`h-8 w-8 p-0 rounded-lg shrink-0 ${p === page ? 'bg-teal-600 hover:bg-teal-700 text-white' : ''}`}
+                  onClick={() => setPage(p)}>
+                  {p}
+                </Button>
+              ))}
+              <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-lg shrink-0"
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         )}
 

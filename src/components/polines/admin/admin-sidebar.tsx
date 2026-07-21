@@ -36,8 +36,9 @@ export function AdminSidebar({
   const router = useRouter()
   return (
     <aside
-      className={`fixed top-0 left-0 h-full z-40 flex flex-col transition-all duration-300 ${collapsed ? 'w-[72px]' : 'w-[220px]'
-        } bg-gradient-to-b from-teal-700 to-teal-800 text-white`}
+      className={`fixed top-0 left-0 h-[100dvh] z-40 flex flex-col transition-all duration-300 ${
+    collapsed ? 'w-[72px]' : 'w-[220px]'
+  } bg-gradient-to-b from-teal-700 to-teal-800 text-white`}
     >
       {/* Logo */}
       <div className="flex items-center justify-center py-2 border-b border-white/10 flex-shrink-0">
@@ -51,7 +52,7 @@ export function AdminSidebar({
       </div>
 
       {/* Menu Items */}
-      <nav className="py-4 px-3 space-y-1 overflow-y-auto">
+     <nav className="flex-1 min-h-0 py-4 px-3 space-y-1 overflow-y-auto">
         {menuItems.map(item => {
           const Icon = item.icon
           const active = adminTab === item.id
@@ -78,7 +79,7 @@ export function AdminSidebar({
       </nav>
 
       {/* Bottom */}
-      <div className="mt-auto px-3 pb-4 space-y-1 border-t border-white/10 pt-4">
+      <div className="mt-auto px-3 pb-4 space-y-1 border-t border-white/10 pt-4 flex-shrink-0">
 
         {/* Tombol buka/tutup */}
         <button

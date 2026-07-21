@@ -29,9 +29,9 @@ interface ProfilDonaturProps {
 
 function getBadgeLevel(totalApproved: number) {
   if (totalApproved >= 20) return { label: 'Donatur Legendaris', color: 'bg-purple-100 text-purple-700', icon: '👑' }
-  if (totalApproved >= 10) return { label: 'Donatur Setia',      color: 'bg-amber-100 text-amber-700',  icon: '🏆' }
-  if (totalApproved >= 5)  return { label: 'Donatur Aktif',      color: 'bg-teal-100 text-teal-700',    icon: '⭐' }
-  if (totalApproved >= 1)  return { label: 'Donatur Baru',       color: 'bg-blue-100 text-blue-700',    icon: '🌱' }
+  if (totalApproved >= 10) return { label: 'Donatur Setia', color: 'bg-amber-100 text-amber-700', icon: '🏆' }
+  if (totalApproved >= 5) return { label: 'Donatur Aktif', color: 'bg-teal-100 text-teal-700', icon: '⭐' }
+  if (totalApproved >= 1) return { label: 'Donatur Baru', color: 'bg-blue-100 text-blue-700', icon: '🌱' }
   return { label: 'Belum Berdonasi', color: 'bg-gray-100 text-gray-600', icon: '👤' }
 }
 
@@ -39,19 +39,19 @@ export function ProfilDonatur({ session, userDonations }: ProfilDonaturProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // ── Profil state ──
-  const [editing, setEditing]           = useState(false)
-  const [loading, setLoading]           = useState(false)
-  const [saved, setSaved]               = useState(false)
-  const [joinDate, setJoinDate]         = useState<string>(new Date().toISOString())
+  const [editing, setEditing] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [joinDate, setJoinDate] = useState<string>(new Date().toISOString())
 
   // Avatar: savedAvatar = yang sudah tersimpan ke DB, draftAvatar = perubahan sementara saat editing
-  const [savedAvatar, setSavedAvatar]   = useState<string | null>(null)
-  const [draftAvatar, setDraftAvatar]   = useState<string | null>(null)  // null = hapus, string = url baru
+  const [savedAvatar, setSavedAvatar] = useState<string | null>(null)
+  const [draftAvatar, setDraftAvatar] = useState<string | null>(null)  // null = hapus, string = url baru
   const [draftAvatarFile, setDraftAvatarFile] = useState<File | null>(null)
-  const [avatarHovered, setAvatarHovered] = useState(false)
+  // const [avatarHovered, setAvatarHovered] = useState(false)
 
-  const [savedForm, setSavedForm]       = useState<ProfilForm>({ name: '', phone: '', address: '' })
-  const [form, setForm]                 = useState<ProfilForm>({ name: '', phone: '', address: '' })
+  const [savedForm, setSavedForm] = useState<ProfilForm>({ name: '', phone: '', address: '' })
+  const [form, setForm] = useState<ProfilForm>({ name: '', phone: '', address: '' })
   const set = (key: keyof ProfilForm, val: string) => setForm(prev => ({ ...prev, [key]: val }))
 
   // Avatar yang ditampilkan: saat editing tampilkan draft, saat tidak tampilkan saved
@@ -59,17 +59,17 @@ export function ProfilDonatur({ session, userDonations }: ProfilDonaturProps) {
 
   // ── Password state ──
   const [changingPassword, setChangingPassword] = useState(false)
-  const [pwForm, setPwForm]     = useState({ oldPassword: '', newPassword: '', confirmPassword: '' })
+  const [pwForm, setPwForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' })
   const [pwLoading, setPwLoading] = useState(false)
-  const [pwError, setPwError]   = useState('')
+  const [pwError, setPwError] = useState('')
   const [pwSuccess, setPwSuccess] = useState(false)
-  const [showPw, setShowPw]     = useState({ old: false, new: false, confirm: false })
+  const [showPw, setShowPw] = useState({ old: false, new: false, confirm: false })
   const setPw = (key: keyof typeof pwForm, val: string) => setPwForm(prev => ({ ...prev, [key]: val }))
 
   // ── Forgot password state ──
-  const [forgotLoading, setForgotLoading]   = useState(false)
-  const [forgotSent, setForgotSent]         = useState(false)
-  const [forgotError, setForgotError]       = useState('')
+  const [forgotLoading, setForgotLoading] = useState(false)
+  const [forgotSent, setForgotSent] = useState(false)
+  const [forgotError, setForgotError] = useState('')
 
   // ── Load profil ──
   useEffect(() => {
@@ -91,8 +91,8 @@ export function ProfilDonatur({ session, userDonations }: ProfilDonaturProps) {
 
   // ── Stats ──
   const approvedDonations = userDonations.filter(d => d.status === 'approved')
-  const pendingDonations  = userDonations.filter(d => d.status === 'pending')
-  const totalNominal      = approvedDonations
+  const pendingDonations = userDonations.filter(d => d.status === 'pending')
+  const totalNominal = approvedDonations
     .filter(d => d.type !== 'barang')
     .reduce((s, d) => s + Number(d.amount), 0)
   const badgeLevel = getBadgeLevel(approvedDonations.length)
@@ -245,11 +245,7 @@ export function ProfilDonatur({ session, userDonations }: ProfilDonaturProps) {
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
 
             {/* Avatar */}
-            <div
-              className="relative shrink-0"
-              onMouseEnter={() => setAvatarHovered(true)}
-              onMouseLeave={() => setAvatarHovered(false)}
-            >
+            <div className="relative shrink-0 group">
               <Avatar className="h-20 w-20">
                 {displayAvatar && <AvatarImage src={displayAvatar} alt="avatar" />}
                 <AvatarFallback className="bg-teal-100 text-teal-700 text-2xl font-bold">
@@ -257,13 +253,12 @@ export function ProfilDonatur({ session, userDonations }: ProfilDonaturProps) {
                 </AvatarFallback>
               </Avatar>
 
-              {/* Overlay ganti/hapus — hanya saat mode editing */}
-              {editing && avatarHovered && (
-                <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center gap-1.5">
+              {editing && (
+                <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                   <button
                     type="button"
                     title="Ganti foto"
-                    className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors"
+                    className="w-7 h-7 rounded-full bg-white/20 active:bg-white/40 hover:bg-white/40 flex items-center justify-center transition-colors"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <Camera className="h-3.5 w-3.5 text-white" />
@@ -272,7 +267,7 @@ export function ProfilDonatur({ session, userDonations }: ProfilDonaturProps) {
                     <button
                       type="button"
                       title="Hapus foto"
-                      className="w-7 h-7 rounded-full bg-white/20 hover:bg-red-500/70 flex items-center justify-center transition-colors"
+                      className="w-7 h-7 rounded-full bg-white/20 active:bg-red-500/70 hover:bg-red-500/70 flex items-center justify-center transition-colors"
                       onClick={handleRemoveDraftAvatar}
                     >
                       <Trash2 className="h-3.5 w-3.5 text-white" />

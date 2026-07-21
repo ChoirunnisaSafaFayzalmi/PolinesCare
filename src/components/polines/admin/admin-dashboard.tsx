@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AdminSidebar, menuItems } from './admin-sidebar'
 import { DashboardTab } from './tab-dashboard'
 import { CampaignTab } from './tab-campaign'
@@ -122,7 +122,10 @@ export function AdminDashboard(props: AdminDashboardProps) {
   } = props
 
   // ── Layout state
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+  if (typeof window === 'undefined') return false // saat SSR, window belum ada
+  return window.innerWidth < 1024 // breakpoint 'lg'
+})
 
   // ── Navigation state
   const [subView, setSubView] = useState<SubView>(null)

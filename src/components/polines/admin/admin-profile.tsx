@@ -199,7 +199,7 @@ export function AdminProfileTab() {
                     <div>
                         <h2 className="text-lg font-bold text-gray-900">{profile.name}</h2>
                         <p className="text-sm text-gray-500">{profile.email}</p>
-                        <div className="flex items-center gap-2 mt-1.5">
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                             <Badge className="bg-teal-100 text-teal-700 border-teal-200 text-xs">
                                 <Shield className="h-3 w-3 mr-1" /> Admin
                             </Badge>

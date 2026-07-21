@@ -225,18 +225,18 @@ export function LaporanDetailView({
       <Card className="shadow-sm border-gray-100">
         {/* ⬅ FIX: flex-col di HP (judul & tombol ditumpuk), flex-row mulai sm:
       supaya tombol "Cetak Laporan" nggak lagi nembus keluar card */}
-        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <CardHeader className="flex flex-col gap-3">
           <CardTitle className="text-base font-bold">Riwayat Laporan Penggunaan / Penyaluran</CardTitle>
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto sm:self-end">
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm flex-1 sm:flex-none"
+              className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm w-full sm:w-auto"
               onClick={() => setModalOpen(true)}
             >
               <Plus className="h-4 w-4 mr-1" /> Tambah
             </Button>
             <Button
               variant="outline"
-              className="rounded-lg text-sm flex-1 sm:flex-none"
+              className="rounded-lg text-sm w-full sm:w-auto"
               onClick={handleDownloadPdf}
               disabled={generatingPdf}
             >

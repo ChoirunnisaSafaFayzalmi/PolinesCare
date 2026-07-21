@@ -34,10 +34,15 @@ export function NotifikasiTab({ notifications, unreadCount, onMarkRead, onMarkAl
 
   return (
     <Card className="shadow-sm border-gray-100">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <CardTitle className="text-lg font-bold">Notifikasi ({notifications.length})</CardTitle>
         {unreadCount > 0 && (
-          <Button variant="outline" size="sm" className="rounded-lg text-sm" onClick={onMarkAllRead}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-lg text-sm w-full sm:w-auto"
+            onClick={onMarkAllRead}
+          >
             Tandai semua dibaca
           </Button>
         )}
@@ -53,11 +58,10 @@ export function NotifikasiTab({ notifications, unreadCount, onMarkRead, onMarkAl
                 <div
                   key={n.id}
                   onClick={() => handleClick(n)}
-                  className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                    !n.isRead
+                  className={`p-4 rounded-lg border cursor-pointer transition-colors ${!n.isRead
                       ? 'bg-teal-50/50 border-teal-100 hover:bg-teal-50'
                       : 'border-gray-100 hover:bg-gray-50'
-                  }`}
+                    }`}
                   title={isClickable ? 'Klik untuk lihat detail' : undefined}
                 >
                   <div className="flex items-start justify-between gap-3">
