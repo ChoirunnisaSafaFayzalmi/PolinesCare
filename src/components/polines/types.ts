@@ -116,8 +116,16 @@ export interface RecommendedCampaign extends Campaign {
 }
 
 export interface FundUsage {
-  id: string; campaignId: string; description: string; amount: number;
-  date: string; documentUrl?: string; campaign?: { title: string };
+  id: string
+  campaignId: string
+  description: string
+  date: string
+  documentUrl?: string
+  campaign?: { title: string }
+  type: 'uang' | 'barang'
+  amount?: number | null
+  itemName?: string | null
+  itemQuantity?: string | null
 }
 
 export interface PlatformStats {

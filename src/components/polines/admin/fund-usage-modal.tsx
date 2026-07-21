@@ -66,8 +66,10 @@ export function FundUsageModal({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose() }}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      {/* FIX: max-h + overflow-y-auto supaya form panjang bisa discroll di HP,
+          bukan kepotong/nggak kejangkau di luar viewport */}
+      <DialogContent className="sm:max-w-md w-[95vw] max-h-[85vh] overflow-y-auto rounded-xl">
+        <DialogHeader className="sticky top-0 bg-white z-10 pb-2">
           <DialogTitle>{isEdit ? 'Edit Penggunaan Dana' : 'Tambah Penggunaan Dana'}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
@@ -141,7 +143,8 @@ export function FundUsageModal({
               />
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3">
+            // FIX: grid-cols-1 di HP paling sempit, balik grid-cols-2 mulai breakpoint sm
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Nama Barang</Label>
                 <Input
@@ -193,7 +196,7 @@ export function FundUsageModal({
                   <Upload className="h-4 w-4" />
                   Select Image
                 </button>
-                {isEdit && existingDocumentUrl && (
+                {isEdit && existingDocumentUrl ? (
                   <a
                     href={existingDocumentUrl}
                     target="_blank"
@@ -203,7 +206,7 @@ export function FundUsageModal({
                     <FileImage className="h-3.5 w-3.5" />
                     Lihat bukti yang tersimpan saat ini
                   </a>
-                )}
+                ) : null}
               </>
             )}
             {isEdit && !form.proofFile && existingDocumentUrl && (
@@ -211,7 +214,8 @@ export function FundUsageModal({
             )}
           </div>
 
-          <div className="flex gap-2 pt-2">
+          {/* FIX: sticky di bawah supaya tombol aksi tetap kejangkau saat konten di-scroll */}
+          <div className="flex gap-2 pt-2 sticky bottom-0 bg-white pb-1">
             <Button variant="outline" className="flex-1 rounded-lg" onClick={onClose}>
               Batal
             </Button>

@@ -223,15 +223,20 @@ export function LaporanDetailView({
       </Card>
 
       <Card className="shadow-sm border-gray-100">
-        <CardHeader className="flex flex-row items-center justify-between">
+        {/* ⬅ FIX: flex-col di HP (judul & tombol ditumpuk), flex-row mulai sm:
+      supaya tombol "Cetak Laporan" nggak lagi nembus keluar card */}
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <CardTitle className="text-base font-bold">Riwayat Laporan Penggunaan / Penyaluran</CardTitle>
-          <div className="flex items-center gap-2">
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm" onClick={() => setModalOpen(true)}>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Button
+              className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm flex-1 sm:flex-none"
+              onClick={() => setModalOpen(true)}
+            >
               <Plus className="h-4 w-4 mr-1" /> Tambah
             </Button>
             <Button
               variant="outline"
-              className="rounded-lg text-sm"
+              className="rounded-lg text-sm flex-1 sm:flex-none"
               onClick={handleDownloadPdf}
               disabled={generatingPdf}
             >
@@ -243,111 +248,7 @@ export function LaporanDetailView({
               {generatingPdf ? 'Menyiapkan PDF...' : 'Cetak Laporan'}
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
-          {fundUsages.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">Belum ada laporan penggunaan dana</p>
-          ) : (
-            <>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-teal-600 hover:bg-teal-600">
-                      <TableHead className="text-white font-semibold">Tanggal</TableHead>
-                      <TableHead className="text-white font-semibold">Keterangan</TableHead>
-                      <TableHead className="text-white font-semibold">Nominal / Jumlah</TableHead>
-                      <TableHead className="text-white font-semibold">Sisa Dana</TableHead>
-                      <TableHead className="text-white font-semibold">Bukti</TableHead>
-                      <TableHead className="text-white font-semibold text-right">Aksi</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pagedRows.map(f => (
-                      <TableRow key={f.id}>
-                        <TableCell className="text-sm text-gray-700">{formatDate(f.date)}</TableCell>
-                        <TableCell className="font-medium">{f.description}</TableCell>
-                        <TableCell>
-                          {f.type === 'barang' ? (
-                            <span className="text-orange-600 font-medium">
-                              {f.itemQuantity} {f.itemName}
-                            </span>
-                          ) : (
-                            formatRupiah(f.amount ?? 0)
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {f.type === 'barang' ? (
-                            <span className="text-gray-400">—</span>
-                          ) : (
-                            formatRupiah(f.sisaDana)
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {f.documentUrl ? (
-                            <a href={f.documentUrl} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:underline">
-                              Image
-                            </a>
-                          ) : (
-                            <span className="text-gray-400">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button
-                              variant="ghost" size="icon" className="h-8 w-8 text-teal-600 hover:text-teal-700"
-                              onClick={() => openEditModal(f)}
-                              title="Edit"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600"
-                              onClick={() => setDeleteTarget(f)}
-                              title="Hapus"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-1 mt-4">
-                  <Button
-                    variant="outline" size="icon" className="rounded-lg h-8 w-8"
-                    disabled={page === 1}
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-                    <Button
-                      key={n}
-                      variant={n === page ? 'default' : 'outline'}
-                      size="icon"
-                      className={`rounded-lg h-8 w-8 text-sm ${n === page ? 'bg-teal-600 hover:bg-teal-700 text-white' : ''}`}
-                      onClick={() => setPage(n)}
-                    >
-                      {n}
-                    </Button>
-                  ))}
-                  <Button
-                    variant="outline" size="icon" className="rounded-lg h-8 w-8"
-                    disabled={page === totalPages}
-                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
+        </CardHeader></Card>
 
       <FundUsageModal
         open={modalOpen}

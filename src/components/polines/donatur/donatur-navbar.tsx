@@ -18,10 +18,10 @@ export function DonaturNav() {
 
   return (
     <Tabs value={pathname} onValueChange={(v) => router.push(v)} className="mb-6">
-      <TabsList className="flex-wrap h-auto gap-1 bg-white border p-1">
+      <TabsList className="flex flex-col sm:flex-row sm:flex-nowrap gap-1 h-auto bg-white border p-1 w-full sm:w-auto">
         {tabs.map(({ value, label, icon: Icon }) => (
           <TabsTrigger key={value} value={value}
-            className="text-sm data-[state=active]:bg-teal-600 data-[state=active]:text-white">
+            className="text-sm w-full sm:w-auto justify-center sm:justify-center data-[state=active]:bg-teal-600 data-[state=active]:text-white">
             <Icon className="h-4 w-4 mr-1.5" /> {label}
           </TabsTrigger>
         ))}

@@ -339,9 +339,6 @@ export function CampaignFormView({
             {isLocked ? 'Lengkapi & Publikasikan Campaign' : editingCampaign ? 'Edit Campaign' : 'Campaign Baru'}
           </h2>
           <div className="flex gap-2">
-            <Button variant="outline" className="rounded-lg" onClick={onBack}>
-              Kembali
-            </Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg px-6"
               onClick={() => onSave(imageFiles.length > 0 ? imageFiles : undefined, qrisFile ?? undefined)}

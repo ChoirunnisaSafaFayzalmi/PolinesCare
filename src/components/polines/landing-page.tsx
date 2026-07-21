@@ -153,7 +153,7 @@ export function LandingPage() {
     fetch('/api/campaigns?status=active')
       .then(r => r.json())
       .then(d => setCampaigns(d.campaigns || []))
-      .catch(() => {})
+      .catch(() => { })
 
     fetch('/api/stats')
       .then(r => r.json())
@@ -215,7 +215,7 @@ export function LandingPage() {
         const d = await donRes.json()
         setCampaignDonations(d.donations || [])
       }
-    } catch {}
+    } catch { }
   }, [])
 
   const openDonationModal = useCallback((campaign?: Campaign) => {
@@ -292,7 +292,7 @@ export function LandingPage() {
 
       {/* ══════════════ STATS ══════════════ */}
       <section className="container mx-auto px-4 -mt-8 relative z-20 mb-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {[
             { icon: <Target className="h-6 w-6" />, label: 'Total Campaign', value: stats?.totalCampaigns ?? 0, color: 'bg-[var(--pc-teal,#0D9488)]' },
             { icon: <HandCoins className="h-6 w-6" />, label: 'Total Donasi', value: stats?.totalDonations ?? 0, color: 'bg-[var(--pc-emerald,#10B981)]' },
@@ -300,14 +300,14 @@ export function LandingPage() {
             { icon: <Users className="h-6 w-6" />, label: 'Total Donatur', value: stats?.totalDonors ?? 0, color: 'bg-[var(--pc-teal-deep,#0B4F4A)]' },
           ].map((stat, i) => (
             <Reveal key={i} delay={i * 80}>
-              <Card className="shadow-lg border-0 hover:shadow-xl transition-shadow">
-                <CardContent className="p-4 md:p-6 flex items-center gap-3 md:gap-4">
-                  <div className={`${stat.color} text-white rounded-xl p-2.5 md:p-3 shrink-0`}>{stat.icon}</div>
-                  <div>
-                    <p className="text-xl md:text-2xl font-bold font-[family-name:var(--font-display)]">
+              <Card className="shadow-lg border-0 hover:shadow-xl transition-shadow h-full">
+                <CardContent className="p-3 md:p-6 flex items-center gap-2.5 md:gap-4">
+                  <div className={`${stat.color} text-white rounded-xl p-2 md:p-3 shrink-0`}>{stat.icon}</div>
+                  <div className="min-w-0">
+                    <p className="text-base sm:text-xl md:text-2xl font-bold font-[family-name:var(--font-display)] truncate">
                       <AnimatedNumber value={stat.value} isLoading={statsLoading} format={stat.format} />
                     </p>
-                    <p className="text-xs md:text-sm text-muted-foreground">{stat.label}</p>
+                    <p className="text-[11px] sm:text-xs md:text-sm text-muted-foreground truncate">{stat.label}</p>
                   </div>
                 </CardContent>
               </Card>
