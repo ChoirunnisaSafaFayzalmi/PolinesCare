@@ -51,7 +51,7 @@ export function AdminSidebar({
       </div>
 
       {/* Menu Items */}
-      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+      <nav className="py-4 px-3 space-y-1 overflow-y-auto">
         {menuItems.map(item => {
           const Icon = item.icon
           const active = adminTab === item.id
@@ -61,8 +61,8 @@ export function AdminSidebar({
               onClick={() => setAdminTab(item.id)}
               title={collapsed ? item.label : undefined}
               className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${active
-                  ? 'bg-white/15 text-white shadow-sm'
-                  : 'text-teal-100 hover:bg-white/10 hover:text-white'
+                ? 'bg-white/15 text-white shadow-sm'
+                : 'text-teal-100 hover:bg-white/10 hover:text-white'
                 }`}
             >
               <Icon className="h-5 w-5 flex-shrink-0" />
@@ -78,7 +78,7 @@ export function AdminSidebar({
       </nav>
 
       {/* Bottom */}
-      <div className="px-3 pb-4 space-y-1 border-t border-white/10 pt-4">
+      <div className="mt-auto px-3 pb-4 space-y-1 border-t border-white/10 pt-4">
 
         {/* Tombol buka/tutup */}
         <button
