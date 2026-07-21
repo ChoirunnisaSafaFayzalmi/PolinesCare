@@ -42,6 +42,21 @@ import { auth } from "@/lib/auth";
 // campaign yang sudah didonasikan (floor 85-100) sebenarnya sudah lama
 // melebihi 80 — nilai lama (80) di luar konteks fix CF ini, tapi memang
 // salah dan ikut dibetulkan supaya normalisasi hybrid konsisten.
+//
+// ⬅ FIX : donasi dengan status "pending" (belum di-ACC admin)
+// sebelumnya dikecualikan total dari semua sinyal personalisasi karena
+// tiga query donasi (TAHAP 1 userDonations, TAHAP 2 coDonations, TAHAP 2
+// collabDonations) memfilter status: "approved" secara ketat. Akibatnya
+// user yang baru saja berdonasi tapi belum diverifikasi admin tidak
+// mendapat rekomendasi personal sama sekali, padahal minat/aktivitas
+// donasinya sudah ada secara nyata di sistem.
+//
+// Diubah jadi status: { not: "rejected" } — donasi "approved" DAN
+// "pending" sama-sama dihitung sebagai sinyal preferensi/similarity,
+// hanya donasi yang benar-benar ditolak admin yang dibuang. Dipakai
+// exclusion (bukan whitelist eksplisit approved+pending) supaya kalau
+// nanti ada status baru (mis. "processing"), otomatis ikut terhitung
+// tanpa perlu ubah kode lagi.
 // ============================================================
 function normalizeCategory(category: string): string {
   return category.trim().toLowerCase();
@@ -199,9 +214,14 @@ export async function GET(request: NextRequest) {
 
     // -------------------------------------------------------
     // TAHAP 1 — USER PROFILE CONSTRUCTION (Content-Based Filtering)
+    //
+    // ⬅ FIX: status "approved" → { not: "rejected" }. Donasi pending
+    // (belum di-ACC admin) tetap dihitung sebagai sinyal minat kategori
+    // user, supaya user baru langsung dapat rekomendasi tanpa harus
+    // menunggu verifikasi admin selesai.
     // -------------------------------------------------------
     const userDonations = await db.donation.findMany({
-      where: { userId, status: "approved" },
+      where: { userId, status: { not: "rejected" } },
       select: {
         campaignId: true,
         campaign: { select: { category: true } },
@@ -232,6 +252,11 @@ export async function GET(request: NextRequest) {
     // Similarity antar-user dibangun dari CO-DONATION ke CAMPAIGN YANG
     // SAMA PERSIS (bukan overlap kategori — kategori terlalu longgar
     // karena satu kategori bisa berisi banyak campaign berbeda).
+    //
+    // ⬅ FIX: kedua query di tahap ini (coDonations & collabDonations)
+    // juga diubah dari status: "approved" → { not: "rejected" }, dengan
+    // alasan yang sama seperti TAHAP 1: donasi pending tetap dianggap
+    // valid sebagai sinyal similarity antar-user.
     // -------------------------------------------------------
     const userDonatedCampaignIds = userDonations.map((d) => d.campaignId);
     let collaborativeCampaignIds: string[] = [];
@@ -243,7 +268,7 @@ export async function GET(request: NextRequest) {
       const coDonations = await db.donation.findMany({
         where: {
           userId: { not: userId },
-          status: "approved",
+          status: { not: "rejected" },
           campaignId: { in: userDonatedCampaignIds },
         },
         select: { userId: true },
@@ -261,7 +286,7 @@ export async function GET(request: NextRequest) {
         const collabDonations = await db.donation.findMany({
           where: {
             userId: { in: similarUserIds },
-            status: "approved",
+            status: { not: "rejected" },
             campaignId: { notIn: userDonatedCampaignIds },
           },
           select: { campaignId: true },
