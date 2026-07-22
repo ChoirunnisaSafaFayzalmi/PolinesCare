@@ -9,7 +9,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 // Selama domain belum diverifikasi di Resend, WAJIB pakai onboarding@resend.dev. 
 // Setelah domain diverifikasi, isi RESEND_FROM_EMAIL di env production (mis. "Polines Care <noreply@domainkamu.ac.id>").
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Polines Care <onboarding@resend.dev>'
+const FROM_EMAIL = 'Polines Care <noreply@polinescare.my.id>'
 const DEV_TEST_EMAIL = process.env.RESEND_DEV_TEST_EMAIL
 
 export async function POST(request: NextRequest) {
