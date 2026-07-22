@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     })
 
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`
-    const recipient = DEV_TEST_EMAIL || user.email
+    const recipient = user.email
 
     // Kirim email via Resend
     await resend.emails.send({
