@@ -51,10 +51,10 @@ export function Footer() {
                 <Mail className="h-3 w-3" /> polinescare@polines.ac.id
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-3 w-3" /> (024) 123-4567
+                <Phone className="h-3 w-3" /> 089518427058
               </li>
               <li className="flex items-center gap-2">
-                <Globe className="h-3 w-3" /> care.polines.ac.id
+                <Globe className="h-3 w-3" /> polinescare.my.id
               </li>
               <li className="flex items-center gap-2">
                 <MapPin className="h-3 w-3" /> Semarang, Jawa Tengah
