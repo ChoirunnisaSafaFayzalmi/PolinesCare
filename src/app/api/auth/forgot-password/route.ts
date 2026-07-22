@@ -48,7 +48,8 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`
+    const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://polinescare.my.id'
+    const resetUrl = `${baseUrl}/reset-password?token=${token}`
     const recipient = user.email
 
     // Kirim email via Resend
