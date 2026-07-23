@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Heart } from 'lucide-react'
+import { Heart, Eye, EyeOff } from 'lucide-react'
 
 export function RegisterPage() {
   const router = useRouter()
@@ -15,6 +15,8 @@ export function RegisterPage() {
     name: '', email: '', phone: '', password: '', confirmPassword: ''
   })
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -84,15 +86,37 @@ export function RegisterPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="reg-password">Password</Label>
-              <Input id="reg-password" type="password" placeholder="Minimal 6 karakter"
-                value={registerForm.password}
-                onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })} required />
+              <div className="relative">
+                <Input id="reg-password" type={showPassword ? 'text' : 'password'} placeholder="Minimal 6 karakter"
+                  className="pr-10"
+                  value={registerForm.password}
+                  onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })} required />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="reg-confirm">Konfirmasi Password</Label>
-              <Input id="reg-confirm" type="password" placeholder="Ulangi password"
-                value={registerForm.confirmPassword}
-                onChange={(e) => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })} required />
+              <div className="relative">
+                <Input id="reg-confirm" type={showConfirmPassword ? 'text' : 'password'} placeholder="Ulangi password"
+                  className="pr-10"
+                  value={registerForm.confirmPassword}
+                  onChange={(e) => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })} required />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700 text-white" disabled={loading}>
               {loading ? 'Memproses...' : 'Daftar'}
