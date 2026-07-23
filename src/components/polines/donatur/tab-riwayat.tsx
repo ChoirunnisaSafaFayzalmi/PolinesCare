@@ -13,6 +13,13 @@ import { formatRupiah, formatDate, getStatusColor } from '@/components/polines/t
 import { FundUsageReport } from '@/components/polines/donatur/fund-usage-report'
 
 const ITEMS_PER_PAGE = 10
+function toLocalDateString(isoString: string) {
+  const d = new Date(isoString)
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
 interface TabRiwayatProps {
   userDonations: Donation[]
@@ -50,18 +57,17 @@ export function TabRiwayat({ userDonations, highlightDonationId }: TabRiwayatPro
   // Metode hanya relevan untuk donasi tipe "uang", jadi opsinya diambil
   // hanya dari donasi bertipe uang, dan filter ini disembunyikan total
   // kalau typeFilter sedang "barang" (karena barang tidak punya metode transfer)
-  const methodOptions = useMemo(() => {
-    const methods = userDonations
-      .filter(d => d.type === 'uang' && d.paymentMethod)
-      .map(d => d.paymentMethod as string)
-    return Array.from(new Set(methods))
-  }, [userDonations])
+  const METHOD_OPTIONS = [
+  { value: 'transfer', label: 'Transfer' },
+  { value: 'qris', label: 'QRIS' },
+  { value: 'tunai', label: 'Tunai' },
+]
 
   const showMethodFilter = typeFilter !== 'barang'
 
   const handleTypeChange = (v: string) => {
     setTypeFilter(v)
-    if (v === 'barang') setMethodFilter('all') // reset, tidak relevan lagi
+    if (v === 'barang') setMethodFilter('all')
     setPage(1)
   }
 
@@ -69,20 +75,20 @@ export function TabRiwayat({ userDonations, highlightDonationId }: TabRiwayatPro
     const matchType = typeFilter === 'all' || d.type === typeFilter
     const matchStatus = statusFilter === 'all' || d.status === statusFilter
     const matchMethod = methodFilter === 'all' || (d.type === 'uang' && d.paymentMethod === methodFilter)
-    const matchDate = dateFilter === '' || d.createdAt?.startsWith(dateFilter)
+    const matchDate = dateFilter === '' || (!!d.createdAt && toLocalDateString(d.createdAt) === dateFilter)
     return matchType && matchStatus && matchMethod && matchDate
   })
 
-  // ⬅ FIX: begitu highlightDonationId & data donasi tersedia, lompat ke
-  // halaman yang berisi donasi itu (filter default masih "all" jadi pasti ketemu)
-  useEffect(() => {
-    if (!highlightDonationId) return
-    const idx = filtered.findIndex(d => d.id === highlightDonationId)
-    if (idx === -1) return
+  const [processedHighlightId, setProcessedHighlightId] = useState<string | undefined>(undefined)
+
+if (highlightDonationId && highlightDonationId !== processedHighlightId) {
+  const idx = filtered.findIndex(d => d.id === highlightDonationId)
+  if (idx !== -1) {
+    setProcessedHighlightId(highlightDonationId)
     setPage(Math.floor(idx / ITEMS_PER_PAGE) + 1)
     setHighlightedId(highlightDonationId)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [highlightDonationId, userDonations])
+  }
+}
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
   const currentPage = Math.min(page, totalPages)
@@ -91,8 +97,6 @@ export function TabRiwayat({ userDonations, highlightDonationId }: TabRiwayatPro
     currentPage * ITEMS_PER_PAGE
   )
 
-  // ⬅ FIX: setelah halaman yang benar ter-render, scroll ke baris & hapus
-  // highlight otomatis setelah beberapa detik
   useEffect(() => {
     if (!highlightedId || view !== 'list') return
     const el = rowRefs.current[highlightedId]
@@ -129,8 +133,10 @@ export function TabRiwayat({ userDonations, highlightDonationId }: TabRiwayatPro
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Semua Metode</SelectItem>
-                    {methodOptions.map(m => (
-                      <SelectItem key={m} value={m}>{m}</SelectItem>
+                    {METHOD_OPTIONS.map((m) => (
+                      <SelectItem key={m.value} value={m.value}>
+                        {m.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
