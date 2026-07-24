@@ -81,9 +81,9 @@ function StepIndicator({ step }: { step: number }) {
 // UPLOAD FOTO BUKTI
 // ============================================================
 // Komponen UploadFoto baru — support multiple
-function UploadFoto({ values, onChange }: { 
+function UploadFoto({ values, onChange }: {
   values: string[]
-  onChange: (v: string[]) => void 
+  onChange: (v: string[]) => void
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -327,6 +327,21 @@ export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBac
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<AjuanForm>(() => {
     if (resubmitProposal) {
+      let parsedPhotos: string[] = []
+      const raw = resubmitProposal.photoUrls
+      if (typeof raw === 'string') {
+        try {
+          const parsed = JSON.parse(raw)
+          parsedPhotos = Array.isArray(parsed) ? parsed : []
+        } catch {
+          parsedPhotos = []
+        }
+      } else if (Array.isArray(raw)) {
+        parsedPhotos = raw
+      } else if (resubmitProposal.photoUrl) {
+        parsedPhotos = [resubmitProposal.photoUrl]
+      }
+
       return {
         nama: resubmitProposal.proposerName ?? session?.user?.name ?? '',
         email: resubmitProposal.proposerEmail ?? session?.user?.email ?? '',
@@ -339,7 +354,7 @@ export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBac
         tanggalBuka: resubmitProposal.startDate?.slice(0, 10) ?? '',
         tanggalTutup: resubmitProposal.endDate?.slice(0, 10) ?? '',
         alamatCampaign: resubmitProposal.campaignLocation,
-        fotoBukti: resubmitProposal.photoUrls ?? (resubmitProposal.photoUrl ? [resubmitProposal.photoUrl] : []),
+        fotoBukti: parsedPhotos,
         suratPernyataan: resubmitProposal.officialDocUrl ?? '',
         suratPernyataanName: resubmitProposal.officialDocUrl ? extractFileName(resubmitProposal.officialDocUrl) : '',
         pernyataan: [false, false, false, false],
@@ -375,7 +390,7 @@ export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBac
     description: form.deskripsi,
     category: form.kategori,
     targetAmount: Number(form.targetDana),
-    proposerName: form.nama, 
+    proposerName: form.nama,
     proposerEmail: form.email,
     proposerPhone: form.telp,
     proposerAddress: form.alamatPengaju,
