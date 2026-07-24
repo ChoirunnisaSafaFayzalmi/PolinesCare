@@ -50,7 +50,7 @@ interface AdminDashboardProps {
   setDonationFilter: (v: string) => void
   deleteCampaign: (id: string) => void
   verifyDonation: (id: string, status: 'approved' | 'rejected') => void
-  updateProposalStatus: (id: string, status: 'approved' | 'rejected') => void
+  updateProposalStatus: (id: string, status: 'approved' | 'rejected', meta?: { rejectionReason?: string }) => void
   markNotificationRead: (id: string) => void
   markAllNotificationsRead: () => void
   setFundUsageForm: (form: any) => void
@@ -123,9 +123,9 @@ export function AdminDashboard(props: AdminDashboardProps) {
 
   // ── Layout state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-  if (typeof window === 'undefined') return false // saat SSR, window belum ada
-  return window.innerWidth < 1024 // breakpoint 'lg'
-})
+    if (typeof window === 'undefined') return false // saat SSR, window belum ada
+    return window.innerWidth < 1024 // breakpoint 'lg'
+  })
 
   // ── Navigation state
   const [subView, setSubView] = useState<SubView>(null)

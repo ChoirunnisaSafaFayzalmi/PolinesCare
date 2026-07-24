@@ -246,8 +246,21 @@ export function AjuanDetailView({ proposal: initialProposal, onSaveCriteria, onU
             </div>
           </div>
 
-          {/* Input alasan penolakan */}
-          {(showRejectInput || proposal.status === 'rejected') && (
+          {/* Alasan penolakan: tampilan berbeda tergantung status */}
+          {proposal.status === 'rejected' ? (
+            // Sudah rejected -> tampilkan alasan tersimpan sebagai teks read-only,
+            // diambil langsung dari `proposal.rejectionReason` (bukan state lokal
+            // `rejectionReason`, supaya tidak stale/kosong kalau state lokal belum sinkron)
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Alasan Penolakan</Label>
+              <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-sm text-gray-700 whitespace-pre-wrap min-h-[80px]">
+                {proposal.rejectionReason
+                  ? proposal.rejectionReason
+                  : <span className="text-gray-400 italic">Alasan tidak tercatat</span>}
+              </div>
+            </div>
+          ) : showRejectInput ? (
+            // Belum rejected, admin baru klik "Tolak" -> tampilkan input
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700">
                 Alasan Penolakan <span className="text-red-500">*</span>
@@ -257,13 +270,10 @@ export function AjuanDetailView({ proposal: initialProposal, onSaveCriteria, onU
                 onChange={(e) => setRejectionReason(e.target.value)}
                 placeholder="Jelaskan alasan penolakan proposal ini..."
                 className="rounded-lg border-gray-200 focus:border-red-400 focus:ring-1 focus:ring-red-400 min-h-[80px]"
-                disabled={proposal.status === 'rejected'}
               />
-              {proposal.status !== 'rejected' && (
-                <p className="text-xs text-red-500">Wajib diisi sebelum menolak proposal.</p>
-              )}
+              <p className="text-xs text-red-500">Wajib diisi sebelum menolak proposal.</p>
             </div>
-          )}
+          ) : null}
 
           {/* Actions */}
           {proposal.status === 'approved' && (

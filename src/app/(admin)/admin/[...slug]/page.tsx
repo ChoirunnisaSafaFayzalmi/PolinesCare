@@ -229,28 +229,28 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
 
   // 1. Initial Load: Fetch all stable data on mount
   useEffect(() => {
-  /* eslint-disable react-hooks/set-state-in-effect -- fetch-on-mount pattern, aman */
-  fetchAllCampaigns();
-  fetchCampaigns();
-  fetchProposals();
-  fetchDonations();
-  fetchNotifications();
-  fetchAllFundUsages();
-  /* eslint-enable react-hooks/set-state-in-effect */
-}, [fetchAllCampaigns, fetchCampaigns, fetchProposals, fetchDonations, fetchNotifications, fetchAllFundUsages]);
+    /* eslint-disable react-hooks/set-state-in-effect -- fetch-on-mount pattern, aman */
+    fetchAllCampaigns();
+    fetchCampaigns();
+    fetchProposals();
+    fetchDonations();
+    fetchNotifications();
+    fetchAllFundUsages();
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [fetchAllCampaigns, fetchCampaigns, fetchProposals, fetchDonations, fetchNotifications, fetchAllFundUsages]);
 
   // 2. Stats Load: Fetch dynamically based on selected month
   useEffect(() => {
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount pattern, aman
-  fetchStats(statsMonth);
-}, [statsMonth, fetchStats]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount pattern, aman
+    fetchStats(statsMonth);
+  }, [statsMonth, fetchStats]);
 
   useEffect(() => {
-  if (reportCampaignId) {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount pattern, aman
-    fetchFundUsages(reportCampaignId)
-  }
-}, [reportCampaignId, fetchFundUsages])
+    if (reportCampaignId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount pattern, aman
+      fetchFundUsages(reportCampaignId)
+    }
+  }, [reportCampaignId, fetchFundUsages])
 
   // ============================================================
   // AUTH HANDLERS
@@ -386,14 +386,23 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
   // ============================================================
   // PROPOSAL HANDLERS (Admin)
   // ============================================================
-  const updateProposalStatus = async (id: string, status: 'approved' | 'rejected') => {
+  const updateProposalStatus = async (
+    id: string,
+    status: 'approved' | 'rejected',
+    meta?: { rejectionReason?: string }
+  ) => {
     try {
-      const res = await fetch(`/api/proposals/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) })
+      const res = await fetch(`/api/proposals/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, rejectionReason: meta?.rejectionReason }),
+      })
       if (res.ok) {
         toast.success(`Proposal berhasil ${status === 'approved' ? 'disetujui' : 'ditolak'}`)
         fetchProposals(); fetchNotifications(); fetchAllCampaigns()
+      } else {
+        toast.error('Gagal memperbarui proposal')
       }
-      else toast.error('Gagal memperbarui proposal')
     } catch { toast.error('Terjadi kesalahan') }
   }
 
@@ -605,7 +614,7 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
         deleteCampaign={deleteCampaign}
         verifyDonation={verifyDonation} updateProposalStatus={updateProposalStatus}
         markNotificationRead={markNotificationRead} markAllNotificationsRead={markAllNotificationsRead}
-        
+
         // --- TAMBAHKAN 'as any' DI 4 BARIS INI ---
         setFundUsageForm={setFundUsageForm as any}
         submitFundUsage={submitFundUsage as any}
@@ -627,7 +636,7 @@ export default function AdminSlugPage({ params }: { params: Promise<{ slug: stri
         onNavigateCampaignSubTab={navigateCampaignSubTab}
         statsMonth={statsMonth}
         onChangeStatsMonth={onChangeStatsMonth}
-        />
+      />
     </div>
   )
 }
