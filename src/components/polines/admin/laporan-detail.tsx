@@ -62,11 +62,15 @@ export function LaporanDetailView({
   // Sisa dana berjalan: cuma entri "uang" yang mengurangi saldo Rupiah.
   // Entri "barang" tidak mempengaruhi saldo - baris itu cuma "numpang" di
   // timeline yang sama, saldo dibawa apa adanya dari baris sebelumnya.
-  const rowsWithBalance = (fundUsages || []).reduce<Array<FundUsageWithProof & { sisaDana: number }>>((acc, f) => {
-    const prevBalance = acc.length > 0 ? acc[acc.length - 1].sisaDana : campaign.collectedAmount
-    const sisaDana = f.type === 'uang' ? prevBalance - (f.amount ?? 0) : prevBalance
-    return [...acc, { ...f, sisaDana }]
-  }, [])
+  const sortedFundUsages = [...(fundUsages || [])].sort(
+  (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+)
+
+const rowsWithBalance = sortedFundUsages.reduce<Array<FundUsageWithProof & { sisaDana: number }>>((acc, f) => {
+  const prevBalance = acc.length > 0 ? acc[acc.length - 1].sisaDana : campaign.collectedAmount
+  const sisaDana = f.type === 'uang' ? prevBalance - (f.amount ?? 0) : prevBalance
+  return [...acc, { ...f, sisaDana }]
+}, [])
 
   const totalPages = Math.max(1, Math.ceil(rowsWithBalance.length / ROWS_PER_PAGE))
   const pagedRows = rowsWithBalance.slice((page - 1) * ROWS_PER_PAGE, page * ROWS_PER_PAGE)
@@ -132,7 +136,7 @@ export function LaporanDetailView({
       await downloadLaporanPdf({
         campaignTitle: campaign.title,
         collectedAmount: campaign.collectedAmount,
-        fundUsages,
+        fundUsages: rowsWithBalance,
       })
     } finally {
       setGeneratingPdf(false)
@@ -223,8 +227,6 @@ export function LaporanDetailView({
       </Card>
 
       <Card className="shadow-sm border-gray-100">
-        {/* ⬅ FIX: flex-col di HP (judul & tombol ditumpuk), flex-row mulai sm:
-      supaya tombol "Cetak Laporan" nggak lagi nembus keluar card */}
         <CardHeader className="flex flex-col gap-3">
           <CardTitle className="text-base font-bold">Riwayat Laporan Penggunaan / Penyaluran</CardTitle>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto sm:self-end">
@@ -248,7 +250,109 @@ export function LaporanDetailView({
               {generatingPdf ? 'Menyiapkan PDF...' : 'Cetak Laporan'}
             </Button>
           </div>
-        </CardHeader></Card>
+        </CardHeader>
+
+        <CardContent>
+          {rowsWithBalance.length === 0 ? (
+            <p className="text-center text-muted-foreground py-6 text-sm">
+              Belum ada riwayat penggunaan/penyaluran untuk campaign ini.
+            </p>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tipe</TableHead>
+                      <TableHead>Tanggal</TableHead>
+                      <TableHead>Keterangan</TableHead>
+                      <TableHead className="text-right">Nominal / Jumlah</TableHead>
+                      <TableHead className="text-right">Sisa Dana</TableHead>
+                      <TableHead className="text-right">Aksi</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {pagedRows.map((row) => (
+                      <TableRow key={row.id}>
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={
+                              row.type === 'uang'
+                                ? 'text-teal-700 border-teal-200 bg-teal-50'
+                                : 'text-orange-700 border-orange-200 bg-orange-50'
+                            }
+                          >
+                            {row.type === 'uang' ? 'Uang' : 'Barang'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm text-gray-700">{formatDate(row.date)}</TableCell>
+                        <TableCell className="text-sm">{row.description}</TableCell>
+                        <TableCell className="text-right text-sm font-medium">
+                          {row.type === 'uang'
+                            ? formatRupiah(row.amount ?? 0)
+                            : `${row.itemQuantity ?? '-'} ${row.itemName ?? ''}`}
+                        </TableCell>
+                        <TableCell className="text-right text-sm">
+                          {row.type === 'uang' ? formatRupiah(row.sisaDana) : '—'}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => openEditModal(row)}
+                            >
+                              <Pencil className="h-4 w-4 text-gray-500" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => setDeleteTarget(row)}
+                            >
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-4">
+                  <p className="text-xs text-gray-500">
+                    Halaman {page} dari {totalPages}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={page <= 1}
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={page >= totalPages}
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       <FundUsageModal
         open={modalOpen}
