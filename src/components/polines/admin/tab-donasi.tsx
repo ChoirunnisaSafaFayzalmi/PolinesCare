@@ -12,6 +12,12 @@ import type { Campaign, Donation } from '@/components/polines/types'
 import { formatRupiah, formatDate, getStatusColor, formatUniqueCode } from '@/components/polines/types'
 
 const ITEMS_PER_PAGE = 10
+// Helper: ambil tanggal lokal (WIB) dalam format YYYY-MM-DD dari ISO string
+function toLocalDateString(iso: string) {
+  const date = new Date(iso)
+  // 'sv-SE' locale menghasilkan format YYYY-MM-DD secara native
+  return date.toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' })
+}
 
 interface DonasiTabProps {
   donations: Donation[]
@@ -27,14 +33,15 @@ export function DonasiTab({ donations, allCampaigns, onSelectDonation }: DonasiT
   const [page, setPage] = useState(1)
 
   const filtered = (donations || []).filter(d => {
-    const matchSearch = search === '' ||
-      d.donorName.toLowerCase().includes(search.toLowerCase()) ||
-      d.campaign?.title?.toLowerCase().includes(search.toLowerCase())
-    const matchType = typeFilter === 'all' || d.type === typeFilter
-    const matchStatus = statusFilter === 'all' || d.status === statusFilter
-    const matchDate = dateFilter === '' || d.createdAt?.startsWith(dateFilter)
-    return matchSearch && matchType && matchStatus && matchDate
-  })
+  const matchSearch = search === '' ||
+    d.donorName.toLowerCase().includes(search.toLowerCase()) ||
+    d.campaign?.title?.toLowerCase().includes(search.toLowerCase())
+  const matchType = typeFilter === 'all' || d.type === typeFilter
+  const matchStatus = statusFilter === 'all' || d.status === statusFilter
+  const matchDate = dateFilter === '' || 
+    (d.createdAt ? toLocalDateString(d.createdAt) === dateFilter : false)
+  return matchSearch && matchType && matchStatus && matchDate
+})
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
