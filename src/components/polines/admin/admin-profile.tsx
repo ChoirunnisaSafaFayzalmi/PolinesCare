@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Camera, Save, User, Mail, Phone, MapPin, Shield, CheckCircle, Loader2, Eye, EyeOff, Lock, UserPlus } from 'lucide-react'
+import { Camera, Save, User, Mail, Phone, MapPin, Shield, CheckCircle, Loader2, Eye, EyeOff, Lock, UserPlus, Trash2 } from 'lucide-react'
 import { AdminCreateAdminTab } from './create-admin'
 
 interface ProfileData {
@@ -86,6 +86,17 @@ export function AdminProfileTab() {
         reader.readAsDataURL(file)
     }
 
+    // Hapus avatar: kosongkan preview & form.avatar. Perubahan baru benar-benar
+    // tersimpan ke DB setelah tombol "Simpan Perubahan" (handleSave) ditekan,
+    // yang mengirim avatar: form.avatar || null ke API.
+    const handleRemoveAvatar = () => {
+        setAvatarPreview(null)
+        setForm(prev => ({ ...prev, avatar: '' }))
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ''
+        }
+    }
+
     const handleSave = async () => {
         if (!form.name.trim()) {
             setErrorMsg('Nama tidak boleh kosong')
@@ -135,11 +146,14 @@ export function AdminProfileTab() {
         }
         setSavingPassword(true)
         try {
-            const res = await fetch('/api/user/profile/change-password', {
+            // FIX: endpoint yang benar adalah /api/user/change-password
+            // (sebelumnya salah manggil /api/user/profile/change-password -> 404 HTML)
+            const res = await fetch('/api/user/change-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    currentPassword: passwordForm.currentPassword,
+                    // FIX: route membaca field "oldPassword", bukan "currentPassword"
+                    oldPassword: passwordForm.currentPassword,
                     newPassword: passwordForm.newPassword,
                 }),
             })
@@ -183,11 +197,23 @@ export function AdminProfileTab() {
                             </AvatarFallback>
                         </Avatar>
                         <button
+                            type="button"
                             onClick={() => fileInputRef.current?.click()}
                             className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                         >
                             <Camera className="h-5 w-5 text-white" />
                         </button>
+                        {/* Tombol hapus avatar - cuma muncul kalau ada foto yang ditampilkan */}
+                        {avatarPreview && (
+                            <button
+                                type="button"
+                                title="Hapus foto"
+                                onClick={handleRemoveAvatar}
+                                className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center text-white shadow"
+                            >
+                                <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                        )}
                         <input
                             ref={fileInputRef}
                             type="file"
@@ -212,7 +238,7 @@ export function AdminProfileTab() {
                     </div>
                 </div>
                 <p className="text-xs text-gray-400 mt-3">
-                    Klik foto untuk mengganti avatar. Format JPG, PNG, maks 2MB.
+                    Klik foto untuk mengganti avatar, atau klik ikon tempat sampah untuk menghapusnya. Format JPG, PNG, maks 2MB. Jangan lupa klik &quot;Simpan Perubahan&quot; di bawah untuk menyimpan.
                 </p>
             </div>
 
