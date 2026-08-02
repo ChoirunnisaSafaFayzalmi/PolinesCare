@@ -400,7 +400,15 @@ export function DonationModal({
               </Button>
               <Button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
                 disabled={submitting || !donationForm.amount}
-                onClick={() => submitDonation()}>
+                onClick={() => {
+                const rawAmount = Number(donationForm.amount) || 0;
+                // Hitung otomatis Nominal + Kode Unik (misal: 50000 + 12 = 50012)
+                const finalAmount = calculateTransferAmount(rawAmount, uniqueCode);
+    
+                submitDonation({
+                amount: finalAmount
+                });
+                }}>
                 {submitting ? 'Mengirim...' : 'Kirim Donasi'} <Send className="h-4 w-4 ml-1" />
               </Button>
             </div>
