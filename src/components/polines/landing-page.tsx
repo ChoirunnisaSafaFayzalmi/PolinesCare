@@ -159,12 +159,12 @@ export function LandingPage() {
       .then(r => r.json())
       .then(d => {
         setStats({
-          totalCampaigns: d.campaigns?.total ?? d.totalCampaigns ?? 0,
-          totalDonations: d.donations?.total ?? d.totalDonations ?? 0,
-          totalAmount: d.donations?.totalAmount ?? d.totalAmount ?? 0,
-          totalDonors: d.users?.total ?? d.totalDonors ?? 0,
-          categoryBreakdown: d.campaigns?.byCategory || [],
-          typeBreakdown: d.donations?.byType || [],
+          totalCampaigns: d.campaigns?.total ?? d.totalCampaigns ?? d.totalActiveCampaigns ?? 0,
+          totalDonations: d.donations?.total ?? d.totalDonations ?? d.totalTransaction ?? 0,
+          totalAmount: d.donations?.totalAmount ?? d.totalAmount ?? d.totalCollectedAmount ?? 0,
+          totalDonors: d.users?.total ?? d.totalDonors ?? d.totalUsers ?? 0,
+          categoryBreakdown: d.campaigns?.byCategory || d.categoryBreakdown || [],
+          typeBreakdown: d.donations?.byType || d.typeBreakdown || [],
           recentDonations: d.recentDonations || [],
         })
       })
