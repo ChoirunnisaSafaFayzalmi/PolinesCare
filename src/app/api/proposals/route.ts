@@ -56,12 +56,14 @@ export async function POST(request: NextRequest) {
     const userId = (session.user as { id: string }).id;
     const body = await request.json();
     const {
-      title, description, category, targetAmount,
-      proposerName,
-      proposerEmail, proposerPhone, proposerAddress,
-      campaignLocation, startDate, endDate,
-      officialDocUrl, photoUrls,
-    } = body;
+  title, description, category, targetAmount,
+  proposerName,
+  proposerEmail, proposerPhone, proposerAddress,
+  organizationName,                                    // ⬅ NEW
+  campaignLocation, startDate, endDate,
+  bankName, bankAccountNumber, bankAccountHolder,       // ⬅ NEW
+  officialDocUrl, photoUrls,
+} = body;
 
     if (!title || !description) {
       return NextResponse.json(
@@ -86,6 +88,10 @@ export async function POST(request: NextRequest) {
         endDate: endDate ? new Date(endDate) : null,
         officialDocUrl: officialDocUrl || null,
         photoUrls: photoUrls ? JSON.stringify(photoUrls) : null,
+        organizationName: organizationName || null,
+        bankName: bankName || null,
+        bankAccountNumber: bankAccountNumber || null,
+        bankAccountHolder: bankAccountHolder || null,
       },
     });
 

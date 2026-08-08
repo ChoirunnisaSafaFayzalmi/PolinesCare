@@ -151,24 +151,30 @@ model Proposal {
 
   // Data pengaju
   proposerName     String?
-  proposerEmail    String?   // email pengaju
-  proposerPhone    String?   // no telp pengaju
-  proposerAddress  String?   // alamat pengaju
+  proposerEmail    String?
+  proposerPhone    String?
+  proposerAddress  String?
+  organizationName String?   // ⬅ NEW: organisasi/lembaga pengaju
 
   // Detail campaign yang diajukan
-  campaignLocation String?   // alamat lokasi campaign
-  startDate        DateTime? // tanggal dibuka campaign
-  endDate          DateTime? // tanggal ditutup campaign
+  campaignLocation String?
+  startDate        DateTime?
+  endDate          DateTime?
+
+  // Rekening pencairan dana
+  bankName             String?  // ⬅ NEW
+  bankAccountNumber    String?  // ⬅ NEW
+  bankAccountHolder    String?  // ⬅ NEW
 
   // Dokumen pendukung
-  officialDocUrl   String?   // surat resmi TTD kepala (wajib)
-  photoUrls         String?   // foto keadaan (opsional)
+  officialDocUrl   String?
+  photoUrls        String?
 
   // Status & voting
   votesCount       Int       @default(0)
-  status           String    @default("pending") // pending, approved, rejected
-  rejectionReason  String?   // alasan ditolak (ditampilkan ke donatur)
-  resubmittedFrom  String?   // id proposal sebelumnya jika pengajuan ulang
+  status           String    @default("pending")
+  rejectionReason  String?
+  resubmittedFrom  String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -177,12 +183,11 @@ model Proposal {
   votes    Vote[]
   campaign Campaign?
 
-  // Skor kelayakan proposal (masing-masing 0-100, rata-rata min 70 untuk lolos)
-  kejelasanTujuan   Int @default(0) // Kejelasan tujuan dan dampak
-  kelayakanAnggaran Int @default(0) // Kelayakan anggaran yang diajukan
-  urgensi           Int @default(0) // Tingkat urgensi kebutuhan
-  keterkaitanKampus Int @default(0) // Keterkaitan dengan kegiatan kampus
-  kontribusiSosial  Int @default(0) // Kontribusi sosial bagi civitas
+  kejelasanTujuan   Int @default(0)
+  kelayakanAnggaran Int @default(0)
+  urgensi           Int @default(0)
+  keterkaitanKampus Int @default(0)
+  kontribusiSosial  Int @default(0)
 }
 
 model Vote {

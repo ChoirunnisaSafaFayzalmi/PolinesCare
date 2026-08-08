@@ -11,6 +11,7 @@ import {
   ThumbsUp, ThumbsDown,
   User, Mail, Phone, MapPin, Target, Calendar,
   FileCheck, Camera, AlignLeft, Hash,
+  Building2, Landmark, CreditCard,
 } from 'lucide-react'
 import type { Proposal } from '@/components/polines/types'
 import {
@@ -112,13 +113,15 @@ export function AjuanDetailView({ proposal: initialProposal, onSaveCriteria, onU
           <Separator className="mb-4" />
           <div className="bg-gray-50 rounded-xl border border-gray-100 p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <InfoRow icon={User} label="Nama Pengaju / Organisasi"
+              <InfoRow icon={User} label="Nama Pengaju"
                 value={proposal.proposerName ?? proposal.proposer?.name} />
+              <InfoRow icon={Building2} label="Organisasi / Lembaga"
+                value={proposal.organizationName} />
               <InfoRow icon={Mail} label="Email Kontak"
                 value={proposal.proposerEmail ?? proposal.proposer?.email} />
               <InfoRow icon={Phone} label="No. Telepon"
                 value={proposal.proposerPhone ?? proposal.proposer?.phone} />
-              <InfoRow icon={MapPin} label="Alamat Organisasi"
+              <InfoRow icon={MapPin} label="Alamat Pengaju"
                 value={proposal.proposerAddress ?? proposal.proposer?.address} />
             </div>
           </div>
@@ -147,7 +150,6 @@ export function AjuanDetailView({ proposal: initialProposal, onSaveCriteria, onU
             </div>
 
             {/* Foto */}
-            {/* Foto — ganti dari single jadi grid */}
             <div className="space-y-2">
               <p className="text-xs text-gray-400 font-medium flex items-center gap-1">
                 <Camera className="h-3.5 w-3.5" /> Foto Keadaan / Bukti
@@ -193,7 +195,21 @@ export function AjuanDetailView({ proposal: initialProposal, onSaveCriteria, onU
         </CardContent>
       </Card>
 
-      {/* Section 3: Penilaian Otomatis */}
+      {/* Section 3: Rekening Pencairan Dana */}
+      <Card className="shadow-sm border-gray-100">
+        <CardContent className="p-6">
+          <SectionTitle>Rekening Pencairan Dana</SectionTitle>
+          <div className="bg-amber-50 rounded-xl border border-amber-100 p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <InfoRow icon={Landmark} label="Nama Bank" value={proposal.bankName} />
+              <InfoRow icon={CreditCard} label="Nomor Rekening" value={proposal.bankAccountNumber} />
+              <InfoRow icon={User} label="Nama Pemilik Rekening" value={proposal.bankAccountHolder} />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Section 4: Penilaian Otomatis */}
       <Card className="shadow-sm border-gray-100">
         <CardHeader>
           <div className="flex items-center gap-3">
@@ -248,9 +264,6 @@ export function AjuanDetailView({ proposal: initialProposal, onSaveCriteria, onU
 
           {/* Alasan penolakan: tampilan berbeda tergantung status */}
           {proposal.status === 'rejected' ? (
-            // Sudah rejected -> tampilkan alasan tersimpan sebagai teks read-only,
-            // diambil langsung dari `proposal.rejectionReason` (bukan state lokal
-            // `rejectionReason`, supaya tidak stale/kosong kalau state lokal belum sinkron)
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700">Alasan Penolakan</Label>
               <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-sm text-gray-700 whitespace-pre-wrap min-h-[80px]">
@@ -260,7 +273,6 @@ export function AjuanDetailView({ proposal: initialProposal, onSaveCriteria, onU
               </div>
             </div>
           ) : showRejectInput ? (
-            // Belum rejected, admin baru klik "Tolak" -> tampilkan input
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700">
                 Alasan Penolakan <span className="text-red-500">*</span>

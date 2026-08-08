@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,6 +12,7 @@ import {
   User, Mail, Phone, MapPin, FileText, Target, Calendar,
   Upload, X, ArrowLeft, ArrowRight, Send, CheckCircle2,
   ShieldCheck, Info, Camera, Megaphone, FileCheck, AlertCircle,
+  Building2, CreditCard, Landmark,
 } from 'lucide-react'
 import { CATEGORIES, formatRupiah } from '../types'
 import type { ProposalAPI } from './tab-ajuan'
@@ -21,8 +22,10 @@ import type { ProposalAPI } from './tab-ajuan'
 // ============================================================
 interface AjuanForm {
   nama: string; email: string; telp: string; alamatPengaju: string
+  organisasi: string
   judul: string; deskripsi: string; kategori: string; targetDana: string
   tanggalBuka: string; tanggalTutup: string; alamatCampaign: string
+  namaBank: string; noRekening: string; namaPemilikRekening: string
   fotoBukti: string[]; suratPernyataan: string; suratPernyataanName: string
   pernyataan: boolean[]
 }
@@ -32,8 +35,10 @@ interface AjuanForm {
 // ============================================================
 const INITIAL_FORM: AjuanForm = {
   nama: '', email: '', telp: '', alamatPengaju: '',
+  organisasi: '',
   judul: '', deskripsi: '', kategori: '', targetDana: '',
   tanggalBuka: '', tanggalTutup: '', alamatCampaign: '',
+  namaBank: '', noRekening: '', namaPemilikRekening: '',
   fotoBukti: [], suratPernyataan: '', suratPernyataanName: '',
   pernyataan: [false, false, false, false],
 }
@@ -44,6 +49,9 @@ const PERNYATAAN_LIST = [
   'Saya bersedia memberikan laporan penggunaan dana kepada admin jika diminta.',
   'Saya memahami bahwa pemalsuan data dapat dikenakan sanksi sesuai ketentuan.',
 ]
+
+// ID khusus untuk opsi "tambah organisasi baru" di dropdown
+const ADD_NEW_ORG_VALUE = '__add_new_org__'
 
 // ============================================================
 // STEP INDICATOR
@@ -73,6 +81,133 @@ function StepIndicator({ step }: { step: number }) {
           )}
         </React.Fragment>
       ))}
+    </div>
+  )
+}
+
+// ============================================================
+// ORGANISASI SELECT (pilih dari daftar / tambah baru)
+// ============================================================
+function OrganisasiSelect({
+  value, onChange,
+}: {
+  value: string
+  onChange: (v: string) => void
+}) {
+  const [list, setList] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
+  const [addingNew, setAddingNew] = useState(false)
+  const [newOrgName, setNewOrgName] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  // Ambil daftar organisasi yang sudah terdaftar/pernah dipakai
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/organizations')
+      .then(res => (res.ok ? res.json() : []))
+      .then(data => {
+        if (cancelled) return
+        const names = Array.isArray(data)
+          ? data.map((o: any) => (typeof o === 'string' ? o : o?.name)).filter(Boolean)
+          : []
+        setList(names)
+      })
+      .catch(() => { /* biarkan list kosong, user tetap bisa tambah baru */ })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [])
+
+  const handleSelect = (v: string) => {
+    if (v === ADD_NEW_ORG_VALUE) {
+      setAddingNew(true)
+      return
+    }
+    onChange(v)
+  }
+
+  const handleAddNew = async () => {
+    const name = newOrgName.trim()
+    if (!name) return
+    setSaving(true)
+    try {
+      const res = await fetch('/api/organizations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      })
+      if (!res.ok) {
+        // Endpoint belum tersedia / gagal simpan ke server —
+        // tetap tambahkan ke daftar lokal supaya alur tidak macet.
+        console.warn('Gagal menyimpan organisasi baru ke server, memakai daftar lokal.')
+      }
+    } catch {
+      console.warn('Gagal menghubungi server saat menambah organisasi baru.')
+    } finally {
+      setList(prev => (prev.includes(name) ? prev : [...prev, name]))
+      onChange(name)
+      setNewOrgName('')
+      setAddingNew(false)
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <Label className="flex items-center gap-1.5">
+        <Building2 className="h-4 w-4 text-muted-foreground" /> Organisasi / Lembaga Pengaju
+      </Label>
+
+      {!addingNew ? (
+        <Select value={value || undefined} onValueChange={handleSelect}>
+          <SelectTrigger>
+            <SelectValue placeholder={loading ? 'Memuat daftar organisasi...' : 'Pilih organisasi'} />
+          </SelectTrigger>
+          <SelectContent>
+            {list.map(org => (
+              <SelectItem key={org} value={org}>{org}</SelectItem>
+            ))}
+            <SelectItem value={ADD_NEW_ORG_VALUE} className="text-teal-600 font-medium">
+              + Tambah organisasi baru
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      ) : (
+        <div className="flex gap-2">
+          <Input
+            autoFocus
+            placeholder="Nama organisasi baru"
+            value={newOrgName}
+            onChange={e => setNewOrgName(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddNew() } }}
+          />
+          <Button
+            type="button" size="sm" className="bg-teal-600 hover:bg-teal-700 text-white shrink-0"
+            disabled={saving || !newOrgName.trim()} onClick={handleAddNew}
+          >
+            {saving ? '...' : 'Tambah'}
+          </Button>
+          <Button
+            type="button" size="sm" variant="outline" className="shrink-0"
+            onClick={() => { setAddingNew(false); setNewOrgName('') }}
+          >
+            Batal
+          </Button>
+        </div>
+      )}
+
+      {value && !addingNew && (
+        <p className="text-xs text-muted-foreground">
+          Organisasi terpilih: <span className="font-medium text-foreground">{value}</span>
+          {' · '}
+          <button
+            type="button"
+            className="text-red-500 hover:underline"
+            onClick={() => onChange('')}
+          >
+            Hapus pilihan
+          </button>
+        </p>
+      )}
     </div>
   )
 }
@@ -347,6 +482,14 @@ export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBac
         email: resubmitProposal.proposerEmail ?? session?.user?.email ?? '',
         telp: resubmitProposal.proposerPhone ?? '',
         alamatPengaju: resubmitProposal.proposerAddress ?? '',
+        // Asumsi: field organisasi di data resubmit bernama `organizationName`.
+        // Sesuaikan nama field ini kalau di ProposalAPI beda.
+        organisasi: (resubmitProposal as any).organizationName ?? '',
+        // Asumsi: field rekening di data resubmit bernama `bankName`,
+        // `bankAccountNumber`, `bankAccountHolder`. Sesuaikan kalau beda.
+        namaBank: (resubmitProposal as any).bankName ?? '',
+        noRekening: (resubmitProposal as any).bankAccountNumber ?? '',
+        namaPemilikRekening: (resubmitProposal as any).bankAccountHolder ?? '',
         judul: resubmitProposal.title,
         deskripsi: resubmitProposal.description,
         kategori: resubmitProposal.category,
@@ -382,6 +525,7 @@ export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBac
   const step2Valid = !!(
     form.judul && form.deskripsi && form.kategori && form.targetDana &&
     form.tanggalBuka && form.tanggalTutup && form.alamatCampaign &&
+    form.namaBank && form.noRekening && form.namaPemilikRekening &&
     form.suratPernyataan
   )
 
@@ -394,7 +538,11 @@ export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBac
     proposerEmail: form.email,
     proposerPhone: form.telp,
     proposerAddress: form.alamatPengaju,
+    organizationName: form.organisasi || null,
     campaignLocation: form.alamatCampaign,
+    bankName: form.namaBank,
+    bankAccountNumber: form.noRekening,
+    bankAccountHolder: form.namaPemilikRekening,
     startDate: form.tanggalBuka,
     endDate: form.tanggalTutup,
     officialDocUrl: form.suratPernyataan,
@@ -516,6 +664,12 @@ export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBac
                   <Input placeholder="08xxxxxxxxxx" value={form.telp} onChange={e => set('telp', e.target.value)} />
                 </div>
               </div>
+
+              <OrganisasiSelect
+                value={form.organisasi}
+                onChange={v => set('organisasi', v)}
+              />
+
               <div className="space-y-2">
                 <Label className="flex items-center gap-1.5">
                   <MapPin className="h-4 w-4 text-muted-foreground" /> Alamat Pengaju
@@ -606,6 +760,47 @@ export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBac
                 />
               </div>
 
+              <div className="space-y-3 p-4 bg-slate-50 rounded-lg border">
+                <Label className="flex items-center gap-1.5 text-sm font-semibold">
+                  <Landmark className="h-4 w-4 text-muted-foreground" /> Rekening Pencairan Dana
+                  <span className="text-xs text-red-500 font-medium">* wajib</span>
+                </Label>
+                <p className="text-xs text-muted-foreground -mt-1">
+                  Dana yang terkumpul akan dicairkan ke rekening ini. Pastikan nama pemilik rekening sesuai KTP/identitas resmi.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-1 text-xs">
+                      <Landmark className="h-3.5 w-3.5 text-muted-foreground" /> Nama Bank
+                    </Label>
+                    <Input
+                      placeholder="Contoh: BCA, BRI, Mandiri, dst"
+                      value={form.namaBank}
+                      onChange={e => set('namaBank', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-1 text-xs">
+                      <CreditCard className="h-3.5 w-3.5 text-muted-foreground" /> Nomor Rekening
+                    </Label>
+                    <Input
+                      inputMode="numeric"
+                      placeholder="Contoh: 1234567890"
+                      value={form.noRekening}
+                      onChange={e => set('noRekening', e.target.value.replace(/[^0-9]/g, ''))}
+                    />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label className="text-xs">Nama Pemilik Rekening</Label>
+                    <Input
+                      placeholder="Sesuai buku tabungan / KTP"
+                      value={form.namaPemilikRekening}
+                      onChange={e => set('namaPemilikRekening', e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
               <UploadFoto values={form.fotoBukti} onChange={v => set('fotoBukti', v)} />
               <UploadSurat
                 value={form.suratPernyataan}
@@ -648,9 +843,11 @@ export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBac
                 <p className="font-semibold mb-1">Ringkasan Ajuan</p>
                 {[
                   { label: 'Pengaju', value: form.nama },
+                  { label: 'Organisasi', value: form.organisasi || '-' },
                   { label: 'Campaign', value: form.judul },
                   { label: 'Kategori', value: form.kategori },
                   { label: 'Target', value: formatRupiah(Number(form.targetDana)), colored: true },
+                  { label: 'Rekening', value: `${form.namaBank} · ${form.noRekening}` },
                   { label: 'Surat Pernyataan', value: form.suratPernyataanName, emerald: true },
                 ].map(({ label, value, colored, emerald }) => (
                   <div key={label} className="flex justify-between">

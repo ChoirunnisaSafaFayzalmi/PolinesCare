@@ -35,20 +35,24 @@ export async function POST(
 
     const body = await request.json();
     const {
-      title,
-      description,
-      category,
-      targetAmount,
-      proposerName,
-      proposerEmail,
-      proposerPhone,
-      proposerAddress,
-      campaignLocation,
-      startDate,
-      endDate,
-      officialDocUrl,
-      photoUrls,
-    } = body;
+  title,
+  description,
+  category,
+  targetAmount,
+  proposerName,
+  proposerEmail,
+  proposerPhone,
+  proposerAddress,
+  organizationName,                                 // ⬅ NEW
+  campaignLocation,
+  startDate,
+  endDate,
+  bankName,                                          // ⬅ NEW
+  bankAccountNumber,                                 // ⬅ NEW
+  bankAccountHolder,                                 // ⬅ NEW
+  officialDocUrl,
+  photoUrls,
+} = body;
 
     if (!title || !description || !officialDocUrl) {
       return NextResponse.json(
@@ -59,25 +63,29 @@ export async function POST(
 
     // Update record yang sama — bukan bikin proposal baru
     const updatedProposal = await db.proposal.update({
-      where: { id },
-      data: {
-        title: title || oldProposal.title,
-        description: description || oldProposal.description,
-        category: category || oldProposal.category,
-        targetAmount: targetAmount ? Number(targetAmount) : oldProposal.targetAmount,
-        proposerName: proposerName || oldProposal.proposerName,
-        proposerEmail: proposerEmail || oldProposal.proposerEmail,
-        proposerPhone: proposerPhone || oldProposal.proposerPhone,
-        proposerAddress: proposerAddress || oldProposal.proposerAddress,
-        campaignLocation: campaignLocation || oldProposal.campaignLocation,
-        startDate: startDate ? new Date(startDate) : oldProposal.startDate,
-        endDate: endDate ? new Date(endDate) : oldProposal.endDate,
-        officialDocUrl,
-        photoUrls: photoUrls ? JSON.stringify(photoUrls) : oldProposal.photoUrls ?? null,
-        status: "pending",
-        rejectionReason: null, // catatan penolakan lama di-clear karena sudah direvisi
-      },
-    });
+  where: { id },
+  data: {
+    title: title || oldProposal.title,
+    description: description || oldProposal.description,
+    category: category || oldProposal.category,
+    targetAmount: targetAmount ? Number(targetAmount) : oldProposal.targetAmount,
+    proposerName: proposerName || oldProposal.proposerName,
+    proposerEmail: proposerEmail || oldProposal.proposerEmail,
+    proposerPhone: proposerPhone || oldProposal.proposerPhone,
+    proposerAddress: proposerAddress || oldProposal.proposerAddress,
+    organizationName: organizationName || oldProposal.organizationName,        // ⬅ NEW
+    campaignLocation: campaignLocation || oldProposal.campaignLocation,
+    startDate: startDate ? new Date(startDate) : oldProposal.startDate,
+    endDate: endDate ? new Date(endDate) : oldProposal.endDate,
+    bankName: bankName || oldProposal.bankName,                                // ⬅ NEW
+    bankAccountNumber: bankAccountNumber || oldProposal.bankAccountNumber,     // ⬅ NEW
+    bankAccountHolder: bankAccountHolder || oldProposal.bankAccountHolder,    // ⬅ NEW
+    officialDocUrl,
+    photoUrls: photoUrls ? JSON.stringify(photoUrls) : oldProposal.photoUrls ?? null,
+    status: "pending",
+    rejectionReason: null,
+  },
+});
 
     return NextResponse.json({ proposal: updatedProposal }, { status: 200 });
   } catch (error: unknown) {

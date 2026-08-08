@@ -87,12 +87,17 @@ export interface Proposal {
   proposerEmail?: string | null
   proposerPhone?: string | null
   proposerAddress?: string | null
+  organizationName?: string | null          // ⬅ NEW: organisasi/lembaga pengaju
   // Detail campaign yang diajukan
   startDate?: string
   endDate?: string
   campaignLocation?: string
   photoUrls?: string | string[] | null
   officialDocUrl?: string
+  // Rekening pencairan dana
+  bankName?: string | null                  // ⬅ NEW
+  bankAccountNumber?: string | null         // ⬅ NEW
+  bankAccountHolder?: string | null         // ⬅ NEW
   // Penilaian (0–100)
   kejelasanTujuan?: number
   kelayakanAnggaran?: number

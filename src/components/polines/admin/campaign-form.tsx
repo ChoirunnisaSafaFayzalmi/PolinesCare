@@ -20,6 +20,16 @@ interface PaymentMethod {
   isVisible: boolean
 }
 
+// Metode pembayaran yang pernah diinput sebelumnya (dari campaign-campaign lain),
+// dipakai untuk mengisi dropdown "pilih dari yang sudah ada" di AddPaymentModal.
+interface SavedPaymentMethod {
+  label: string
+  accountNumber: string
+}
+
+// value khusus untuk opsi "tambah metode baru" di dropdown
+const ADD_NEW_METHOD_VALUE = '__add_new_method__'
+
 interface CampaignFormViewProps {
   campaignForm: {
     title: string; description: string; category: string; targetAmount: string
@@ -82,42 +92,181 @@ function Toggle({ checked, onChange, label, description }: {
   )
 }
 
-// Modal for adding payment method
-function AddPaymentModal({
+// Form inline untuk menambah metode pembayaran — tanpa modal/overlay,
+// tampil langsung di dalam section Pembayaran (konsep sama seperti
+// dropdown Organisasi: pilih dari yang sudah ada, atau tambah baru).
+function PaymentMethodAdder({
   onAdd,
-  onClose,
 }: {
   onAdd: (label: string, accountNumber: string) => void
-  onClose: () => void
 }) {
+  const [isAdding, setIsAdding] = useState(false)
+  // 'dropdown' = cuma pilih dari daftar tersimpan, 'manual' = form input bebas
+  const [subMode, setSubMode] = useState<'dropdown' | 'manual'>('dropdown')
+  const [selectedValue, setSelectedValue] = useState('')
   const [label, setLabel] = useState('')
   const [accountNumber, setAccountNumber] = useState('')
 
-  const handleAdd = () => {
+  const [savedMethods, setSavedMethods] = useState<SavedPaymentMethod[]>([])
+  const [loadingSaved, setLoadingSaved] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/payment-methods')
+      .then(r => (r.ok ? r.json() : []))
+      .then(data => {
+        if (cancelled) return
+        const list: SavedPaymentMethod[] = Array.isArray(data)
+          ? data
+            .map((m: any) => ({
+              label: m.label ?? m.name ?? '',
+              accountNumber: m.accountNumber ?? m.account_number ?? '',
+            }))
+            .filter((m: SavedPaymentMethod) => m.label)
+          : []
+        const unique = list.filter((m, i) =>
+          i === list.findIndex(x => x.label === m.label && x.accountNumber === m.accountNumber)
+        )
+        setSavedMethods(unique)
+        // Kalau ternyata belum ada satupun metode tersimpan, langsung ke form manual
+        // — tidak ada gunanya menampilkan dropdown kosong.
+        if (unique.length === 0) setSubMode('manual')
+      })
+      .catch(() => setSubMode('manual'))
+      .finally(() => { if (!cancelled) setLoadingSaved(false) })
+    return () => { cancelled = true }
+  }, [])
+
+  const encode = (m: SavedPaymentMethod) => `${m.label}|||${m.accountNumber}`
+
+  const resetAll = () => {
+    setSelectedValue('')
+    setLabel('')
+    setAccountNumber('')
+    setSubMode(savedMethods.length > 0 ? 'dropdown' : 'manual')
+  }
+
+  const handleClose = () => {
+    resetAll()
+    setIsAdding(false)
+  }
+
+  const handleSelectChange = (v: string) => {
+    if (v === ADD_NEW_METHOD_VALUE) {
+      setSubMode('manual')
+      setSelectedValue('')
+      setLabel('')
+      setAccountNumber('')
+      return
+    }
+    setSelectedValue(v)
+  }
+
+  const handleAddFromDropdown = () => {
+    if (!selectedValue) return
+    const [l, ...rest] = selectedValue.split('|||')
+    onAdd(l, rest.join('|||'))
+    handleClose()
+  }
+
+  const handleAddManual = () => {
     if (!label.trim()) return
+    const isNewCombo = !savedMethods.some(
+      m => m.label === label.trim() && m.accountNumber === accountNumber.trim()
+    )
     onAdd(label.trim(), accountNumber.trim())
-    onClose()
+    if (isNewCombo) {
+      // Best-effort — simpan supaya bisa dipilih lagi di campaign berikutnya.
+      fetch('/api/payment-methods', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label: label.trim(), accountNumber: accountNumber.trim() }),
+      }).catch(() => { /* silent */ })
+      setSavedMethods(prev => [...prev, { label: label.trim(), accountNumber: accountNumber.trim() }])
+    }
+    handleClose()
+  }
+
+  if (!isAdding) {
+    return (
+      <button
+        type="button"
+        onClick={() => setIsAdding(true)}
+        className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 hover:border-teal-400 hover:bg-teal-50/50 transition-all py-3 cursor-pointer group"
+      >
+        <div className="w-5 h-5 rounded-full bg-gray-100 group-hover:bg-teal-100 flex items-center justify-center transition-colors shrink-0">
+          <Plus className="h-3 w-3 text-gray-400 group-hover:text-teal-600" />
+        </div>
+        <span className="text-sm text-gray-400 group-hover:text-teal-600 transition-colors">
+          Tambah metode pembayaran
+        </span>
+      </button>
+    )
   }
 
   return (
-    <div
-      className="fixed inset-0 z-40 flex items-center justify-center"
-      style={{ backgroundColor: 'rgba(0,0,0,0.15)' }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 w-full max-w-sm mx-4 p-6 space-y-4 z-50">
-        <div className="flex items-center justify-between">
-          <h4 className="text-base font-bold text-gray-800">Tambah Metode Pembayaran</h4>
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-          >
-            <X className="h-3.5 w-3.5 text-gray-500" />
-          </button>
-        </div>
+    <div className="rounded-xl border border-teal-200 bg-teal-50/30 p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-semibold text-gray-800">Tambah Metode Pembayaran</p>
+        <button
+          type="button"
+          onClick={handleClose}
+          className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+        >
+          <X className="h-3 w-3 text-gray-500" />
+        </button>
+      </div>
 
-        <div className="space-y-3">
+      {subMode === 'dropdown' && (
+        <>
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium text-gray-700">
+              Pilih dari yang sudah pernah dipakai
+            </Label>
+            <Select value={selectedValue} onValueChange={handleSelectChange}>
+              <SelectTrigger className={`${inputCls} bg-white`}>
+                <SelectValue placeholder={loadingSaved ? 'Memuat...' : 'Pilih rekening / e-wallet'} />
+              </SelectTrigger>
+              <SelectContent>
+                {savedMethods.map(m => (
+                  <SelectItem key={encode(m)} value={encode(m)}>
+                    {m.label}{m.accountNumber ? ` — ${m.accountNumber}` : ''}
+                  </SelectItem>
+                ))}
+                <SelectItem value={ADD_NEW_METHOD_VALUE} className="text-teal-600 font-medium">
+                  + Metode baru / lainnya
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex gap-2 pt-1">
+            <Button variant="outline" className="flex-1 rounded-lg bg-white" onClick={handleClose}>
+              Batal
+            </Button>
+            <Button
+              className="flex-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg"
+              onClick={handleAddFromDropdown}
+              disabled={!selectedValue}
+            >
+              Tambah
+            </Button>
+          </div>
+        </>
+      )}
+
+      {subMode === 'manual' && (
+        <>
+          {savedMethods.length > 0 && (
+            <button
+              type="button"
+              onClick={() => { setSubMode('dropdown'); setLabel(''); setAccountNumber('') }}
+              className="text-xs text-teal-600 hover:underline"
+            >
+              ‹ Pilih dari daftar yang sudah ada
+            </button>
+          )}
+
           <div className="space-y-1.5">
             <Label className="text-sm font-medium text-gray-700">
               Nama Bank / E-Wallet <span className="text-red-400">*</span>
@@ -126,9 +275,9 @@ function AddPaymentModal({
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               placeholder="Contoh: Transfer Bank BSI, E-Wallet ShopeePay"
-              className={inputCls}
+              className={`${inputCls} bg-white`}
               autoFocus
-              onKeyDown={(e) => { if (e.key === 'Enter') handleAdd() }}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleAddManual() }}
             />
           </div>
           <div className="space-y-1.5">
@@ -140,25 +289,25 @@ function AddPaymentModal({
               value={accountNumber}
               onChange={(e) => setAccountNumber(e.target.value)}
               placeholder="Contoh: 1234567890"
-              className={inputCls}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleAdd() }}
+              className={`${inputCls} bg-white`}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleAddManual() }}
             />
           </div>
-        </div>
 
-        <div className="flex gap-2 pt-1">
-          <Button variant="outline" className="flex-1 rounded-lg" onClick={onClose}>
-            Batal
-          </Button>
-          <Button
-            className="flex-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg"
-            onClick={handleAdd}
-            disabled={!label.trim()}
-          >
-            Tambah
-          </Button>
-        </div>
-      </div>
+          <div className="flex gap-2 pt-1">
+            <Button variant="outline" className="flex-1 rounded-lg bg-white" onClick={handleClose}>
+              Batal
+            </Button>
+            <Button
+              className="flex-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg"
+              onClick={handleAddManual}
+              disabled={!label.trim()}
+            >
+              Tambah
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   )
 }
@@ -167,7 +316,6 @@ export function CampaignFormView({
   campaignForm, setCampaignForm, editingCampaign, submitting, onSave, onBack, session, mode = 'create',
 }: CampaignFormViewProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [showAddModal, setShowAddModal] = useState(false)
   const isLocked = mode === 'complete-from-proposal'
 
   const [adminProfile, setAdminProfile] = useState<{
@@ -312,7 +460,7 @@ export function CampaignFormView({
     setCampaignForm({ ...campaignForm, targetAmount: rawDigits })
   }
 
-  // ⬅ FIX: kode unik sekarang murni read-only, tidak pernah diinput admin.
+  // ⬅ FIX: kode unik sekarang murni read-only, tidak lagi bisa diinput admin.
   // - Campaign baru (belum tersimpan sama sekali, editingCampaign null &
   //   bukan mode complete-from-proposal): kode belum ada, karena baru akan
   //   di-generate server SETELAH disimpan.
@@ -325,15 +473,7 @@ export function CampaignFormView({
     : '000'
 
   return (
-    <>
-      {showAddModal && (
-        <AddPaymentModal
-          onAdd={handleAddPayment}
-          onClose={() => setShowAddModal(false)}
-        />
-      )}
-
-      <Card className="shadow-sm border-gray-100">
+    <Card className="shadow-sm border-gray-100">
         <CardHeader className="flex flex-row items-center justify-between">
           <h2 className="text-lg font-bold text-gray-800">
             {isLocked ? 'Lengkapi & Publikasikan Campaign' : editingCampaign ? 'Edit Campaign' : 'Campaign Baru'}
@@ -623,18 +763,7 @@ export function CampaignFormView({
                   </div>
                 ))}
 
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(true)}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 hover:border-teal-400 hover:bg-teal-50/50 transition-all py-3 cursor-pointer group"
-                >
-                  <div className="w-5 h-5 rounded-full bg-gray-100 group-hover:bg-teal-100 flex items-center justify-center transition-colors shrink-0">
-                    <Plus className="h-3 w-3 text-gray-400 group-hover:text-teal-600" />
-                  </div>
-                  <span className="text-sm text-gray-400 group-hover:text-teal-600 transition-colors">
-                    Tambah metode pembayaran
-                  </span>
-                </button>
+                <PaymentMethodAdder onAdd={handleAddPayment} />
               </div>
 
               {/* Foto QRIS */}
@@ -714,8 +843,7 @@ export function CampaignFormView({
 
         </CardContent>
       </Card>
-    </>
-  )
+    )
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
