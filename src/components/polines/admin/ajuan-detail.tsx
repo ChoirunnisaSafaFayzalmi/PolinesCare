@@ -74,6 +74,10 @@ export function AjuanDetailView({ proposal: initialProposal, onSaveCriteria, onU
   // Hitung skor otomatis
   const score = calculateProposalScore(proposal)
 
+  // NOTE: kalau `ktmUrl` belum ada di interface `Proposal` (polines/types), tambahkan di sana
+  // lalu hapus `as any` di bawah ini.
+  const ktmUrl = (proposal as any).ktmUrl as string | null | undefined
+
   const handleApprove = () => {
     onUpdateStatus(proposal.id, 'approved')
     setProposal({ ...proposal, status: 'approved' })
@@ -125,6 +129,27 @@ export function AjuanDetailView({ proposal: initialProposal, onSaveCriteria, onU
                 value={proposal.proposerAddress ?? proposal.proposer?.address} />
             </div>
           </div>
+
+          {/* Foto KTM / Kartu Anggota — hanya muncul kalau pengaju memilih organisasi */}
+          {proposal.organizationName && (
+            <div className="mt-4 space-y-2">
+              <p className="text-xs text-gray-400 font-medium flex items-center gap-1">
+                <CreditCard className="h-3.5 w-3.5" /> Foto KTM / Kartu Anggota
+              </p>
+              {ktmUrl ? (
+                <a
+                  href={ktmUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block w-40 rounded-xl overflow-hidden border border-gray-200 hover:border-teal-300 transition-colors"
+                >
+                  <img src={ktmUrl} alt="Foto KTM / Kartu Anggota" className="w-full aspect-square object-cover" />
+                </a>
+              ) : (
+                <p className="text-sm text-gray-300 italic">Tidak ada foto KTM / kartu anggota</p>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 

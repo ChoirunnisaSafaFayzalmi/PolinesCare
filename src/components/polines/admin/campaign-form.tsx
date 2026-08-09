@@ -27,8 +27,8 @@ interface SavedPaymentMethod {
   accountNumber: string
 }
 
-// value khusus untuk opsi "tambah metode baru" di dropdown
-const ADD_NEW_METHOD_VALUE = '__add_new_method__'
+// (opsi "tambah metode baru" sekarang berupa link terpisah, bukan lagi
+// item khusus di dalam dropdown Select — lihat switchToManual di PaymentMethodAdder)
 
 interface CampaignFormViewProps {
   campaignForm: {
@@ -97,8 +97,20 @@ function Toggle({ checked, onChange, label, description }: {
 // dropdown Organisasi: pilih dari yang sudah ada, atau tambah baru).
 function PaymentMethodAdder({
   onAdd,
+  onSaveError,
+  existingMethods,
 }: {
   onAdd: (label: string, accountNumber: string) => void
+  // ⬅ FIX: error simpan-untuk-reuse sekarang di-lift ke parent (ditampilkan
+  // sebagai banner sementara di section Pembayaran), BUKAN lagi mengganjal
+  // form ini supaya tetap terbuka. Bank yang baru ditambah tetap langsung
+  // kepakai di campaign ini apapun hasil simpan-untuk-reuse-nya.
+  onSaveError: (message: string) => void
+  // ⬅ FIX: bank/e-wallet yang SUDAH dipakai di campaign yang sedang diisi
+  // ini. Dipakai untuk (1) menyembunyikan pilihan itu dari dropdown "pilih
+  // dari yang sudah pernah dipakai" supaya tidak bisa dipilih dua kali,
+  // dan (2) mencegah input manual dari membuat duplikat.
+  existingMethods: { label: string; accountNumber: string }[]
 }) {
   const [isAdding, setIsAdding] = useState(false)
   // 'dropdown' = cuma pilih dari daftar tersimpan, 'manual' = form input bebas
@@ -109,6 +121,7 @@ function PaymentMethodAdder({
 
   const [savedMethods, setSavedMethods] = useState<SavedPaymentMethod[]>([])
   const [loadingSaved, setLoadingSaved] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -128,9 +141,14 @@ function PaymentMethodAdder({
           i === list.findIndex(x => x.label === m.label && x.accountNumber === m.accountNumber)
         )
         setSavedMethods(unique)
-        // Kalau ternyata belum ada satupun metode tersimpan, langsung ke form manual
-        // — tidak ada gunanya menampilkan dropdown kosong.
-        if (unique.length === 0) setSubMode('manual')
+        // Kalau ternyata belum ada satupun metode tersimpan yang BISA dipilih
+        // (semua sudah kepakai di campaign ini, atau memang belum ada history
+        // sama sekali), langsung ke form manual — dropdown kosong tidak
+        // berguna.
+        const stillSelectable = unique.filter(
+          m => !existingMethods.some(e => e.label === m.label && e.accountNumber === m.accountNumber)
+        )
+        if (stillSelectable.length === 0) setSubMode('manual')
       })
       .catch(() => setSubMode('manual'))
       .finally(() => { if (!cancelled) setLoadingSaved(false) })
@@ -139,11 +157,17 @@ function PaymentMethodAdder({
 
   const encode = (m: SavedPaymentMethod) => `${m.label}|||${m.accountNumber}`
 
+  // ⬅ FIX: bank yang sudah ada di daftar campaign ini disembunyikan dari
+  // dropdown, supaya tidak bisa dipilih dua kali dan bikin duplikat.
+  const isAlreadyUsed = (m: SavedPaymentMethod) =>
+    existingMethods.some(e => e.label === m.label && e.accountNumber === m.accountNumber)
+  const selectableMethods = savedMethods.filter(m => !isAlreadyUsed(m))
+
   const resetAll = () => {
     setSelectedValue('')
     setLabel('')
     setAccountNumber('')
-    setSubMode(savedMethods.length > 0 ? 'dropdown' : 'manual')
+    setSubMode(selectableMethods.length > 0 ? 'dropdown' : 'manual')
   }
 
   const handleClose = () => {
@@ -152,14 +176,17 @@ function PaymentMethodAdder({
   }
 
   const handleSelectChange = (v: string) => {
-    if (v === ADD_NEW_METHOD_VALUE) {
-      setSubMode('manual')
-      setSelectedValue('')
-      setLabel('')
-      setAccountNumber('')
-      return
-    }
     setSelectedValue(v)
+  }
+
+  // ⬅ FIX: link terpisah untuk pindah ke form manual, menggantikan opsi
+  // "+ Metode baru / lainnya" yang sebelumnya ada DI DALAM dropdown Select
+  // (membingungkan karena bercampur dengan pilihan bank asli).
+  const switchToManual = () => {
+    setSubMode('manual')
+    setSelectedValue('')
+    setLabel('')
+    setAccountNumber('')
   }
 
   const handleAddFromDropdown = () => {
@@ -169,22 +196,77 @@ function PaymentMethodAdder({
     handleClose()
   }
 
-  const handleAddManual = () => {
-    if (!label.trim()) return
-    const isNewCombo = !savedMethods.some(
-      m => m.label === label.trim() && m.accountNumber === accountNumber.trim()
+  // ⬅ FIX: sebelumnya fungsi ini TIDAK menunggu (await) hasil fetch dan
+  // TIDAK mengecek response.ok — jadi setSavedMethods selalu dijalankan
+  // meskipun POST ke server gagal (mis. 401 karena session admin belum
+  // ke-attach, atau 500 di server). Akibatnya:
+  //   - Di campaign yang sedang dibuka, bank baru kelihatan "tersimpan"
+  //     di dropdown karena itu cuma state React di browser.
+  //   - Begitu buka form campaign baru (component di-mount ulang),
+  //     dropdown kosong lagi karena GET /api/payment-methods memang
+  //     tidak pernah menemukan data itu di database.
+  // Sekarang: tunggu response server, dan HANYA update state lokal kalau
+  // benar-benar berhasil tersimpan. Kalau gagal, tampilkan pesan error
+  // supaya ketahuan (bukan silent-fail lagi).
+  const handleAddManual = async () => {
+    if (!label.trim() || !accountNumber.trim()) return
+    const trimmedLabel = label.trim()
+    const trimmedAccount = accountNumber.trim()
+
+    // ⬅ FIX: cegah duplikat — kalau kombinasi ini sudah ada di daftar
+    // campaign yang sedang diisi, jangan tambah lagi, cukup kasih tahu.
+    const alreadyInThisCampaign = existingMethods.some(
+      e => e.label === trimmedLabel && e.accountNumber === trimmedAccount
     )
-    onAdd(label.trim(), accountNumber.trim())
-    if (isNewCombo) {
-      // Best-effort — simpan supaya bisa dipilih lagi di campaign berikutnya.
-      fetch('/api/payment-methods', {
+    if (alreadyInThisCampaign) {
+      onSaveError(`"${trimmedLabel}"${trimmedAccount ? ` (${trimmedAccount})` : ''} sudah ada di daftar pembayaran campaign ini.`)
+      handleClose()
+      return
+    }
+
+    const isNewCombo = !savedMethods.some(
+      m => m.label === trimmedLabel && m.accountNumber === trimmedAccount
+    )
+
+    // Method tetap langsung dipakai di campaign yang sedang diisi,
+    // terlepas dari berhasil/tidaknya disimpan untuk dipakai lagi nanti.
+    onAdd(trimmedLabel, trimmedAccount)
+    // ⬅ FIX: form SELALU ditutup di sini — jangan digantung menunggu hasil
+    // simpan-untuk-reuse. Sebelumnya form dibiarkan terbuka kalau gagal,
+    // sehingga field yang sudah kepakai kelihatan "nyangkut" dan
+    // membingungkan (terlihat seperti terduplikasi dengan entri di atas).
+    handleClose()
+
+    if (!isNewCombo) return
+
+    setSaving(true)
+    try {
+      const res = await fetch('/api/payment-methods', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ label: label.trim(), accountNumber: accountNumber.trim() }),
-      }).catch(() => { /* silent */ })
-      setSavedMethods(prev => [...prev, { label: label.trim(), accountNumber: accountNumber.trim() }])
+        body: JSON.stringify({ label: trimmedLabel, accountNumber: trimmedAccount }),
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        console.error('Gagal simpan payment method:', res.status, err)
+        const serverMsg = typeof err?.error === 'string' ? err.error : null
+        onSaveError(
+          res.status === 401
+            ? `Gagal menyimpan "${trimmedLabel}": sesi login bermasalah. Coba refresh halaman. (401)`
+            : `Gagal menyimpan "${trimmedLabel}" (status ${res.status})${serverMsg ? `: ${serverMsg}` : ''}. Metode tetap dipakai di campaign ini.`
+        )
+        return
+      }
+
+      // Baru update daftar tersimpan KALAU beneran sukses di server.
+      setSavedMethods(prev => [...prev, { label: trimmedLabel, accountNumber: trimmedAccount }])
+    } catch (e) {
+      console.error('Network error saat simpan payment method:', e)
+      onSaveError(`Gagal menyimpan "${trimmedLabel}" untuk dipakai lagi nanti (masalah jaringan). Metode tetap dipakai di campaign ini.`)
+    } finally {
+      setSaving(false)
     }
-    handleClose()
   }
 
   if (!isAdding) {
@@ -225,19 +307,29 @@ function PaymentMethodAdder({
             </Label>
             <Select value={selectedValue} onValueChange={handleSelectChange}>
               <SelectTrigger className={`${inputCls} bg-white`}>
-                <SelectValue placeholder={loadingSaved ? 'Memuat...' : 'Pilih rekening / e-wallet'} />
+                <SelectValue placeholder={
+                  loadingSaved
+                    ? 'Memuat...'
+                    : selectableMethods.length === 0
+                      ? 'Semua sudah dipakai di campaign ini'
+                      : 'Pilih rekening / e-wallet'
+                } />
               </SelectTrigger>
               <SelectContent>
-                {savedMethods.map(m => (
+                {selectableMethods.map(m => (
                   <SelectItem key={encode(m)} value={encode(m)}>
                     {m.label}{m.accountNumber ? ` — ${m.accountNumber}` : ''}
                   </SelectItem>
                 ))}
-                <SelectItem value={ADD_NEW_METHOD_VALUE} className="text-teal-600 font-medium">
-                  + Metode baru / lainnya
-                </SelectItem>
               </SelectContent>
             </Select>
+            <button
+              type="button"
+              onClick={switchToManual}
+              className="text-xs text-teal-600 hover:underline"
+            >
+              + Metode baru / lainnya
+            </button>
           </div>
 
           <div className="flex gap-2 pt-1">
@@ -257,7 +349,7 @@ function PaymentMethodAdder({
 
       {subMode === 'manual' && (
         <>
-          {savedMethods.length > 0 && (
+          {selectableMethods.length > 0 && (
             <button
               type="button"
               onClick={() => { setSubMode('dropdown'); setLabel(''); setAccountNumber('') }}
@@ -282,8 +374,7 @@ function PaymentMethodAdder({
           </div>
           <div className="space-y-1.5">
             <Label className="text-sm font-medium text-gray-700">
-              No. Rekening / No. HP
-              <span className="text-gray-400 font-normal ml-1">(opsional)</span>
+              No. Rekening / No. HP <span className="text-red-400">*</span>
             </Label>
             <Input
               value={accountNumber}
@@ -301,7 +392,7 @@ function PaymentMethodAdder({
             <Button
               className="flex-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg"
               onClick={handleAddManual}
-              disabled={!label.trim()}
+              disabled={!label.trim() || !accountNumber.trim()}
             >
               Tambah
             </Button>
@@ -390,6 +481,11 @@ export function CampaignFormView({
     }
   }
 
+  // ⬅ FIX: banner sementara untuk melaporkan kalau simpan-untuk-reuse metode
+  // pembayaran (agar bisa dipilih lagi di campaign lain) gagal. Ini tidak
+  // menghalangi campaign yang sedang diisi — metode tetap terpakai di sini.
+  const [paymentSaveWarning, setPaymentSaveWarning] = useState<string | null>(null)
+
   const qrisInputRef = useRef<HTMLInputElement>(null)
   const [qrisFile, setQrisFile] = useState<File | null>(null)
   const [qrisPreview, setQrisPreview] = useState<string | null>(campaignForm.qrisImageUrl || null)
@@ -472,20 +568,30 @@ export function CampaignFormView({
     ? String(campaignForm.uniqueCode).padStart(3, '0')
     : '000'
 
+  // ⬅ FIX: No. Rekening/No. HP sekarang wajib diisi untuk setiap metode
+  // pembayaran (mencegah campaign kesimpan dengan data pembayaran yang
+  // tidak lengkap / rawan miss saat donatur mau transfer).
+  const hasIncompletePaymentMethod = campaignForm.paymentMethods.some(
+    m => !m.accountNumber.trim()
+  )
+
   return (
     <Card className="shadow-sm border-gray-100">
         <CardHeader className="flex flex-row items-center justify-between">
           <h2 className="text-lg font-bold text-gray-800">
             {isLocked ? 'Lengkapi & Publikasikan Campaign' : editingCampaign ? 'Edit Campaign' : 'Campaign Baru'}
           </h2>
-          <div className="flex gap-2">
+          <div className="flex flex-col items-end gap-1">
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg px-6"
               onClick={() => onSave(imageFiles.length > 0 ? imageFiles : undefined, qrisFile ?? undefined)}
-              disabled={submitting}
+              disabled={submitting || hasIncompletePaymentMethod}
             >
               {submitting ? 'Menyimpan...' : isLocked ? 'Publikasikan' : 'Simpan'}
             </Button>
+            {hasIncompletePaymentMethod && (
+              <p className="text-xs text-red-500">Lengkapi No. Rekening/No. HP di semua metode pembayaran</p>
+            )}
           </div>
         </CardHeader>
 
@@ -737,8 +843,8 @@ export function CampaignFormView({
                     <Input
                       value={method.accountNumber}
                       onChange={(e) => handleSetAccount(method.key, e.target.value)}
-                      placeholder="No. Rekening / No. HP"
-                      className={`${inputCls} bg-white`}
+                      placeholder="No. Rekening / No. HP (wajib diisi)"
+                      className={`${inputCls} bg-white ${!method.accountNumber.trim() ? 'border-red-300 focus:border-red-400 focus:ring-red-400' : ''}`}
                     />
                     <button
                       type="button"
@@ -763,7 +869,24 @@ export function CampaignFormView({
                   </div>
                 ))}
 
-                <PaymentMethodAdder onAdd={handleAddPayment} />
+                <PaymentMethodAdder
+                  onAdd={handleAddPayment}
+                  onSaveError={(msg) => setPaymentSaveWarning(msg)}
+                  existingMethods={campaignForm.paymentMethods}
+                />
+
+                {paymentSaveWarning && (
+                  <div className="flex items-start justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5">
+                    <p className="text-xs text-amber-700">{paymentSaveWarning}</p>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentSaveWarning(null)}
+                      className="shrink-0 text-amber-500 hover:text-amber-700"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Foto QRIS */}

@@ -87,7 +87,8 @@ export interface Proposal {
   proposerEmail?: string | null
   proposerPhone?: string | null
   proposerAddress?: string | null
-  organizationName?: string | null          // ⬅ NEW: organisasi/lembaga pengaju
+  organizationName?: string | null     
+  ktmUrl?: string | null      // ⬅ NEW: organisasi/lembaga pengaju
   // Detail campaign yang diajukan
   startDate?: string
   endDate?: string

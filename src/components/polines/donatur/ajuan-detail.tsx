@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import {
   User, Mail, Phone, MapPin, FileText, Target, Calendar,
   FileCheck, ExternalLink, CheckCheck, XCircle, Clock, Megaphone, X, FileWarning, ImageOff,
+  Building2, Landmark, CreditCard,
 } from 'lucide-react'
 import { formatRupiah, formatDate } from '../types'
 import { ProposalAPI, StatusBadge, RiwayatAjuan } from './tab-ajuan'
@@ -91,10 +92,10 @@ function DokumenPreview({ url }: { url: string }) {
   const isPdf = isPdfUrl(url)
 
   useEffect(() => {
-  let active = true
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- reset status tiap url berubah, aman
-  setStatus('checking')
-  
+    let active = true
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset status tiap url berubah, aman
+    setStatus('checking')
+
     fetch(url, { method: 'HEAD' })
       .then(res => {
         if (!active) return
@@ -174,6 +175,12 @@ export function DetailAjuanPage({
   const status = mapStatus(proposal.status)
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
 
+  const organisasi = proposal.organizationName
+  const namaBank = proposal.bankName
+  const noRekening = proposal.bankAccountNumber
+  const namaPemilikRekening = proposal.bankAccountHolder
+  const ktmUrl = proposal.ktmUrl
+
   // Normalisasi foto jadi array string, apapun bentuk data dari API
   // (kadang backend mengembalikan JSON string, null, atau bukan array)
   const normalizePhotoUrls = (raw: unknown): string[] => {
@@ -196,6 +203,9 @@ export function DetailAjuanPage({
     : proposal.photoUrl
       ? [proposal.photoUrl]
       : []
+
+  const adaRekening = !!(namaBank || noRekening || namaPemilikRekening)
+  const adaDokumenFoto = !!(proposal.officialDocUrl || foto.length > 0 || ktmUrl)
 
   return (
     <div className="w-full space-y-5">
@@ -242,10 +252,11 @@ export function DetailAjuanPage({
             <p className="font-semibold">Informasi Pengaju</p>
             <StatusBadge status={status} />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
             <InfoItem icon={User} label="Nama Lengkap" value={proposal.proposerName} />
             <InfoItem icon={Mail} label="Email" value={proposal.proposerEmail} />
             <InfoItem icon={Phone} label="No. Telepon" value={proposal.proposerPhone} />
+            <InfoItem icon={Building2} label="Organisasi / Lembaga" value={organisasi} />
             <InfoItem icon={MapPin} label="Alamat Pengaju" value={proposal.proposerAddress} />
           </div>
         </CardContent>
@@ -272,6 +283,20 @@ export function DetailAjuanPage({
 
           <InfoItem icon={MapPin} label="Lokasi Campaign" value={proposal.campaignLocation} />
 
+          {/* Rekening Pencairan Dana */}
+          {adaRekening && (
+            <div className="space-y-3 p-4 bg-slate-50 rounded-lg border">
+              <p className="text-sm font-semibold flex items-center gap-1.5">
+                <Landmark className="h-4 w-4 text-muted-foreground" /> Rekening Pencairan Dana
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                <InfoItem icon={Landmark} label="Nama Bank" value={namaBank} />
+                <InfoItem icon={CreditCard} label="Nomor Rekening" value={noRekening} />
+                <InfoItem icon={User} label="Nama Pemilik Rekening" value={namaPemilikRekening} />
+              </div>
+            </div>
+          )}
+
           <div className="pt-1 text-xs text-muted-foreground">
             Diajukan pada {formatDate(proposal.createdAt)}
             {proposal.resubmittedFrom && ' · merupakan ajuan ulang'}
@@ -280,7 +305,7 @@ export function DetailAjuanPage({
       </Card>
 
       {/* Dokumen & Foto — full width di bawah */}
-      {(proposal.officialDocUrl || foto.length > 0) && (
+      {adaDokumenFoto && (
         <Card>
           <CardContent className="p-5 space-y-5">
             <p className="font-semibold">Dokumen & Foto</p>
@@ -294,9 +319,20 @@ export function DetailAjuanPage({
                 </div>
               )}
 
+              {/* KTM / Kartu Anggota */}
+              {ktmUrl && (
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">Foto KTM / Kartu Anggota</p>
+                  <div className="max-w-[180px]">
+                    <FotoThumbnail url={ktmUrl} onClick={() => setLightboxUrl(ktmUrl)} />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">Klik untuk memperbesar</p>
+                </div>
+              )}
+
               {/* Foto Bukti */}
               {foto.length > 0 && (
-                <div className="space-y-2">
+                <div className="space-y-2 lg:col-span-2">
                   <p className="text-xs text-muted-foreground">Foto Keadaan / Bukti</p>
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {foto.map((url, i) => (

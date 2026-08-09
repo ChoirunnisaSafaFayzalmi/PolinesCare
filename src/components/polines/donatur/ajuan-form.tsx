@@ -27,6 +27,7 @@ interface AjuanForm {
   tanggalBuka: string; tanggalTutup: string; alamatCampaign: string
   namaBank: string; noRekening: string; namaPemilikRekening: string
   fotoBukti: string[]; suratPernyataan: string; suratPernyataanName: string
+  ktm: string; ktmName: string
   pernyataan: boolean[]
 }
 
@@ -40,6 +41,7 @@ const INITIAL_FORM: AjuanForm = {
   tanggalBuka: '', tanggalTutup: '', alamatCampaign: '',
   namaBank: '', noRekening: '', namaPemilikRekening: '',
   fotoBukti: [], suratPernyataan: '', suratPernyataanName: '',
+  ktm: '', ktmName: '',
   pernyataan: [false, false, false, false],
 }
 
@@ -100,7 +102,6 @@ function OrganisasiSelect({
   const [newOrgName, setNewOrgName] = useState('')
   const [saving, setSaving] = useState(false)
 
-  // Ambil daftar organisasi yang sudah terdaftar/pernah dipakai
   useEffect(() => {
     let cancelled = false
     fetch('/api/organizations')
@@ -136,8 +137,6 @@ function OrganisasiSelect({
         body: JSON.stringify({ name }),
       })
       if (!res.ok) {
-        // Endpoint belum tersedia / gagal simpan ke server —
-        // tetap tambahkan ke daftar lokal supaya alur tidak macet.
         console.warn('Gagal menyimpan organisasi baru ke server, memakai daftar lokal.')
       }
     } catch {
@@ -155,6 +154,7 @@ function OrganisasiSelect({
     <div className="space-y-2">
       <Label className="flex items-center gap-1.5">
         <Building2 className="h-4 w-4 text-muted-foreground" /> Organisasi / Lembaga Pengaju
+        <span className="text-xs text-muted-foreground">(opsional, kosongkan jika mengajukan secara pribadi)</span>
       </Label>
 
       {!addingNew ? (
@@ -215,7 +215,6 @@ function OrganisasiSelect({
 // ============================================================
 // UPLOAD FOTO BUKTI
 // ============================================================
-// Komponen UploadFoto baru — support multiple
 function UploadFoto({ values, onChange }: {
   values: string[]
   onChange: (v: string[]) => void
@@ -254,7 +253,6 @@ function UploadFoto({ values, onChange }: {
         <span className="text-xs text-muted-foreground">(opsional, bisa lebih dari 1)</span>
       </Label>
 
-      {/* Preview grid */}
       {values.length > 0 && (
         <div className="grid grid-cols-3 gap-2">
           {values.map((url, i) => (
@@ -269,7 +267,6 @@ function UploadFoto({ values, onChange }: {
               </button>
             </div>
           ))}
-          {/* Tombol tambah foto */}
           <button
             type="button"
             className={`aspect-square rounded-lg border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 transition-colors
@@ -282,7 +279,6 @@ function UploadFoto({ values, onChange }: {
         </div>
       )}
 
-      {/* Empty state */}
       {values.length === 0 && (
         <div
           className={`border-2 border-dashed border-gray-200 rounded-lg p-4 flex flex-col items-center gap-2 transition-colors
@@ -324,7 +320,7 @@ function UploadSurat({
       const res = await fetch('/api/upload', { method: 'POST', body: formData })
       if (!res.ok) throw new Error('Gagal upload surat')
       const data = await res.json()
-      onChange(data.url, file.name) // ✅ URL permanen dari server
+      onChange(data.url, file.name)
     } catch {
       alert('Gagal mengupload surat. Coba lagi.')
     } finally {
@@ -372,6 +368,79 @@ function UploadSurat({
       )}
       <input
         ref={inputRef} type="file" accept=".pdf,image/*" className="hidden"
+        onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
+      />
+    </div>
+  )
+}
+
+// ============================================================
+// UPLOAD KTM
+// ============================================================
+function UploadKTM({
+  value, fileName, onChange,
+}: {
+  value: string; fileName: string; onChange: (url: string, name: string) => void
+}) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+
+  const handleFile = async (file: File) => {
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      if (!res.ok) throw new Error('Gagal upload KTM')
+      const data = await res.json()
+      onChange(data.url, file.name)
+    } catch {
+      alert('Gagal mengupload foto KTM. Coba lagi.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <Label className="flex items-center gap-1.5">
+        <CreditCard className="h-4 w-4 text-muted-foreground" /> Foto KTM atau Kartu Anggota
+        <span className="text-xs text-red-500 font-medium">* wajib</span>
+      </Label>
+      <p className="text-xs text-muted-foreground">
+        Untuk memvalidasi bahwa Anda adalah mahasiswa/civitas Polines, baik mengajukan atas nama pribadi maupun organisasi.
+      </p>
+      {!value ? (
+        <div
+          className={`border-2 border-dashed border-amber-200 bg-amber-50/30 rounded-lg p-5 flex flex-col items-center gap-2 transition-colors
+            ${uploading ? 'opacity-60 cursor-wait' : 'cursor-pointer hover:border-amber-400 hover:bg-amber-50/60'}`}
+          onClick={() => !uploading && inputRef.current?.click()}
+        >
+          <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+            <CreditCard className="h-5 w-5 text-amber-600" />
+          </div>
+          <p className="text-sm font-medium text-amber-800">
+            {uploading ? 'Mengupload KTM...' : 'Upload Foto KTM atau Kartu Anggota'}
+          </p>
+          <p className="text-xs text-amber-600">JPG, PNG — maks 5MB</p>
+        </div>
+      ) : (
+        <div className="flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+          <div className="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
+            <CreditCard className="h-5 w-5 text-emerald-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-emerald-700 truncate">{fileName}</p>
+            <p className="text-xs text-emerald-600">Berhasil diupload ✓</p>
+          </div>
+          <button type="button" className="text-gray-400 hover:text-red-500"
+            onClick={() => onChange('', '')}>
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+      <input
+        ref={inputRef} type="file" accept="image/*" className="hidden"
         onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
       />
     </div>
@@ -440,7 +509,6 @@ function SuksesView({
 // ============================================================
 // MAIN: AjuanFormPage
 // ============================================================
-// helper kecil buat ambil nama file dari URL
 function extractFileName(url: string) {
   try {
     const clean = url.split('?')[0]
@@ -482,14 +550,10 @@ export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBac
         email: resubmitProposal.proposerEmail ?? session?.user?.email ?? '',
         telp: resubmitProposal.proposerPhone ?? '',
         alamatPengaju: resubmitProposal.proposerAddress ?? '',
-        // Asumsi: field organisasi di data resubmit bernama `organizationName`.
-        // Sesuaikan nama field ini kalau di ProposalAPI beda.
-        organisasi: (resubmitProposal as any).organizationName ?? '',
-        // Asumsi: field rekening di data resubmit bernama `bankName`,
-        // `bankAccountNumber`, `bankAccountHolder`. Sesuaikan kalau beda.
-        namaBank: (resubmitProposal as any).bankName ?? '',
-        noRekening: (resubmitProposal as any).bankAccountNumber ?? '',
-        namaPemilikRekening: (resubmitProposal as any).bankAccountHolder ?? '',
+        organisasi: resubmitProposal.organizationName ?? '',
+        namaBank: resubmitProposal.bankName ?? '',
+        noRekening: resubmitProposal.bankAccountNumber ?? '',
+        namaPemilikRekening: resubmitProposal.bankAccountHolder ?? '',
         judul: resubmitProposal.title,
         deskripsi: resubmitProposal.description,
         kategori: resubmitProposal.category,
@@ -500,6 +564,8 @@ export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBac
         fotoBukti: parsedPhotos,
         suratPernyataan: resubmitProposal.officialDocUrl ?? '',
         suratPernyataanName: resubmitProposal.officialDocUrl ? extractFileName(resubmitProposal.officialDocUrl) : '',
+        ktm: resubmitProposal.ktmUrl ?? '',
+        ktmName: resubmitProposal.ktmUrl ? extractFileName(resubmitProposal.ktmUrl) : '',
         pernyataan: [false, false, false, false],
       }
     }
@@ -521,7 +587,14 @@ export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBac
   }
 
   const semuaPernyataan = form.pernyataan.every(Boolean)
-  const step1Valid = !!(form.nama && form.email && form.telp && form.alamatPengaju)
+
+  // ⬅ FIX: KTM sekarang WAJIB untuk semua pengaju, baik pribadi maupun organisasi —
+  // sebelumnya cuma wajib kalau organisasi dipilih, padahal pengajuan pribadi pun
+  // tetap harus dibuktikan bahwa pengajunya benar civitas Polines.
+  const step1Valid = !!(
+    form.nama && form.email && form.telp && form.alamatPengaju && form.ktm
+  )
+
   const step2Valid = !!(
     form.judul && form.deskripsi && form.kategori && form.targetDana &&
     form.tanggalBuka && form.tanggalTutup && form.alamatCampaign &&
@@ -546,6 +619,7 @@ export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBac
     startDate: form.tanggalBuka,
     endDate: form.tanggalTutup,
     officialDocUrl: form.suratPernyataan,
+    ktmUrl: form.ktm || null,
     photoUrls: form.fotoBukti.length > 0 ? form.fotoBukti : null,
   })
 
@@ -668,6 +742,14 @@ export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBac
               <OrganisasiSelect
                 value={form.organisasi}
                 onChange={v => set('organisasi', v)}
+              />
+
+              {/* ⬅ FIX: KTM sekarang selalu tampil & wajib, tidak lagi bergantung
+                  pada apakah organisasi dipilih atau tidak. */}
+              <UploadKTM
+                value={form.ktm}
+                fileName={form.ktmName}
+                onChange={(url, name) => { set('ktm', url); set('ktmName', name) }}
               />
 
               <div className="space-y-2">
@@ -844,6 +926,7 @@ export function AjuanFormPage({ session, resubmitFromId, resubmitProposal, onBac
                 {[
                   { label: 'Pengaju', value: form.nama },
                   { label: 'Organisasi', value: form.organisasi || '-' },
+                  { label: 'Foto KTM', value: form.ktmName || '-', emerald: true },
                   { label: 'Campaign', value: form.judul },
                   { label: 'Kategori', value: form.kategori },
                   { label: 'Target', value: formatRupiah(Number(form.targetDana)), colored: true },

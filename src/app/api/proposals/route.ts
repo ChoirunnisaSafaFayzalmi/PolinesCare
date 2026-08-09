@@ -59,15 +59,25 @@ export async function POST(request: NextRequest) {
   title, description, category, targetAmount,
   proposerName,
   proposerEmail, proposerPhone, proposerAddress,
-  organizationName,                                    // ⬅ NEW
+  organizationName,
   campaignLocation, startDate, endDate,
-  bankName, bankAccountNumber, bankAccountHolder,       // ⬅ NEW
+  bankName, bankAccountNumber, bankAccountHolder,
   officialDocUrl, photoUrls,
+  ktmUrl,                                              // ⬅ NEW
 } = body;
 
     if (!title || !description) {
       return NextResponse.json(
         { error: "Judul dan deskripsi wajib diisi" },
+        { status: 400 }
+      );
+    }
+
+    // ⬅ NEW: kalau organisasi diisi, KTM/kartu anggota wajib disertakan
+    // untuk memvalidasi keanggotaan pengaju dengan organisasi tersebut.
+    if (organizationName && !ktmUrl) {
+      return NextResponse.json(
+        { error: "Foto KTM/kartu anggota wajib diisi jika mengatasnamakan organisasi" },
         { status: 400 }
       );
     }
@@ -92,14 +102,11 @@ export async function POST(request: NextRequest) {
         bankName: bankName || null,
         bankAccountNumber: bankAccountNumber || null,
         bankAccountHolder: bankAccountHolder || null,
+        ktmUrl: ktmUrl || null,                          // ⬅ NEW
       },
     });
 
     // ── Kirim notifikasi ke semua admin ──
-    // ⬅ FIX: sama seperti di donations/route.ts — sekarang notifikasi ini
-    // menyimpan relatedType: "proposal" dan relatedId: proposal.id, supaya
-    // klik notifikasi ini bisa langsung membuka detail proposal terkait,
-    // bukan cuma menandai "dibaca".
     const admins = await db.user.findMany({
       where: { role: "admin" },
       select: { id: true },

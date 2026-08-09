@@ -37,6 +37,11 @@ export interface ProposalAPI {
   proposerAddress?: string
   createdAt: string
   updatedAt: string
+  organizationName?: string | null
+  ktmUrl?: string | null
+  bankName?: string | null
+  bankAccountNumber?: string | null
+  bankAccountHolder?: string | null
 }
 
 export interface RiwayatAjuan {

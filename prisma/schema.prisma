@@ -169,6 +169,7 @@ model Proposal {
   // Dokumen pendukung
   officialDocUrl   String?
   photoUrls        String?
+  ktmUrl           String?
 
   // Status & voting
   votesCount       Int       @default(0)
@@ -188,6 +189,21 @@ model Proposal {
   urgensi           Int @default(0)
   keterkaitanKampus Int @default(0)
   kontribusiSosial  Int @default(0)
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+}
+
+model PaymentMethod {
+  id            String   @id @default(cuid())
+  label         String
+  accountNumber String?
+  createdAt     DateTime @default(now())
+
+  @@unique([label, accountNumber])
 }
 
 model Vote {

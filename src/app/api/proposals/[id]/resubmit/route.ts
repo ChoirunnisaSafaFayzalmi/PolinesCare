@@ -43,20 +43,32 @@ export async function POST(
   proposerEmail,
   proposerPhone,
   proposerAddress,
-  organizationName,                                 // ⬅ NEW
+  organizationName,
   campaignLocation,
   startDate,
   endDate,
-  bankName,                                          // ⬅ NEW
-  bankAccountNumber,                                 // ⬅ NEW
-  bankAccountHolder,                                 // ⬅ NEW
+  bankName,
+  bankAccountNumber,
+  bankAccountHolder,
   officialDocUrl,
   photoUrls,
+  ktmUrl,                                             // ⬅ NEW
 } = body;
 
     if (!title || !description || !officialDocUrl) {
       return NextResponse.json(
         { error: "Judul, deskripsi, dan surat resmi wajib diisi" },
+        { status: 400 }
+      );
+    }
+
+    // ⬅ NEW: kalau organisasi diisi (baik dari body baru atau data lama),
+    // KTM/kartu anggota wajib ada — baik dari input baru maupun yang sudah tersimpan.
+    const finalOrganizationName = organizationName || oldProposal.organizationName;
+    const finalKtmUrl = ktmUrl || oldProposal.ktmUrl;
+    if (finalOrganizationName && !finalKtmUrl) {
+      return NextResponse.json(
+        { error: "Foto KTM/kartu anggota wajib diisi jika mengatasnamakan organisasi" },
         { status: 400 }
       );
     }
@@ -73,15 +85,16 @@ export async function POST(
     proposerEmail: proposerEmail || oldProposal.proposerEmail,
     proposerPhone: proposerPhone || oldProposal.proposerPhone,
     proposerAddress: proposerAddress || oldProposal.proposerAddress,
-    organizationName: organizationName || oldProposal.organizationName,        // ⬅ NEW
+    organizationName: finalOrganizationName,
     campaignLocation: campaignLocation || oldProposal.campaignLocation,
     startDate: startDate ? new Date(startDate) : oldProposal.startDate,
     endDate: endDate ? new Date(endDate) : oldProposal.endDate,
-    bankName: bankName || oldProposal.bankName,                                // ⬅ NEW
-    bankAccountNumber: bankAccountNumber || oldProposal.bankAccountNumber,     // ⬅ NEW
-    bankAccountHolder: bankAccountHolder || oldProposal.bankAccountHolder,    // ⬅ NEW
+    bankName: bankName || oldProposal.bankName,
+    bankAccountNumber: bankAccountNumber || oldProposal.bankAccountNumber,
+    bankAccountHolder: bankAccountHolder || oldProposal.bankAccountHolder,
     officialDocUrl,
     photoUrls: photoUrls ? JSON.stringify(photoUrls) : oldProposal.photoUrls ?? null,
+    ktmUrl: finalKtmUrl ?? null,                        // ⬅ NEW
     status: "pending",
     rejectionReason: null,
   },

@@ -43,6 +43,13 @@ export async function GET(request: NextRequest) {
         proposerAddress: true,
         createdAt: true,
         updatedAt: true,
+        // ⬅ FIX: field-field ini sebelumnya tidak di-select, jadi selalu undefined
+        // di frontend (donatur) walau datanya sudah ada di database.
+        organizationName: true,
+        ktmUrl: true,
+        bankName: true,
+        bankAccountNumber: true,
+        bankAccountHolder: true,
       },
     });
 
